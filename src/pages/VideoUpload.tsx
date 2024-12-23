@@ -18,7 +18,7 @@ export default function VideoUploadPage() {
         throw new Error('No session found');
       }
 
-      // Get user profile with maybeSingle() instead of single()
+      // Get user profile
       const { data: profileData, error: profileError } = await supabase
         .from('profiles')
         .select('*')
@@ -35,14 +35,17 @@ export default function VideoUploadPage() {
         throw new Error('Profile not found. Please try logging out and back in.');
       }
 
-      console.log('Profile data:', profileData); // Debug log
+      console.log('Profile data for video upload:', profileData);
 
-      // Insert video with the correct avatar_url from profile
+      // Make sure we have an avatar_url, use a default if none exists
+      const avatarUrl = profileData.avatar_url || '/placeholder.svg';
+
+      // Insert video with the profile data
       const { error: videoError } = await supabase
         .from('videos')
         .insert({
           username: profileData.username,
-          avatar_url: profileData.avatar_url || '/placeholder.svg', // Use the actual avatar_url from profile
+          avatar_url: avatarUrl,
           video_url: url,
           user_id: profileData.id,
           display_name: profileData.display_name || profileData.full_name || profileData.username
