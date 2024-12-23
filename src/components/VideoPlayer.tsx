@@ -16,17 +16,36 @@ const VideoPlayer = forwardRef<HTMLVideoElement, VideoPlayerProps>(({ videoUrl }
         entries.forEach((entry) => {
           if (entry.intersectionRatio >= 0.5) {
             if (videoElement.current) {
-              videoElement.current.load(); // Force load when visible
-              videoElement.current.play();
+              // Only load metadata initially
+              videoElement.current.preload = 'metadata';
+              // Start loading the full video when in view
+              videoElement.current.load();
+              
+              // Add a small delay before playing to ensure proper loading
+              setTimeout(() => {
+                if (videoElement.current) {
+                  const playPromise = videoElement.current.play();
+                  if (playPromise !== undefined) {
+                    playPromise.catch(error => {
+                      console.log("Playback error:", error);
+                    });
+                  }
+                }
+              }, 100);
             }
           } else {
-            videoElement.current?.pause();
+            if (videoElement.current) {
+              videoElement.current.pause();
+              // Reset the video when out of view to free up memory
+              videoElement.current.currentTime = 0;
+              videoElement.current.preload = 'none';
+            }
           }
         });
       },
       {
         threshold: [0, 0.5, 1],
-        rootMargin: '100% 0px', // Preload when within 100% of viewport
+        rootMargin: '50% 0px', // Reduced preload margin to save resources
       }
     );
 
@@ -45,7 +64,8 @@ const VideoPlayer = forwardRef<HTMLVideoElement, VideoPlayerProps>(({ videoUrl }
         playsInline
         loop
         muted={false}
-        preload="metadata"
+        preload="none" // Start with no preload
+        poster={videoUrl + '?poster=1'} // Add poster support
       >
         <source src={videoUrl} type="video/mp4" />
       </video>
