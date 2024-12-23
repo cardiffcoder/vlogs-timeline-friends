@@ -17,10 +17,7 @@ const VideoContainer = ({ children, onVisibilityChange }: VideoContainerProps) =
         setIsVisible(isIntersecting);
         onVisibilityChange(isIntersecting);
       },
-      {
-        threshold: [0, 1],
-        rootMargin: '25% 0px',
-      }
+      { threshold: 0.1 }
     );
 
     if (containerRef.current) {

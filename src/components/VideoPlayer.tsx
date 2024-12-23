@@ -11,12 +11,9 @@ const VideoPlayer = forwardRef<HTMLVideoElement, VideoPlayerProps>(({ videoUrl }
     if (!videoElement.current) return;
 
     if (isVisible) {
-      const playPromise = videoElement.current.play();
-      if (playPromise !== undefined) {
-        playPromise.catch(error => {
-          console.error("Playback error:", error);
-        });
-      }
+      videoElement.current.play().catch(error => {
+        console.error("Playback error:", error);
+      });
     } else {
       videoElement.current.pause();
     }
@@ -40,7 +37,6 @@ const VideoPlayer = forwardRef<HTMLVideoElement, VideoPlayerProps>(({ videoUrl }
         loop
         muted={false}
         preload="auto"
-        poster={videoUrl + '?poster=1'}
       >
         <source src={videoUrl} type="video/mp4" />
       </video>
