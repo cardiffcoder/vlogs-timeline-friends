@@ -28,7 +28,7 @@ const LikeButton = ({ videoId, initialLikeCount = 0 }: LikeButtonProps) => {
       .select('id')
       .eq('video_id', videoId)
       .eq('user_id', session.user.id)
-      .single();
+      .maybeSingle();
 
     setIsLiked(!!likes);
   };
