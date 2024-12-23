@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from "@/integrations/supabase/client";
 import { Input } from "@/components/ui/input";
@@ -10,9 +10,14 @@ import { ProfilePhotoUpload } from '@/components/ProfilePhotoUpload';
 export default function Login() {
   const [loading, setLoading] = useState(false);
   const [name, setName] = useState('');
+  const [vlogName, setVlogName] = useState('');
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const navigate = useNavigate();
   const { toast } = useToast();
+
+  useEffect(() => {
+    setVlogName(`${name}'s 2025 Vlog`);
+  }, [name]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -67,8 +72,7 @@ export default function Login() {
     <div className="flex min-h-screen items-center justify-center bg-background p-4">
       <div className="w-full max-w-md space-y-8">
         <div className="text-center">
-          <h1 className="text-2xl font-bold">Create Your Profile</h1>
-          <p className="text-muted-foreground">Please fill in your details to continue</p>
+          <h1 className="text-2xl font-bold">Start your vlog 🤳</h1>
         </div>
         
         <form onSubmit={handleSubmit} className="space-y-6">
@@ -80,6 +84,17 @@ export default function Login() {
               onChange={(e) => setName(e.target.value)}
               required
               placeholder="Your name"
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="vlogName">Vlog Name</Label>
+            <Input
+              id="vlogName"
+              value={vlogName}
+              onChange={(e) => setVlogName(e.target.value)}
+              required
+              placeholder="Your vlog name"
             />
           </div>
 
