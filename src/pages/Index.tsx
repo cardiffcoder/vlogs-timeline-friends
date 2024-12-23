@@ -67,7 +67,7 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-[#111111] relative">
       <div 
-        className="absolute inset-0 w-full h-full bg-cover bg-center opacity-20 blur-md -z-10"
+        className="absolute inset-0 w-full h-full bg-cover bg-center opacity-75 blur-md -z-10"
         style={{
           backgroundImage: "url('/lovable-uploads/0e1be55a-6ca2-4b99-92f1-534f17c1ea5a.png')",
           transform: 'scale(1.1)' // This helps prevent blur edges from showing
