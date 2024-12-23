@@ -23,10 +23,10 @@ const Index = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-black">
       <Header />
-      <main className="container mx-auto p-0 sm:p-4">
-        <div className="w-full max-w-4xl mx-auto">
+      <main className="pt-16">
+        <div className="w-full mx-auto">
           {videos.map((video) => (
             <VideoCard
               key={video.id}

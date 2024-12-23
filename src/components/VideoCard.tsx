@@ -12,32 +12,39 @@ interface VideoCardProps {
 
 const VideoCard = ({ username, avatarUrl, videoUrl, timestamp, description }: VideoCardProps) => {
   return (
-    <Card className="w-full mb-6 overflow-hidden animate-fadeIn hover:shadow-lg transition-shadow duration-300">
-      <div className="p-4 flex items-center space-x-4">
-        <Avatar className="h-10 w-10">
-          <AvatarImage src={avatarUrl} alt={username} />
-          <AvatarFallback>{username[0].toUpperCase()}</AvatarFallback>
-        </Avatar>
-        <div className="flex-1">
-          <h3 className="font-semibold text-lg">{username}</h3>
-          <p className="text-sm text-gray-500">
-            {formatDistanceToNow(timestamp, { addSuffix: true })}
-          </p>
-        </div>
-      </div>
-      <div className="relative aspect-video">
+    <Card className="relative w-full h-[calc(100vh-4rem)] mb-6 overflow-hidden animate-fadeIn">
+      <div className="relative w-full h-full">
         <video
           className="w-full h-full object-cover"
           src={videoUrl}
-          controls
-          preload="metadata"
+          autoPlay
+          muted
+          loop
+          playsInline
         />
-      </div>
-      {description && (
-        <div className="p-4">
-          <p className="text-sm text-gray-700">{description}</p>
+        
+        {/* Overlay gradient for better text visibility */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+        
+        {/* User info overlay */}
+        <div className="absolute bottom-6 left-4 right-4 z-10">
+          <div className="flex items-center space-x-4">
+            <Avatar className="h-12 w-12 ring-2 ring-white">
+              <AvatarImage src={avatarUrl} alt={username} />
+              <AvatarFallback>{username[0].toUpperCase()}</AvatarFallback>
+            </Avatar>
+            <div className="flex-1">
+              <h3 className="font-semibold text-xl text-white">{username}</h3>
+              <p className="text-sm text-gray-200">
+                {formatDistanceToNow(timestamp, { addSuffix: true })}
+              </p>
+            </div>
+          </div>
+          {description && (
+            <p className="mt-2 text-white text-sm line-clamp-2">{description}</p>
+          )}
         </div>
-      )}
+      </div>
     </Card>
   );
 };
