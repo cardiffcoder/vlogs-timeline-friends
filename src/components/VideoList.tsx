@@ -11,14 +11,28 @@ const VideoList = () => {
     try {
       const { data, error } = await supabase
         .from('videos')
-        .select('*')
+        .select(`
+          *,
+          profiles:user_id (
+            id,
+            avatar_url,
+            display_name,
+            username
+          )
+        `)
         .order('created_at', { ascending: false });
 
       if (error) throw error;
 
       if (data) {
-        console.log('Fetched videos:', data);
-        setVideos(data);
+        const processedVideos = data.map(video => ({
+          ...video,
+          displayName: video.profiles?.display_name || video.username,
+          avatarUrl: video.profiles?.avatar_url,
+        }));
+        
+        console.log('Fetched videos with profiles:', processedVideos);
+        setVideos(processedVideos);
       }
     } catch (error) {
       console.error("Error fetching videos:", error);
@@ -59,6 +73,8 @@ const VideoList = () => {
           videoUrl={video.video_url}
           description={video.description}
           userId={video.user_id}
+          avatarUrl={video.avatarUrl}
+          displayName={video.displayName}
           onDelete={fetchVideos}
         />
       ))}

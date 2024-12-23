@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Trash2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
+import { ProfileInfo } from "./ProfileInfo";
 
 interface VideoCardProps {
   id: number;
@@ -11,6 +12,8 @@ interface VideoCardProps {
   videoUrl: string;
   description?: string;
   userId?: number;
+  avatarUrl?: string;
+  displayName?: string;
   onDelete?: () => void;
 }
 
@@ -20,6 +23,8 @@ export const VideoCard = ({
   videoUrl, 
   description,
   userId,
+  avatarUrl,
+  displayName,
   onDelete 
 }: VideoCardProps) => {
   const { toast } = useToast();
@@ -71,8 +76,15 @@ export const VideoCard = ({
           loop
           muted
         />
+        <div className="absolute bottom-4 left-4 z-10">
+          <ProfileInfo
+            username={username}
+            avatarUrl={avatarUrl}
+            displayName={displayName}
+          />
+        </div>
         {description && (
-          <div className="absolute bottom-4 left-4 right-4 text-white text-sm">
+          <div className="absolute bottom-16 left-4 right-4 text-white text-sm">
             <p className="line-clamp-2 drop-shadow-lg">{description}</p>
           </div>
         )}
