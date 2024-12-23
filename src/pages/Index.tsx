@@ -39,7 +39,7 @@ const Index = () => {
   useEffect(() => {
     const timer = setTimeout(() => {
       setShowSplash(false);
-    }, 2500); // Show splash screen for 2.5 seconds
+    }, 10000); // Show splash screen for 10 seconds
 
     return () => clearTimeout(timer);
   }, []);
