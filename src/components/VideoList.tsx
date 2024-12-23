@@ -17,7 +17,8 @@ const VideoList = () => {
             id,
             avatar_url,
             display_name,
-            username
+            username,
+            user_id
           )
         `)
         .order('created_at', { ascending: false });
@@ -26,13 +27,12 @@ const VideoList = () => {
 
       if (data) {
         const processedVideos = data.map(video => {
-          // If profile exists, use its data, otherwise fallback to video data
           const profile = video.profiles;
           return {
             ...video,
             displayName: profile?.display_name || video.display_name || video.username,
-            // Only use placeholder if both profile and video avatar_url are null/undefined
             avatarUrl: profile?.avatar_url || video.avatar_url || "/placeholder.svg",
+            authUserId: profile?.user_id,
           };
         });
         
@@ -78,6 +78,7 @@ const VideoList = () => {
           videoUrl={video.video_url}
           description={video.description}
           userId={video.user_id}
+          authUserId={video.authUserId}
           avatarUrl={video.avatarUrl}
           displayName={video.displayName}
           onDelete={fetchVideos}

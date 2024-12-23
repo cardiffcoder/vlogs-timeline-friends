@@ -10,6 +10,7 @@ interface VideoCardProps {
   videoUrl: string;
   description?: string;
   userId?: number;
+  authUserId?: string;
   avatarUrl?: string;
   displayName?: string;
   onDelete?: () => void;
@@ -21,6 +22,7 @@ export const VideoCard = ({
   videoUrl, 
   description,
   userId,
+  authUserId,
   avatarUrl,
   displayName,
   onDelete 
@@ -41,6 +43,7 @@ export const VideoCard = ({
             videoId={id}
             videoUrl={videoUrl}
             userId={userId}
+            authUserId={authUserId}
             onDelete={onDelete}
           />
         </div>

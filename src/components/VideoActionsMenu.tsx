@@ -14,9 +14,10 @@ interface VideoActionsMenuProps {
   videoUrl: string;
   onDelete?: () => void;
   userId?: number;
+  authUserId?: string;
 }
 
-const VideoActionsMenu = ({ videoId, videoUrl, onDelete, userId }: VideoActionsMenuProps) => {
+const VideoActionsMenu = ({ videoId, videoUrl, onDelete, userId, authUserId }: VideoActionsMenuProps) => {
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -69,7 +70,7 @@ const VideoActionsMenu = ({ videoId, videoUrl, onDelete, userId }: VideoActionsM
         <DropdownMenuItem onClick={handlePostVideo}>
           Post another video
         </DropdownMenuItem>
-        {userId && (
+        {authUserId && (
           <DropdownMenuItem
             onClick={handleDelete}
             className="text-red-600 focus:text-red-600"
