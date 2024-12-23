@@ -64,16 +64,12 @@ const Login = () => {
         return;
       }
 
-      console.log("Sending OTP to:", formattedPhone); // Debug log
-
-      const { data, error } = await supabase.auth.signInWithOtp({
+      const { error } = await supabase.auth.signInWithOtp({
         phone: formattedPhone,
         options: {
           channel: 'sms'
         }
       });
-
-      console.log("SignInWithOtp response:", { data, error }); // Debug log
 
       if (error) throw error;
 
@@ -83,7 +79,6 @@ const Login = () => {
         description: "OTP sent to your phone number!",
       });
     } catch (error: any) {
-      console.error('Error sending OTP:', error); // Debug log
       toast({
         title: "Error",
         description: error.message || "Failed to send OTP",
@@ -96,19 +91,25 @@ const Login = () => {
 
   const handleVerifyOTP = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!otp) {
+      toast({
+        title: "Error",
+        description: "Please enter the OTP code",
+        variant: "destructive",
+      });
+      return;
+    }
+    
     setIsLoading(true);
     
     try {
       const formattedPhone = formatPhoneNumber(phoneNumber);
-      console.log("Verifying OTP for:", formattedPhone, "OTP:", otp); // Debug log
-
-      const { data, error } = await supabase.auth.verifyOtp({
+      
+      const { error } = await supabase.auth.verifyOtp({
         phone: formattedPhone,
         token: otp,
         type: 'sms'
       });
-
-      console.log("VerifyOtp response:", { data, error }); // Debug log
 
       if (error) throw error;
 
@@ -118,12 +119,13 @@ const Login = () => {
       });
       navigate("/");
     } catch (error: any) {
-      console.error('Error verifying OTP:', error); // Debug log
       toast({
         title: "Error",
         description: error.message || "Failed to verify OTP",
         variant: "destructive",
       });
+      // Reset OTP input on error
+      setOTP("");
     } finally {
       setIsLoading(false);
     }
