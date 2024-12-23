@@ -47,6 +47,7 @@ const Index = () => {
     try {
       const { data: { user } } = await supabase.auth.getUser();
       
+      // First, get all videos
       const { data, error } = await supabase
         .from('videos')
         .select('*, profiles:user_id(id)')
@@ -57,12 +58,31 @@ const Index = () => {
       }
 
       if (data) {
-        const videosWithDates = data.map(video => ({
-          ...video,
-          timestamp: new Date(video.created_at),
-          userId: video.profiles?.id
-        }));
-        setVideos(videosWithDates);
+        // Check if each video exists in storage before adding it to state
+        const validVideos = await Promise.all(
+          data.map(async (video) => {
+            const videoPath = video.video_url.split('/').pop();
+            if (!videoPath) return null;
+
+            const { data: exists } = await supabase.storage
+              .from('videos')
+              .list('', {
+                search: videoPath
+              });
+
+            if (exists && exists.length > 0) {
+              return {
+                ...video,
+                timestamp: new Date(video.created_at),
+                userId: video.profiles?.id
+              };
+            }
+            return null;
+          })
+        );
+
+        // Filter out null values (videos that don't exist in storage)
+        setVideos(validVideos.filter(video => video !== null));
       }
     } catch (error) {
       toast({
