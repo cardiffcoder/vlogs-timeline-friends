@@ -34,13 +34,11 @@ const Login = () => {
   }, [navigate]);
 
   const formatPhoneNumber = (phone: string) => {
-    // Remove all non-digit characters except the plus sign
     const cleaned = phone.replace(/[^\d+]/g, '');
     return cleaned.startsWith('+') ? cleaned : `+${cleaned}`;
   };
 
   const validatePhoneNumber = (phone: string) => {
-    // Validate phone number format (E.164)
     const phoneRegex = /^\+[1-9]\d{10,14}$/;
     return phoneRegex.test(phone);
   };
@@ -71,14 +69,14 @@ const Login = () => {
         
         if (error.message.includes("21211")) {
           toast({
-            title: "Invalid Phone Number",
-            description: "Please make sure you're using a valid test phone number format: +15555555555",
+            title: "Configuration Error",
+            description: "The SMS service is not properly configured. Please contact support.",
             variant: "destructive",
           });
         } else if (error.message.includes("sms_send_failed")) {
           toast({
             title: "SMS Service Error",
-            description: "There seems to be an issue with the SMS service configuration. Please try again later.",
+            description: "Failed to send SMS. Please try again later or contact support.",
             variant: "destructive",
           });
         } else {
@@ -88,6 +86,7 @@ const Login = () => {
             variant: "destructive",
           });
         }
+        setIsLoading(false);
         return;
       }
 
@@ -131,12 +130,24 @@ const Login = () => {
       });
 
       if (error) {
-        toast({
-          title: "Error",
-          description: error.message,
-          variant: "destructive",
-        });
+        console.error("OTP verification error:", error);
+        
+        if (error.message.includes("otp_expired")) {
+          toast({
+            title: "OTP Expired",
+            description: "The verification code has expired. Please request a new one.",
+            variant: "destructive",
+          });
+          setShowOTP(false); // Go back to phone input
+        } else {
+          toast({
+            title: "Error",
+            description: "Invalid verification code. Please try again.",
+            variant: "destructive",
+          });
+        }
         setOTP("");
+        setIsLoading(false);
         return;
       }
 
