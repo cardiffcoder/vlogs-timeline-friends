@@ -1,5 +1,4 @@
 import { useRef } from 'react';
-import { Card } from "@/components/ui/card";
 import { ProfileInfo } from "./ProfileInfo";
 import VideoPlayer from "./VideoPlayer";
 import VideoActionsMenu from "./VideoActionsMenu";
@@ -33,6 +32,13 @@ export const VideoCard = ({
     <div className="relative overflow-hidden -mx-4 sm:mx-0">
       <div className="aspect-[9/16] relative">
         <VideoPlayer ref={videoRef} videoUrl={videoUrl} />
+        {description && (
+          <div className="absolute bottom-24 left-4 right-4 z-10">
+            <p className="text-white line-clamp-2 drop-shadow-lg font-mona-sans text-sm">
+              {description}
+            </p>
+          </div>
+        )}
         <div className="absolute bottom-4 left-4 right-4 z-10 flex justify-between items-center">
           <ProfileInfo
             username={username}
@@ -47,11 +53,6 @@ export const VideoCard = ({
             onDelete={onDelete}
           />
         </div>
-        {description && (
-          <div className="absolute bottom-20 left-4 right-4 text-white">
-            <p className="line-clamp-2 drop-shadow-lg font-mona-sans text-sm">{description}</p>
-          </div>
-        )}
       </div>
     </div>
   );
