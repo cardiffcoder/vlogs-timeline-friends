@@ -1,10 +1,10 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useRef } from 'react';
 import { Card } from "@/components/ui/card";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Trash2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
+import { ProfileAvatar } from "./ProfileAvatar";
 
 interface VideoCardProps {
   id: number;
@@ -29,39 +29,6 @@ export const VideoCard = ({
 }: VideoCardProps) => {
   const { toast } = useToast();
   const videoRef = useRef<HTMLVideoElement>(null);
-  const defaultAvatarUrl = "/placeholder.svg";
-
-  useEffect(() => {
-    if (!videoRef.current) return;
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting && entry.intersectionRatio >= 0.5) {
-            if (videoRef.current) {
-              videoRef.current.muted = false;
-              videoRef.current.play().catch(console.error);
-            }
-          } else {
-            if (videoRef.current) {
-              videoRef.current.muted = true;
-            }
-          }
-        });
-      },
-      {
-        threshold: 0.5
-      }
-    );
-
-    observer.observe(videoRef.current);
-
-    return () => {
-      if (videoRef.current) {
-        observer.unobserve(videoRef.current);
-      }
-    };
-  }, []);
 
   const handleDelete = async () => {
     try {
@@ -97,10 +64,6 @@ export const VideoCard = ({
     }
   };
 
-  // Use avatarUrl if it exists, otherwise use placeholder
-  const finalAvatarUrl = avatarUrl || defaultAvatarUrl;
-  console.log("Video ID:", id, "Final avatar URL:", finalAvatarUrl);
-
   return (
     <Card className="relative overflow-hidden rounded-lg -mx-4 sm:mx-0">
       <div className="aspect-[9/16] relative">
@@ -114,19 +77,11 @@ export const VideoCard = ({
           muted
         />
         <div className="absolute bottom-4 left-4 flex items-center gap-2 z-10">
-          <Avatar className="h-10 w-10 border-2 border-white">
-            <AvatarImage 
-              src={finalAvatarUrl} 
-              alt={displayName || username}
-            />
-            <AvatarFallback>
-              <img 
-                src={defaultAvatarUrl} 
-                alt="Default profile" 
-                className="h-full w-full object-cover"
-              />
-            </AvatarFallback>
-          </Avatar>
+          <ProfileAvatar 
+            url={avatarUrl}
+            username={username}
+            size="md"
+          />
           <span className="text-white font-medium drop-shadow-lg">
             {displayName || username}
           </span>

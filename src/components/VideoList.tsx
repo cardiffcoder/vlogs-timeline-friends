@@ -9,7 +9,6 @@ const VideoList = () => {
 
   const fetchVideos = async () => {
     try {
-      console.log("Fetching videos...");
       const { data, error } = await supabase
         .from('videos')
         .select(`
@@ -23,59 +22,21 @@ const VideoList = () => {
         `)
         .order('created_at', { ascending: false });
 
-      if (error) {
-        console.error("Error fetching videos:", error);
-        throw error;
-      }
-
-      console.log("Raw videos data:", data);
+      if (error) throw error;
 
       if (data) {
-        const validVideos = await Promise.all(
-          data.map(async (video) => {
-            const videoPath = video.video_url.split('/').pop();
-            if (!videoPath) {
-              console.log("Invalid video path for video:", video);
-              return null;
-            }
+        const processedVideos = data.map(video => ({
+          ...video,
+          displayName: video.profiles?.display_name || video.profiles?.full_name || video.username,
+          avatarUrl: video.profiles?.avatar_url || null,
+          userId: video.profiles?.id
+        }));
 
-            const cleanPath = videoPath.replace('public/', '');
-            console.log("Checking storage for video path:", cleanPath);
-
-            const { data: exists } = await supabase.storage
-              .from('videos')
-              .list('', {
-                search: cleanPath
-              });
-
-            console.log("Storage check for video", cleanPath, ":", exists);
-
-            if (exists && exists.length > 0) {
-              const displayName = video.profiles?.display_name || video.profiles?.full_name || video.username;
-              
-              // Get the avatar URL from either profiles or video, with proper fallback
-              const avatarUrl = video.profiles?.avatar_url || video.avatar_url || null;
-              console.log("Video ID:", video.id, "Avatar URL:", avatarUrl);
-              
-              return {
-                ...video,
-                timestamp: new Date(video.created_at),
-                userId: video.profiles?.id,
-                displayName,
-                avatarUrl
-              };
-            }
-            console.log("Video file not found in storage:", cleanPath);
-            return null;
-          })
-        );
-
-        const filteredVideos = validVideos.filter(video => video !== null);
-        console.log("Filtered valid videos:", filteredVideos);
-        setVideos(filteredVideos);
+        console.log('Processed videos:', processedVideos);
+        setVideos(processedVideos);
       }
     } catch (error) {
-      console.error("Error in fetchVideos:", error);
+      console.error("Error fetching videos:", error);
       toast({
         title: "Error fetching videos",
         description: "There was a problem loading the videos.",
@@ -88,52 +49,14 @@ const VideoList = () => {
     fetchVideos();
   }, []);
 
+  // Handle real-time updates
   useEffect(() => {
     const channel = supabase
       .channel('videos-changes')
       .on(
         'postgres_changes',
-        {
-          event: '*',
-          schema: 'public',
-          table: 'videos'
-        },
-        async (payload) => {
-          console.log('Real-time update:', payload);
-          
-          if (payload.eventType === 'INSERT') {
-            const newVideo = payload.new;
-            // Verify the video exists in storage
-            const videoPath = newVideo.video_url.split('/').pop();
-            if (!videoPath) return;
-
-            // Remove 'public/' from the path if it exists
-            const cleanPath = videoPath.replace('public/', '');
-            console.log("Checking storage for new video path:", cleanPath);
-
-            const { data: exists } = await supabase.storage
-              .from('videos')
-              .list('', {
-                search: cleanPath
-              });
-
-            console.log("Storage check for new video:", exists);
-
-            if (exists && exists.length > 0) {
-              setVideos(currentVideos => [
-                {
-                  ...newVideo,
-                  timestamp: new Date(newVideo.created_at),
-                },
-                ...currentVideos
-              ]);
-            }
-          } else if (payload.eventType === 'DELETE') {
-            setVideos(currentVideos => 
-              currentVideos.filter(video => video.id !== payload.old.id)
-            );
-          }
-        }
+        { event: '*', schema: 'public', table: 'videos' },
+        () => fetchVideos()
       )
       .subscribe();
 
@@ -143,7 +66,7 @@ const VideoList = () => {
   }, []);
 
   return (
-    <div className="w-full mx-auto">
+    <div className="w-full mx-auto space-y-4">
       {videos.map((video) => (
         <VideoCard
           key={video.id}
@@ -154,7 +77,7 @@ const VideoList = () => {
           description={video.description}
           displayName={video.displayName}
           userId={video.userId}
-          onDelete={() => fetchVideos()}
+          onDelete={fetchVideos}
         />
       ))}
     </div>
