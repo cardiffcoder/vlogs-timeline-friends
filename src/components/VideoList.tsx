@@ -1,4 +1,4 @@
-import VideoCard from "@/components/VideoCard";
+import { VideoCard } from "@/components/VideoCard";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
@@ -103,18 +103,10 @@ const VideoList = () => {
       {videos.map((video) => (
         <VideoCard
           key={video.id}
-          id={video.id}
           username={video.username}
           avatarUrl={video.avatar_url}
           videoUrl={video.video_url}
-          timestamp={video.timestamp}
           description={video.description}
-          userId={video.userId}
-          onDelete={() => {
-            setVideos(currentVideos => 
-              currentVideos.filter(v => v.id !== video.id)
-            );
-          }}
         />
       ))}
     </div>
