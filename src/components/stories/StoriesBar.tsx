@@ -54,7 +54,12 @@ const StoriesBar = ({ stories, currentUser }: StoriesBarProps) => {
 
       {isViewerOpen && selectedStoryVideos.length > 0 && (
         <VideoStoriesViewer
-          videos={selectedStoryVideos}
+          videos={selectedStoryVideos.map(video => ({
+            ...video,
+            username: selectedUsername || '',
+            avatarUrl: stories.find(s => s.username === selectedUsername)?.avatarUrl || '',
+            displayName: stories.find(s => s.username === selectedUsername)?.displayName || selectedUsername
+          }))}
           onClose={() => {
             setIsViewerOpen(false);
             setSelectedStoryVideos([]);

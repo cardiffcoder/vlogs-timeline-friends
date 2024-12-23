@@ -16,10 +16,12 @@ const StoryAvatar = ({ username, displayName, avatarUrl, videoUrl, isCurrentUser
       className="flex flex-col items-center scale-140 transform-gpu cursor-pointer"
       onClick={onClick}
     >
-      <div className="rounded-full p-[2px]" style={{ backgroundColor: hasVideos ? '#F0FCFE' : 'transparent' }}>
+      <div 
+        className={`rounded-full p-[2px] ${hasVideos ? 'bg-vlogs-text-light' : 'bg-transparent'}`}
+      >
         <Avatar className="h-14 w-14 ring-2 ring-vlogs-text-light">
           <AvatarImage 
-            src={hasVideos ? (videoUrl || avatarUrl) : avatarUrl} 
+            src={hasVideos && videoUrl ? videoUrl : avatarUrl} 
             alt={displayName} 
             className="object-cover"
           />
