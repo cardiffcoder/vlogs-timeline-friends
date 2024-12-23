@@ -1,5 +1,3 @@
-import { Auth } from "@supabase/auth-ui-react";
-import { ThemeSupa } from "@supabase/auth-ui-shared";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
@@ -129,35 +127,6 @@ const Login = () => {
             </Button>
           </form>
         )}
-
-        <div className="mt-8">
-          <div className="relative">
-            <div className="absolute inset-0 flex items-center">
-              <span className="w-full border-t border-gray-700" />
-            </div>
-            <div className="relative flex justify-center text-xs uppercase">
-              <span className="bg-black/50 px-2 text-gray-400">Or continue with</span>
-            </div>
-          </div>
-
-          <div className="mt-6">
-            <Auth
-              supabaseClient={supabase}
-              appearance={{
-                theme: ThemeSupa,
-                variables: {
-                  default: {
-                    colors: {
-                      brand: '#E1F9FC',
-                      brandAccent: '#c5f3f7',
-                    }
-                  }
-                }
-              }}
-              providers={[]}
-            />
-          </div>
-        </div>
       </div>
     </div>
   );
