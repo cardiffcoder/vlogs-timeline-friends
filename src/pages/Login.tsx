@@ -81,7 +81,7 @@ export default function Login() {
           backgroundSize: 'cover',
           backgroundPosition: 'center bottom -100px',
           opacity: 0.75,
-          transform: 'scale(1.2)',
+          transform: 'scale(1.44)',
         }}
       />
       <div className="w-full max-w-md space-y-8 relative z-10">
