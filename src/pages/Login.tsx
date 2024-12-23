@@ -33,9 +33,10 @@ export default function Login() {
         const { data: existingProfiles } = await supabase
           .from('profiles')
           .select('full_name')
-          .eq('full_name', name);
+          .eq('full_name', name)
+          .maybeSingle();
 
-        if (existingProfiles && existingProfiles.length > 0) {
+        if (existingProfiles) {
           toast({
             title: "Name already taken",
             description: "Please choose a different name or log in instead",
@@ -61,12 +62,14 @@ export default function Login() {
 
         console.log("User created successfully:", user.id);
 
-        // Create the user profile
+        // Create the user profile with a unique username
+        const username = `${name.toLowerCase().replace(/\s+/g, '')}_${crypto.randomUUID().slice(0, 8)}`;
+        
         const { error: profileError } = await supabase
           .from('profiles')
-          .upsert({
+          .insert({
             user_id: user.id,
-            username: name.toLowerCase().replace(/\s+/g, ''),
+            username: username,
             full_name: name,
             updated_at: new Date().toISOString(),
           });
@@ -81,18 +84,30 @@ export default function Login() {
           title: "Profile created successfully",
           description: "Now let's add a profile photo!",
         });
+        
+        navigate('/photo-upload');
       } else {
         // Login flow - find user by name
         const { data: profile, error: profileError } = await supabase
           .from('profiles')
           .select('user_id, full_name')
           .eq('full_name', name)
-          .single();
+          .maybeSingle();
 
-        if (profileError || !profile) {
+        if (!profile) {
           toast({
             title: "User not found",
             description: "No account found with that name. Please sign up instead.",
+            variant: "destructive",
+          });
+          return;
+        }
+
+        if (profileError) {
+          console.error("Profile lookup error:", profileError);
+          toast({
+            title: "Error looking up profile",
+            description: "Please try again",
             variant: "destructive",
           });
           return;
