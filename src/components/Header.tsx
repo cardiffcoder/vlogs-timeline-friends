@@ -1,14 +1,14 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 const Header = () => {
-  // Mock data for stories
+  // Mock data for stories with real photos
   const stories = [
-    { id: 1, username: "User1", avatarUrl: "https://api.dicebear.com/7.x/avataaars/svg?seed=User1" },
-    { id: 2, username: "User2", avatarUrl: "https://api.dicebear.com/7.x/avataaars/svg?seed=User2" },
-    { id: 3, username: "User3", avatarUrl: "https://api.dicebear.com/7.x/avataaars/svg?seed=User3" },
-    { id: 4, username: "User4", avatarUrl: "https://api.dicebear.com/7.x/avataaars/svg?seed=User4" },
-    { id: 5, username: "User5", avatarUrl: "https://api.dicebear.com/7.x/avataaars/svg?seed=User5" },
-    { id: 6, username: "User6", avatarUrl: "https://api.dicebear.com/7.x/avataaars/svg?seed=User6" },
+    { id: 1, username: "Sarah", avatarUrl: "https://images.unsplash.com/photo-1649972904349-6e44c42644a7" },
+    { id: 2, username: "Emily", avatarUrl: "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158" },
+    { id: 3, username: "Team", avatarUrl: "https://images.unsplash.com/photo-1605810230434-7631ac76ec81" },
+    { id: 4, username: "Studio", avatarUrl: "https://images.unsplash.com/photo-1518005020951-eccb494ad742" },
+    { id: 5, username: "Work", avatarUrl: "https://images.unsplash.com/photo-1519389950473-47ba0277781c" },
+    { id: 6, username: "Sarah", avatarUrl: "https://images.unsplash.com/photo-1649972904349-6e44c42644a7" },
   ];
 
   return (
