@@ -13,6 +13,28 @@ const Index = () => {
 
   useEffect(() => {
     fetchVideos();
+
+    // Set up real-time subscription
+    const channel = supabase
+      .channel('videos-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'videos'
+        },
+        () => {
+          // Refresh videos when any change occurs
+          fetchVideos();
+        }
+      )
+      .subscribe();
+
+    // Cleanup subscription on component unmount
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, []);
 
   const fetchVideos = async () => {
@@ -32,7 +54,6 @@ const Index = () => {
         const videosWithDates = data.map(video => ({
           ...video,
           timestamp: new Date(video.created_at),
-          // Check if the video belongs to the current user
           userId: video.profiles?.id
         }));
         setVideos(videosWithDates);
