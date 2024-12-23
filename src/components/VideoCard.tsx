@@ -29,15 +29,19 @@ const VideoCard = ({ username, avatarUrl, videoUrl, timestamp, description }: Vi
         {/* User info overlay */}
         <div className="absolute bottom-8 left-4 right-4 z-10">
           <div className="flex items-center space-x-4">
-            <div className="p-0.5 bg-gradient-to-tr from-purple-500 to-pink-500 rounded-full">
-              <Avatar className="h-12 w-12 ring-2 ring-black">
-                <AvatarImage src={avatarUrl} alt={username} />
+            <div className="rounded-full p-[2px]" style={{ backgroundColor: '#E1F9FC' }}>
+              <Avatar className="h-14 w-14 ring-2 ring-[#E1F9FC]">
+                <AvatarImage 
+                  src={avatarUrl} 
+                  alt={username}
+                  className="object-cover object-center scale-125"
+                />
                 <AvatarFallback>{username[0].toUpperCase()}</AvatarFallback>
               </Avatar>
             </div>
             <div className="flex-1">
-              <h3 className="font-semibold text-xl text-white">{username}</h3>
-              <p className="text-sm text-gray-200">
+              <h3 className="text-sm text-gray-300">{username}</h3>
+              <p className="text-xs text-gray-400">
                 {formatDistanceToNow(timestamp, { addSuffix: true })}
               </p>
             </div>
