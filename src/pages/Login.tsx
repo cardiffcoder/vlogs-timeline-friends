@@ -6,7 +6,6 @@ import { toast } from "@/hooks/use-toast";
 
 const Login = () => {
   const navigate = useNavigate();
-  const [phoneNumber, setPhoneNumber] = useState("");
   const [fullName, setFullName] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
@@ -15,11 +14,13 @@ const Login = () => {
     setIsLoading(true);
 
     try {
-      // Generate a random password since Supabase requires one
+      // Generate a random email and password since Supabase requires them
+      const randomString = Math.random().toString(36).substring(7);
+      const randomEmail = `${randomString}@temporary.com`;
       const randomPassword = Math.random().toString(36).slice(-12);
-      
+
       const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
-        phone: phoneNumber,
+        email: randomEmail,
         password: randomPassword,
         options: {
           data: {
@@ -38,8 +39,8 @@ const Login = () => {
       }
 
       if (signUpData.user) {
-        // Generate a username from the phone number (removing the + and any spaces)
-        const username = phoneNumber.replace(/[+\s]/g, '');
+        // Generate a username from the full name (removing spaces and special characters)
+        const username = fullName.toLowerCase().replace(/[^a-z0-9]/g, '');
         
         const { error: profileError } = await supabase
           .from('profiles')
@@ -83,8 +84,6 @@ const Login = () => {
 
         <form onSubmit={handleLogin} className="space-y-6">
           <PhoneInput
-            phoneNumber={phoneNumber}
-            setPhoneNumber={setPhoneNumber}
             fullName={fullName}
             setFullName={setFullName}
             isLoading={isLoading}
