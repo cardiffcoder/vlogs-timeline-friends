@@ -1,14 +1,11 @@
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
-import { useNavigate } from "react-router-dom";
 
 interface AddVideoButtonProps {
   onVideoAdd: () => void;
 }
 
 const AddVideoButton = ({ onVideoAdd }: AddVideoButtonProps) => {
-  const navigate = useNavigate();
-
   return (
     <div className="fixed bottom-6 right-6 z-50">
       <Button
