@@ -8,67 +8,40 @@ const Index = () => {
   const thirteenMinutesAgo = new Date(now.getTime() - (13 * 60 * 1000));
   const twoHoursAgo = new Date(now.getTime() - (2 * 60 * 60 * 1000));
   const fortyMinutesAgo = new Date(now.getTime() - (40 * 60 * 1000));
-  const threeHoursAgo = new Date(now.getTime() - (3 * 60 * 60 * 1000));
-  const oneHourAgo = new Date(now.getTime() - (1 * 60 * 60 * 1000));
-  const twentyMinutesAgo = new Date(now.getTime() - (20 * 60 * 1000));
 
   // Mock data for initial display
   const videos = [
     {
       id: 1,
-      username: "Sarah",
-      avatarUrl: "/lovable-uploads/35a1a878-d132-4beb-97aa-800874b72f57.png",
-      videoUrl: "https://test-videos.co.uk/vids/bigbuckbunny/mp4/h264/360/Big_Buck_Bunny_360_10s_1MB.mp4",
+      username: "Alex",
+      avatarUrl: "/lovable-uploads/f8624281-c4d8-4e78-8b29-c0d8ef3ba36a.png",
+      videoUrl: "/lovable-uploads/6d7ec786-9bb0-45e9-9913-6dd8a840be78.png",
       timestamp: sixHoursAgo,
-      description: "Amazing day at the beach! 🌊",
+      description: "Late night vibes with the crew 🌙",
     },
     {
       id: 2,
-      username: "Qaiss",
+      username: "DJ Night",
       avatarUrl: "/lovable-uploads/e9bb3af1-e43b-419b-aa6a-6c6ead12f135.png",
-      videoUrl: "https://test-videos.co.uk/vids/bigbuckbunny/mp4/h264/360/Big_Buck_Bunny_360_10s_1MB.mp4",
+      videoUrl: "/lovable-uploads/6ebbc63d-8b76-4e1d-8616-79b60d3b6e0b.png",
       timestamp: thirteenMinutesAgo,
-      description: "Concert night with friends! 🎸",
+      description: "DJ set going crazy tonight! 🎵",
     },
     {
       id: 3,
-      username: "Alex",
+      username: "Party Crew",
       avatarUrl: "/lovable-uploads/f8624281-c4d8-4e78-8b29-c0d8ef3ba36a.png",
-      videoUrl: "https://test-videos.co.uk/vids/bigbuckbunny/mp4/h264/360/Big_Buck_Bunny_360_10s_1MB.mp4",
+      videoUrl: "/lovable-uploads/966e87bb-1566-4898-8d09-fab8ddcfc3c2.png",
       timestamp: twoHoursAgo,
-      description: "Exploring the city! 🌆",
+      description: "Club nights are the best nights 🎉",
     },
     {
       id: 4,
-      username: "Eric",
+      username: "Night Out",
       avatarUrl: "/lovable-uploads/d5bcff19-c702-4c27-8a44-33ea94a88911.png",
-      videoUrl: "https://test-videos.co.uk/vids/bigbuckbunny/mp4/h264/360/Big_Buck_Bunny_360_10s_1MB.mp4",
+      videoUrl: "/lovable-uploads/8599db0c-4111-4d04-b006-70c9bd937545.png",
       timestamp: fortyMinutesAgo,
-      description: "Coffee break ☕",
-    },
-    {
-      id: 5,
-      username: "David",
-      avatarUrl: "/lovable-uploads/fb204798-cabd-430c-9fe1-e0f7b6263477.png",
-      videoUrl: "https://test-videos.co.uk/vids/bigbuckbunny/mp4/h264/360/Big_Buck_Bunny_360_10s_1MB.mp4",
-      timestamp: threeHoursAgo,
-      description: "Workout session 💪",
-    },
-    {
-      id: 6,
-      username: "Kevin",
-      avatarUrl: "/lovable-uploads/b3307dd0-2d1a-4ab8-9418-1043ab388ad4.png",
-      videoUrl: "https://test-videos.co.uk/vids/bigbuckbunny/mp4/h264/360/Big_Buck_Bunny_360_10s_1MB.mp4",
-      timestamp: oneHourAgo,
-      description: "Gaming stream highlights 🎮",
-    },
-    {
-      id: 7,
-      username: "Sarah",
-      avatarUrl: "/lovable-uploads/35a1a878-d132-4beb-97aa-800874b72f57.png",
-      videoUrl: "https://test-videos.co.uk/vids/bigbuckbunny/mp4/h264/360/Big_Buck_Bunny_360_10s_1MB.mp4",
-      timestamp: twentyMinutesAgo,
-      description: "Sunset vibes 🌅",
+      description: "After party scenes 🌃",
     }
   ].sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime());
 

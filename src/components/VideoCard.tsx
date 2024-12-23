@@ -10,7 +10,7 @@ interface VideoCardProps {
   description: string;
 }
 
-const VideoCard = ({ username, avatarUrl, videoUrl, timestamp }: VideoCardProps) => {
+const VideoCard = ({ username, avatarUrl, videoUrl, timestamp, description }: VideoCardProps) => {
   const getFormattedTime = (date: Date) => {
     const minutesAgo = Math.floor((new Date().getTime() - date.getTime()) / (1000 * 60));
     if (minutesAgo >= 60) {
@@ -28,13 +28,10 @@ const VideoCard = ({ username, avatarUrl, videoUrl, timestamp }: VideoCardProps)
   return (
     <Card className="relative w-full h-[calc(100vh-8rem)] mb-1 overflow-hidden animate-fadeIn bg-black border-none">
       <div className="relative w-full h-full">
-        <video
+        <img
           className="w-full h-full object-cover"
           src={videoUrl}
-          autoPlay
-          muted
-          loop
-          playsInline
+          alt={description}
         />
         
         {/* Overlay gradient for better text visibility */}
@@ -58,6 +55,7 @@ const VideoCard = ({ username, avatarUrl, videoUrl, timestamp }: VideoCardProps)
               <p className="text-xs text-gray-400">
                 {getFormattedTime(timestamp)}
               </p>
+              <p className="text-sm text-gray-300 mt-1">{description}</p>
             </div>
           </div>
         </div>
