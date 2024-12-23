@@ -32,13 +32,17 @@ const VideoList = () => {
               return null;
             }
 
+            // Remove 'public/' from the path if it exists
+            const cleanPath = videoPath.replace('public/', '');
+            console.log("Checking storage for video path:", cleanPath);
+
             const { data: exists } = await supabase.storage
               .from('videos')
-              .list('public', {
-                search: videoPath
+              .list('', {
+                search: cleanPath
               });
 
-            console.log("Storage check for video", videoPath, ":", exists);
+            console.log("Storage check for video", cleanPath, ":", exists);
 
             if (exists && exists.length > 0) {
               return {
@@ -47,7 +51,7 @@ const VideoList = () => {
                 userId: video.profiles?.id
               };
             }
-            console.log("Video file not found in storage:", videoPath);
+            console.log("Video file not found in storage:", cleanPath);
             return null;
           })
         );
@@ -89,11 +93,17 @@ const VideoList = () => {
             const videoPath = newVideo.video_url.split('/').pop();
             if (!videoPath) return;
 
+            // Remove 'public/' from the path if it exists
+            const cleanPath = videoPath.replace('public/', '');
+            console.log("Checking storage for new video path:", cleanPath);
+
             const { data: exists } = await supabase.storage
               .from('videos')
-              .list('public', {
-                search: videoPath
+              .list('', {
+                search: cleanPath
               });
+
+            console.log("Storage check for new video:", exists);
 
             if (exists && exists.length > 0) {
               setVideos(currentVideos => [
