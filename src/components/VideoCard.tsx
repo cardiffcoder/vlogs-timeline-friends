@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import { Card } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -28,6 +28,39 @@ export const VideoCard = ({
   onDelete 
 }: VideoCardProps) => {
   const { toast } = useToast();
+  const videoRef = useRef<HTMLVideoElement>(null);
+
+  useEffect(() => {
+    if (!videoRef.current) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting && entry.intersectionRatio >= 0.5) {
+            if (videoRef.current) {
+              videoRef.current.muted = false;
+              videoRef.current.play().catch(console.error);
+            }
+          } else {
+            if (videoRef.current) {
+              videoRef.current.muted = true;
+            }
+          }
+        });
+      },
+      {
+        threshold: 0.5
+      }
+    );
+
+    observer.observe(videoRef.current);
+
+    return () => {
+      if (videoRef.current) {
+        observer.unobserve(videoRef.current);
+      }
+    };
+  }, []);
 
   const handleDelete = async () => {
     try {
@@ -64,15 +97,16 @@ export const VideoCard = ({
   };
 
   return (
-    <Card className="relative overflow-hidden rounded-lg">
+    <Card className="relative overflow-hidden rounded-lg -mx-4 sm:mx-0">
       <div className="aspect-[9/16] relative">
         <video
+          ref={videoRef}
           src={videoUrl}
           className="absolute inset-0 h-full w-full object-cover"
           playsInline
           autoPlay
-          muted
           loop
+          muted
         />
         <div className="absolute bottom-4 left-4 flex items-center gap-2 z-10">
           <Avatar className="h-10 w-10 border-2 border-white">
