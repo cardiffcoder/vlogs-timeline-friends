@@ -16,67 +16,75 @@ const Login = () => {
     setIsLoading(true);
 
     try {
-      // First try to sign up the user
-      const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
+      // First try to sign in
+      const { error: signInError } = await supabase.auth.signInWithPassword({
         phone: phoneNumber,
         password: password,
-        options: {
-          data: {
-            full_name: fullName,
-          },
-        },
       });
 
-      if (signUpError) {
-        // If sign up fails because user exists, try to sign in
-        if (signUpError.message.includes("already registered")) {
-          const { error: signInError } = await supabase.auth.signInWithPassword({
+      // If sign in fails because user doesn't exist, try to sign up
+      if (signInError) {
+        if (signInError.message.includes("Invalid login credentials")) {
+          const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
             phone: phoneNumber,
             password: password,
+            options: {
+              data: {
+                full_name: fullName,
+              },
+            },
           });
 
-          if (signInError) {
+          if (signUpError) {
             toast({
               title: "Error",
-              description: "Invalid login credentials",
+              description: signUpError.message,
               variant: "destructive",
             });
             return;
           }
+
+          if (signUpData.user) {
+            // Generate a username from the phone number (removing the + and any spaces)
+            const username = phoneNumber.replace(/[+\s]/g, '');
+            
+            const { error: profileError } = await supabase
+              .from('profiles')
+              .insert({
+                user_id: signUpData.user.id,
+                full_name: fullName,
+                username: username
+              });
+
+            if (profileError) {
+              toast({
+                title: "Warning",
+                description: "Account created but failed to save profile information",
+                variant: "destructive",
+              });
+            }
+
+            toast({
+              title: "Success",
+              description: "Account created successfully! You can now log in.",
+            });
+          }
         } else {
           toast({
             title: "Error",
-            description: signUpError.message,
+            description: signInError.message,
             variant: "destructive",
           });
           return;
         }
-      } else if (signUpData.user) {
-        // If sign up successful, create profile
-        // Generate a username from the phone number (removing the + and any spaces)
-        const username = phoneNumber.replace(/[+\s]/g, '');
-        
-        const { error: profileError } = await supabase
-          .from('profiles')
-          .insert({
-            user_id: signUpData.user.id,
-            full_name: fullName,
-            username: username // Add the required username field
-          });
-
-        if (profileError) {
-          toast({
-            title: "Warning",
-            description: "Account created but failed to save profile information",
-            variant: "destructive",
-          });
-        }
+      } else {
+        // Sign in successful
+        toast({
+          title: "Success",
+          description: "Successfully logged in!",
+        });
       }
-
-      toast({
-        title: "Success",
-        description: "Successfully logged in!",
-      });
+      
       navigate("/");
     } catch (error: any) {
       toast({
