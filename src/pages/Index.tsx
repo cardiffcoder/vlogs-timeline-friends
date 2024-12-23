@@ -47,7 +47,7 @@ const Index = () => {
       
       const timer = setTimeout(() => {
         setShowSplash(false);
-      }, 10000); // Show splash screen for 10 seconds
+      }, 6000); // Show splash screen for 6 seconds
 
       return () => clearTimeout(timer);
     } else {
