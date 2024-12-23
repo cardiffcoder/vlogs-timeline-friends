@@ -34,14 +34,16 @@ const Login = () => {
     setIsLoading(true);
 
     try {
-      // Generate a random email and password since Supabase requires them
-      const randomString = Math.random().toString(36).substring(7);
-      const randomEmail = `${randomString}@temporary.com`;
-      const randomPassword = Math.random().toString(36).slice(-12);
+      // Generate a unique username from the full name
+      const username = fullName.toLowerCase().replace(/[^a-z0-9]/g, '') + Date.now().toString().slice(-4);
+      
+      // Use the username as both email and password for simplicity
+      const email = `${username}@temporary.app`;
+      const password = username;
 
       const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
-        email: randomEmail,
-        password: randomPassword,
+        email,
+        password,
         options: {
           data: {
             full_name: fullName,
@@ -59,9 +61,6 @@ const Login = () => {
       }
 
       if (signUpData.user) {
-        // Generate a username from the full name (removing spaces and special characters)
-        const username = fullName.toLowerCase().replace(/[^a-z0-9]/g, '');
-        
         const { error: profileError } = await supabase
           .from('profiles')
           .insert({
@@ -76,14 +75,14 @@ const Login = () => {
             description: "Account created but failed to save profile information",
             variant: "destructive",
           });
+        } else {
+          toast({
+            title: "Success",
+            description: "Account created successfully!",
+          });
         }
-
-        toast({
-          title: "Success",
-          description: "Account created successfully!",
-        });
         
-        // The navigation will be handled by the auth state change listener
+        // Navigation will be handled by the auth state change listener
       }
     } catch (error: any) {
       toast({
