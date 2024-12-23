@@ -23,24 +23,31 @@ const VideoCard = ({ id, username, avatarUrl, videoUrl, timestamp, description, 
   const videoRef = useRef<HTMLVideoElement>(null);
 
   useEffect(() => {
-    const handlePlayback = async () => {
-      try {
-        if (videoRef.current) {
-          videoRef.current.muted = false; // Changed from true to false
-          await videoRef.current.load();
-          const playPromise = videoRef.current.play();
-          if (playPromise !== undefined) {
-            playPromise.catch(() => {
-              console.log("Autoplay prevented");
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting && videoRef.current) {
+            videoRef.current.muted = false;
+            videoRef.current.play().catch((error) => {
+              console.log("Autoplay prevented:", error);
             });
+          } else if (!entry.isIntersecting && videoRef.current) {
+            videoRef.current.pause();
           }
-        }
-      } catch (error) {
-        console.error("Video playback error:", error);
+        });
+      },
+      { threshold: 0.5 }
+    );
+
+    if (videoRef.current) {
+      observer.observe(videoRef.current);
+    }
+
+    return () => {
+      if (videoRef.current) {
+        observer.unobserve(videoRef.current);
       }
     };
-
-    handlePlayback();
   }, [videoUrl]);
 
   const getFormattedTime = (date: Date) => {
@@ -117,7 +124,7 @@ const VideoCard = ({ id, username, avatarUrl, videoUrl, timestamp, description, 
           src={videoUrl}
           playsInline
           loop
-          muted={false} // Changed from muted to muted={false}
+          muted={false}
           preload="auto"
           onClick={handleVideoClick}
           poster={avatarUrl}
