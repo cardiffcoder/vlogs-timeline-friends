@@ -30,7 +30,7 @@ export const VideoCard = ({
   const videoRef = useRef<HTMLVideoElement>(null);
 
   return (
-    <Card className="relative overflow-hidden rounded-lg -mx-4 sm:mx-0">
+    <div className="relative overflow-hidden -mx-4 sm:mx-0">
       <div className="aspect-[9/16] relative">
         <VideoPlayer ref={videoRef} videoUrl={videoUrl} />
         <div className="absolute bottom-4 left-4 right-4 z-10 flex justify-between items-center">
@@ -53,6 +53,6 @@ export const VideoCard = ({
           </div>
         )}
       </div>
-    </Card>
+    </div>
   );
 };

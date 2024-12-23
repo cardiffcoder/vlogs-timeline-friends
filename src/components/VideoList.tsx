@@ -69,7 +69,7 @@ const VideoList = () => {
   }, []);
 
   return (
-    <div className="w-full mx-auto space-y-4">
+    <div className="w-full mx-auto space-y-1">
       {videos.map((video) => (
         <VideoCard
           key={video.id}
