@@ -12,7 +12,14 @@ const VideoList = () => {
       console.log("Fetching videos...");
       const { data, error } = await supabase
         .from('videos')
-        .select('*, profiles:user_id(id)')
+        .select(`
+          *,
+          profiles:user_id (
+            id,
+            full_name,
+            display_name
+          )
+        `)
         .order('created_at', { ascending: false });
 
       if (error) {
@@ -45,10 +52,13 @@ const VideoList = () => {
             console.log("Storage check for video", cleanPath, ":", exists);
 
             if (exists && exists.length > 0) {
+              // Use the profile's display_name or full_name instead of username
+              const displayName = video.profiles?.display_name || video.profiles?.full_name || video.username;
               return {
                 ...video,
                 timestamp: new Date(video.created_at),
-                userId: video.profiles?.id
+                userId: video.profiles?.id,
+                displayName // Add the display name to the video object
               };
             }
             console.log("Video file not found in storage:", cleanPath);
@@ -134,11 +144,11 @@ const VideoList = () => {
         <VideoCard
           key={video.id}
           id={video.id}
-          username={video.username}
+          username={video.displayName} // Use displayName instead of username
           avatarUrl={video.avatar_url}
           videoUrl={video.video_url}
           description={video.description}
-          displayName={video.display_name}
+          displayName={video.displayName}
           userId={video.userId}
           onDelete={() => fetchVideos()}
         />
