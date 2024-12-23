@@ -20,7 +20,7 @@ const Header = () => {
     }`}>
       <div className="absolute inset-0 bg-black/92 backdrop-blur-sm" /> {/* Darkened overlay */}
       <div 
-        className="absolute inset-0 w-full h-full bg-cover bg-center opacity-37 blur-md"
+        className="absolute inset-0 w-full h-full bg-cover bg-center opacity-25 blur-md"
         style={{
           backgroundImage: "url('/lovable-uploads/0e1be55a-6ca2-4b99-92f1-534f17c1ea5a.png')",
           transform: 'scale(1.1)'
