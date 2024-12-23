@@ -11,13 +11,8 @@ const Index = () => {
 
   const handleLogout = async () => {
     try {
-      // First clear any existing session
-      await supabase.auth.clearSession();
-      
-      // Then attempt to sign out
-      const { error } = await supabase.auth.signOut({
-        scope: 'local'  // Changed from global to local scope
-      });
+      // Attempt to sign out
+      const { error } = await supabase.auth.signOut();
       
       if (error) throw error;
       

@@ -19,7 +19,7 @@ export default function Login() {
       console.log('Checking for existing profile with name:', name);
       
       // First, check if a profile with this name exists
-      const { data: existingProfiles, error: profileError } = await supabase
+      const { data: existingProfile, error: profileError } = await supabase
         .from('profiles')
         .select('user_id, display_name')
         .eq('display_name', name)
@@ -30,7 +30,7 @@ export default function Login() {
         throw profileError;
       }
 
-      console.log('Profile check result:', existingProfiles);
+      console.log('Profile check result:', existingProfile);
 
       // Generate deterministic email and password
       const email = `${name.toLowerCase().replace(/\s+/g, '.')}.user@example.com`;
@@ -38,7 +38,7 @@ export default function Login() {
 
       console.log('Using email:', email);
 
-      if (existingProfiles) {
+      if (existingProfile) {
         console.log('Existing user found, attempting sign in');
         
         // User exists, try to sign in
@@ -51,10 +51,18 @@ export default function Login() {
           console.error('Sign in error:', signInError);
           throw signInError;
         }
+
+        toast({
+          title: "Welcome back!",
+          description: `Hey ${name}, good to see you again!`,
+        });
+
+        // Existing users go straight to home
+        navigate('/', { replace: true });
       } else {
-        console.log('New user, attempting sign up');
+        console.log('New user, redirecting to photo upload');
         
-        // New user, create account
+        // New user, create account first
         const { error: signUpError } = await supabase.auth.signUp({
           email,
           password,
@@ -69,14 +77,15 @@ export default function Login() {
           console.error('Sign up error:', signUpError);
           throw signUpError;
         }
+
+        toast({
+          title: "Welcome!",
+          description: "Let's set up your profile photo first.",
+        });
+
+        // New users go to photo upload first
+        navigate('/photo-upload', { replace: true });
       }
-
-      toast({
-        title: existingProfiles ? "Welcome back!" : "Welcome!",
-        description: `Hey ${name}, good to see you!`,
-      });
-
-      navigate('/');
     } catch (error) {
       console.error('Auth error:', error);
       toast({
