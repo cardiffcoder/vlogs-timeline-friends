@@ -80,6 +80,7 @@ export default function Login() {
             title: "Welcome!",
             description: "Let's set up your profile photo first.",
           });
+          // New users are directed to photo upload
           navigate('/photo-upload', { replace: true });
         } else {
           // If no session, something went wrong
