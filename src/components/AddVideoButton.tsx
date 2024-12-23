@@ -160,7 +160,6 @@ const AddVideoButton = ({ onVideoAdd }: AddVideoProps) => {
               id="video"
               type="file"
               accept="video/*"
-              capture="environment"
               onChange={handleFileSelect}
               ref={fileInputRef}
               className="mt-2"
