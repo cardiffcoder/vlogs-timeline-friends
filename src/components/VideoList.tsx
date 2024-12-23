@@ -17,7 +17,8 @@ const VideoList = () => {
           profiles:user_id (
             id,
             full_name,
-            display_name
+            display_name,
+            avatar_url
           )
         `)
         .order('created_at', { ascending: false });
@@ -30,7 +31,6 @@ const VideoList = () => {
       console.log("Raw videos data:", data);
 
       if (data) {
-        // Check if each video exists in storage before adding it to state
         const validVideos = await Promise.all(
           data.map(async (video) => {
             const videoPath = video.video_url.split('/').pop();
@@ -39,7 +39,6 @@ const VideoList = () => {
               return null;
             }
 
-            // Remove 'public/' from the path if it exists
             const cleanPath = videoPath.replace('public/', '');
             console.log("Checking storage for video path:", cleanPath);
 
@@ -52,13 +51,13 @@ const VideoList = () => {
             console.log("Storage check for video", cleanPath, ":", exists);
 
             if (exists && exists.length > 0) {
-              // Use the profile's display_name or full_name instead of username
               const displayName = video.profiles?.display_name || video.profiles?.full_name || video.username;
               return {
                 ...video,
                 timestamp: new Date(video.created_at),
                 userId: video.profiles?.id,
-                displayName // Add the display name to the video object
+                displayName,
+                avatar_url: video.profiles?.avatar_url || video.avatar_url // Use profile's avatar_url if available
               };
             }
             console.log("Video file not found in storage:", cleanPath);
@@ -144,8 +143,8 @@ const VideoList = () => {
         <VideoCard
           key={video.id}
           id={video.id}
-          username={video.displayName} // Use displayName instead of username
-          avatarUrl={video.avatar_url}
+          username={video.username}
+          avatarUrl={video.avatar_url} // Pass the avatar_url from the profile
           videoUrl={video.video_url}
           description={video.description}
           displayName={video.displayName}

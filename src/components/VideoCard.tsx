@@ -77,7 +77,7 @@ export const VideoCard = ({
         <div className="absolute bottom-4 left-4 flex items-center gap-2 z-10">
           <Avatar className="h-10 w-10 border-2 border-white">
             <AvatarImage src={avatarUrl} alt={displayName || username} />
-            <AvatarFallback>{(displayName || username)[0]}</AvatarFallback>
+            <AvatarFallback>{(displayName || username)[0]?.toUpperCase()}</AvatarFallback>
           </Avatar>
           <span className="text-white font-medium drop-shadow-lg">
             {displayName || username}
