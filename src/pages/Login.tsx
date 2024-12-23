@@ -8,6 +8,7 @@ const Login = () => {
   const navigate = useNavigate();
   const [phoneNumber, setPhoneNumber] = useState("");
   const [password, setPassword] = useState("");
+  const [fullName, setFullName] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
   const handleLogin = async (e: React.FormEvent) => {
@@ -57,6 +58,8 @@ const Login = () => {
             setPhoneNumber={setPhoneNumber}
             password={password}
             setPassword={setPassword}
+            fullName={fullName}
+            setFullName={setFullName}
             isLoading={isLoading}
           />
           <button
