@@ -35,6 +35,12 @@ export const ProfilePhotoUpload = ({ onPhotoUploaded, currentPhotoUrl }: Profile
       const objectUrl = URL.createObjectURL(file);
       setPreview(objectUrl);
 
+      // Check authentication status
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        throw new Error('Authentication required');
+      }
+
       // Upload to Supabase Storage
       const fileExt = file.name.split('.').pop();
       const fileName = `${Math.random()}.${fileExt}`;
@@ -44,10 +50,11 @@ export const ProfilePhotoUpload = ({ onPhotoUploaded, currentPhotoUrl }: Profile
         bucket: 'avatars',
         path: filePath,
         fileType: file.type,
-        size: file.size
+        size: file.size,
+        userId: session.user.id
       });
 
-      const { error: uploadError } = await supabase.storage
+      const { error: uploadError, data } = await supabase.storage
         .from('avatars')
         .upload(filePath, file, {
           cacheControl: '3600',
@@ -59,12 +66,14 @@ export const ProfilePhotoUpload = ({ onPhotoUploaded, currentPhotoUrl }: Profile
         throw uploadError;
       }
 
+      console.log('Upload successful:', data);
+
       // Get public URL
       const { data: { publicUrl } } = supabase.storage
         .from('avatars')
         .getPublicUrl(filePath);
 
-      console.log('Upload successful, public URL:', publicUrl);
+      console.log('Public URL generated:', publicUrl);
       onPhotoUploaded(publicUrl);
       
       toast({
