@@ -48,7 +48,7 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-black">
       <Header />
-      <main className="pt-12"> {/* Changed from pt-14 to pt-12 for proper spacing */}
+      <main className="pt-8">
         <div className="w-full mx-auto">
           {videos.map((video) => (
             <VideoCard
