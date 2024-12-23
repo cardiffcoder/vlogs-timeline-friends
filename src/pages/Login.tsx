@@ -11,6 +11,7 @@ const Login = () => {
   const [phoneNumber, setPhoneNumber] = useState("");
   const [showOTP, setShowOTP] = useState(false);
   const [otp, setOTP] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     // Check if user is already logged in
@@ -36,14 +37,14 @@ const Login = () => {
   }, [navigate]);
 
   const formatPhoneNumber = (phone: string) => {
-    // Remove any non-digit characters
-    const digits = phone.replace(/\D/g, '');
+    // Remove any non-digit characters except +
+    const cleaned = phone.replace(/[^\d+]/g, '');
     
     // If it doesn't start with +, add it
-    if (!phone.startsWith('+')) {
-      return `+${digits}`;
+    if (!cleaned.startsWith('+')) {
+      return `+${cleaned}`;
     }
-    return phone;
+    return cleaned;
   };
 
   const validatePhoneNumber = (phone: string) => {
@@ -54,6 +55,8 @@ const Login = () => {
 
   const handleSendOTP = async (e: React.FormEvent) => {
     e.preventDefault();
+    setIsLoading(true);
+    
     try {
       const formattedPhone = formatPhoneNumber(phoneNumber);
       
@@ -64,6 +67,9 @@ const Login = () => {
 
       const { error } = await supabase.auth.signInWithOtp({
         phone: formattedPhone,
+        options: {
+          channel: 'sms'
+        }
       });
 
       if (error) throw error;
@@ -71,12 +77,17 @@ const Login = () => {
       setShowOTP(true);
       toast.success("OTP sent to your phone number!");
     } catch (error: any) {
+      console.error('Error sending OTP:', error);
       toast.error(error.message || "Failed to send OTP");
+    } finally {
+      setIsLoading(false);
     }
   };
 
   const handleVerifyOTP = async (e: React.FormEvent) => {
     e.preventDefault();
+    setIsLoading(true);
+    
     try {
       const formattedPhone = formatPhoneNumber(phoneNumber);
       const { error } = await supabase.auth.verifyOtp({
@@ -90,7 +101,10 @@ const Login = () => {
       toast.success("Successfully logged in!");
       navigate("/");
     } catch (error: any) {
+      console.error('Error verifying OTP:', error);
       toast.error(error.message || "Failed to verify OTP");
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -112,13 +126,14 @@ const Login = () => {
                 value={phoneNumber}
                 onChange={(e) => setPhoneNumber(e.target.value)}
                 className="w-full"
+                disabled={isLoading}
               />
               <p className="text-sm text-gray-400 mt-1">
                 Example: +1234567890 (include country code)
               </p>
             </div>
-            <Button type="submit" className="w-full">
-              Send OTP
+            <Button type="submit" className="w-full" disabled={isLoading}>
+              {isLoading ? "Sending..." : "Send OTP"}
             </Button>
           </form>
         ) : (
@@ -138,16 +153,18 @@ const Login = () => {
                     ))}
                   </InputOTPGroup>
                 )}
+                disabled={isLoading}
               />
             </div>
-            <Button type="submit" className="w-full">
-              Verify OTP
+            <Button type="submit" className="w-full" disabled={isLoading}>
+              {isLoading ? "Verifying..." : "Verify OTP"}
             </Button>
             <Button
               type="button"
               variant="outline"
               className="w-full"
               onClick={() => setShowOTP(false)}
+              disabled={isLoading}
             >
               Back to Phone Number
             </Button>
