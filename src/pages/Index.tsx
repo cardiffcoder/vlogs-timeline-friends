@@ -1,12 +1,44 @@
-// Update this page (the content is just a fallback if you fail to update the page)
+import Header from "@/components/Header";
+import VideoCard from "@/components/VideoCard";
 
 const Index = () => {
+  // Mock data for initial display
+  const videos = [
+    {
+      id: 1,
+      username: "Sarah",
+      avatarUrl: "https://api.dicebear.com/7.x/avataaars/svg?seed=Sarah",
+      videoUrl: "https://test-videos.co.uk/vids/bigbuckbunny/mp4/h264/360/Big_Buck_Bunny_360_10s_1MB.mp4",
+      timestamp: new Date(2024, 2, 15, 14, 30),
+      description: "Amazing day at the beach! 🌊",
+    },
+    {
+      id: 2,
+      username: "Mike",
+      avatarUrl: "https://api.dicebear.com/7.x/avataaars/svg?seed=Mike",
+      videoUrl: "https://test-videos.co.uk/vids/bigbuckbunny/mp4/h264/360/Big_Buck_Bunny_360_10s_1MB.mp4",
+      timestamp: new Date(2024, 2, 15, 12, 15),
+      description: "Concert night with friends! 🎸",
+    },
+  ];
+
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      <div className="text-center">
-        <h1 className="text-4xl font-bold mb-4">Welcome to Your Blank App</h1>
-        <p className="text-xl text-gray-600">Start building your amazing project here!</p>
-      </div>
+    <div className="min-h-screen bg-gray-50">
+      <Header />
+      <main className="container mx-auto px-4 py-6 space-y-6">
+        <div className="max-w-2xl mx-auto">
+          {videos.map((video) => (
+            <VideoCard
+              key={video.id}
+              username={video.username}
+              avatarUrl={video.avatarUrl}
+              videoUrl={video.videoUrl}
+              timestamp={video.timestamp}
+              description={video.description}
+            />
+          ))}
+        </div>
+      </main>
     </div>
   );
 };
