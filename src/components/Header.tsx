@@ -1,14 +1,14 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 const Header = () => {
-  // Mock data for stories with real photos
+  // Mock data for stories with new photos
   const stories = [
-    { id: 1, username: "Sarah", avatarUrl: "/lovable-uploads/1c4a25d8-3363-43eb-895d-2a09777dd66c.png" },
-    { id: 2, username: "Emily", avatarUrl: "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158" },
-    { id: 3, username: "Team", avatarUrl: "https://images.unsplash.com/photo-1605810230434-7631ac76ec81" },
-    { id: 4, username: "Studio", avatarUrl: "https://images.unsplash.com/photo-1518005020951-eccb494ad742" },
-    { id: 5, username: "Work", avatarUrl: "https://images.unsplash.com/photo-1519389950473-47ba0277781c" },
-    { id: 6, username: "Sarah", avatarUrl: "/lovable-uploads/1c4a25d8-3363-43eb-895d-2a09777dd66c.png" },
+    { id: 1, username: "Sarah", avatarUrl: "/lovable-uploads/93be06b4-bf6e-44c3-b1de-5902e9267580.png" },
+    { id: 2, username: "Emily", avatarUrl: "/lovable-uploads/6482916c-eb0b-4cd4-a2ca-a63ed98839c6.png" },
+    { id: 3, username: "Sarah", avatarUrl: "/lovable-uploads/93be06b4-bf6e-44c3-b1de-5902e9267580.png" },
+    { id: 4, username: "Emily", avatarUrl: "/lovable-uploads/6482916c-eb0b-4cd4-a2ca-a63ed98839c6.png" },
+    { id: 5, username: "Sarah", avatarUrl: "/lovable-uploads/93be06b4-bf6e-44c3-b1de-5902e9267580.png" },
+    { id: 6, username: "Emily", avatarUrl: "/lovable-uploads/6482916c-eb0b-4cd4-a2ca-a63ed98839c6.png" },
   ];
 
   return (
