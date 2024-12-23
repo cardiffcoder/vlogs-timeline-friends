@@ -14,6 +14,55 @@ export const VideoUpload = ({ onVideoUploaded }: VideoUploadProps) => {
   const [uploadProgress, setUploadProgress] = useState(0);
   const { toast } = useToast();
 
+  const generateThumbnail = async (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const video = document.createElement('video');
+      const canvas = document.createElement('canvas');
+      const context = canvas.getContext('2d');
+
+      video.onloadedmetadata = () => {
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+      };
+
+      video.onseeked = () => {
+        if (context) {
+          context.drawImage(video, 0, 0, canvas.width, canvas.height);
+          canvas.toBlob(async (blob) => {
+            if (blob) {
+              const thumbnailFile = new File([blob], 'thumbnail.jpg', { type: 'image/jpeg' });
+              const fileName = `thumbnail_${Math.random()}.jpg`;
+              
+              const { data: uploadData, error: uploadError } = await supabase.storage
+                .from('videos')
+                .upload(fileName, thumbnailFile);
+
+              if (uploadError) {
+                reject(uploadError);
+                return;
+              }
+
+              const { data: { publicUrl } } = supabase.storage
+                .from('videos')
+                .getPublicUrl(fileName);
+
+              resolve(publicUrl);
+            } else {
+              reject(new Error('Failed to generate thumbnail'));
+            }
+          }, 'image/jpeg', 0.7);
+        }
+      };
+
+      video.onerror = () => {
+        reject(new Error('Error loading video'));
+      };
+
+      video.src = URL.createObjectURL(file);
+      video.currentTime = 0;
+    });
+  };
+
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     try {
       setUploading(true);
@@ -43,6 +92,9 @@ export const VideoUpload = ({ onVideoUploaded }: VideoUploadProps) => {
         throw new Error('Video must be 10 seconds or shorter');
       }
 
+      // Generate thumbnail
+      const thumbnailUrl = await generateThumbnail(file);
+
       // Check authentication status
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) {
@@ -60,7 +112,7 @@ export const VideoUpload = ({ onVideoUploaded }: VideoUploadProps) => {
         throw new Error('Could not find user profile');
       }
 
-      // Upload to Supabase Storage
+      // Upload video to Supabase Storage
       const fileExt = file.name.split('.').pop();
       const fileName = `${Math.random()}.${fileExt}`;
       const filePath = `${fileName}`;
@@ -81,12 +133,13 @@ export const VideoUpload = ({ onVideoUploaded }: VideoUploadProps) => {
         .from('videos')
         .getPublicUrl(filePath);
 
-      // Create video record with profile ID
+      // Create video record with profile ID and thumbnail
       const { error: insertError } = await supabase
         .from('videos')
         .insert({
           video_url: publicUrl,
-          user_id: profileData.id // Use profile ID instead of auth.uid
+          thumbnail_url: thumbnailUrl,
+          user_id: profileData.id
         });
 
       if (insertError) {

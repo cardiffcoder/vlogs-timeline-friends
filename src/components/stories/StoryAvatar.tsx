@@ -8,11 +8,20 @@ interface StoryAvatarProps {
   isCurrentUser: boolean;
   onClick: () => void;
   hasVideos: boolean;
+  thumbnailUrl?: string;
 }
 
-const StoryAvatar = ({ username, displayName, avatarUrl, videoUrl, isCurrentUser, onClick, hasVideos }: StoryAvatarProps) => {
-  // Use the first frame of the video as the avatar if there's a video
-  const imageUrl = hasVideos && videoUrl ? videoUrl : avatarUrl;
+const StoryAvatar = ({ 
+  username, 
+  displayName, 
+  avatarUrl, 
+  isCurrentUser, 
+  onClick, 
+  hasVideos,
+  thumbnailUrl 
+}: StoryAvatarProps) => {
+  // Use thumbnail if available, otherwise fallback to avatar
+  const imageUrl = hasVideos && thumbnailUrl ? thumbnailUrl : avatarUrl;
   
   return (
     <div 

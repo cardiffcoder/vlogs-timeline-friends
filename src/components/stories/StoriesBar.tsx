@@ -46,7 +46,7 @@ const StoriesBar = ({ stories, currentUser }: StoriesBarProps) => {
               username={story.username}
               displayName={story.displayName || story.username}
               avatarUrl={story.avatarUrl}
-              videoUrl={firstVideo?.video_url}
+              thumbnailUrl={firstVideo?.thumbnail_url}
               isCurrentUser={currentUser?.username === story.username}
               onClick={() => handleStoryClick(story)}
               hasVideos={story.videos && story.videos.length > 0}
