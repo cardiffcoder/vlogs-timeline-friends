@@ -11,6 +11,20 @@ interface VideoCardProps {
 }
 
 const VideoCard = ({ username, avatarUrl, videoUrl, timestamp }: VideoCardProps) => {
+  const getFormattedTime = (date: Date) => {
+    const minutesAgo = Math.floor((new Date().getTime() - date.getTime()) / (1000 * 60));
+    if (minutesAgo >= 60) {
+      return formatDistanceToNowStrict(date, { 
+        addSuffix: true,
+        unit: 'hour'
+      });
+    }
+    return formatDistanceToNowStrict(date, { 
+      addSuffix: true,
+      unit: 'minute'
+    });
+  };
+
   return (
     <Card className="relative w-full h-[calc(100vh-8rem)] mb-1 overflow-hidden animate-fadeIn bg-black border-none">
       <div className="relative w-full h-full">
@@ -42,10 +56,7 @@ const VideoCard = ({ username, avatarUrl, videoUrl, timestamp }: VideoCardProps)
             <div className="flex-1">
               <h3 className="text-sm text-gray-300">{username}</h3>
               <p className="text-xs text-gray-400">
-                {formatDistanceToNowStrict(timestamp, { 
-                  addSuffix: true,
-                  unit: 'minute'
-                })}
+                {getFormattedTime(timestamp)}
               </p>
             </div>
           </div>
