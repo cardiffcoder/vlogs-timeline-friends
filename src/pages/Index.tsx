@@ -1,5 +1,7 @@
 import Header from "@/components/Header";
 import VideoCard from "@/components/VideoCard";
+import AddVideoButton from "@/components/AddVideoButton";
+import { useState } from "react";
 
 const Index = () => {
   // Calculate timestamps relative to current time
@@ -9,8 +11,8 @@ const Index = () => {
   const twoHoursAgo = new Date(now.getTime() - (2 * 60 * 60 * 1000));
   const fortyMinutesAgo = new Date(now.getTime() - (40 * 60 * 1000));
 
-  // Mock data for initial display
-  const videos = [
+  // Initial videos data
+  const initialVideos = [
     {
       id: 1,
       username: "TEJES",
@@ -45,6 +47,23 @@ const Index = () => {
     }
   ].sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime());
 
+  const [videos, setVideos] = useState(initialVideos);
+
+  const handleAddVideo = (newVideoData: {
+    username: string;
+    avatarUrl: string;
+    videoUrl: string;
+    description: string;
+  }) => {
+    const newVideo = {
+      ...newVideoData,
+      id: videos.length + 1,
+      timestamp: new Date(),
+    };
+
+    setVideos([newVideo, ...videos]);
+  };
+
   return (
     <div className="min-h-screen bg-black">
       <Header />
@@ -62,6 +81,7 @@ const Index = () => {
           ))}
         </div>
       </main>
+      <AddVideoButton onVideoAdd={handleAddVideo} />
     </div>
   );
 };
