@@ -20,80 +20,53 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   useEffect(() => {
     let mounted = true;
 
-    const checkAuth = async () => {
-      try {
-        console.log('Checking authentication status...');
-        const { data: { session }, error: sessionError } = await supabase.auth.getSession();
-        
-        if (sessionError) {
-          console.error('Session error:', sessionError);
-          if (mounted) {
-            setIsLoading(false);
-            setIsAuthenticated(false);
-          }
-          return;
-        }
+    // Initial session check
+    supabase.auth.getSession().then(({ data: { session }, error }) => {
+      if (!mounted) return;
+      
+      if (error) {
+        console.error('Session error:', error);
+        setIsLoading(false);
+        return;
+      }
 
-        console.log('Session status:', session ? 'Active' : 'No session');
-        
-        if (!session) {
-          if (mounted) {
-            setIsLoading(false);
-            setIsAuthenticated(false);
-          }
-          return;
-        }
-
-        if (mounted) {
-          setIsAuthenticated(true);
-        }
-
-        // Check profile only if we have a session
-        console.log('Checking profile for user:', session.user.id);
-        const { data: profile, error: profileError } = await supabase
+      setIsAuthenticated(!!session);
+      
+      if (session?.user) {
+        // Check for profile
+        supabase
           .from('profiles')
           .select('id')
           .eq('user_id', session.user.id)
-          .maybeSingle();
-
-        if (profileError) {
-          console.error('Profile fetch error:', profileError);
-        }
-
-        if (mounted) {
-          setHasProfile(!!profile);
-          setIsLoading(false);
-        }
-      } catch (error) {
-        console.error('Auth check error:', error);
-        if (mounted) {
-          setIsLoading(false);
-          setIsAuthenticated(false);
-        }
-      }
-    };
-
-    checkAuth();
-
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
-      console.log('Auth state changed:', event, session ? 'Has session' : 'No session');
-      
-      if (mounted) {
-        setIsAuthenticated(!!session);
-        
-        if (session) {
-          const { data: profile } = await supabase
-            .from('profiles')
-            .select('id')
-            .eq('user_id', session.user.id)
-            .maybeSingle();
-          
-          if (mounted) {
-            setHasProfile(!!profile);
-          }
-        }
-        
+          .maybeSingle()
+          .then(({ data: profile }) => {
+            if (mounted) {
+              setHasProfile(!!profile);
+              setIsLoading(false);
+            }
+          });
+      } else {
         setIsLoading(false);
+      }
+    });
+
+    // Auth state change listener
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (!mounted) return;
+      
+      setIsAuthenticated(!!session);
+      
+      if (session?.user) {
+        supabase
+          .from('profiles')
+          .select('id')
+          .eq('user_id', session.user.id)
+          .maybeSingle()
+          .then(({ data: profile }) => {
+            if (mounted) {
+              setHasProfile(!!profile);
+            }
+          });
       }
     });
 
@@ -102,8 +75,6 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
       subscription.unsubscribe();
     };
   }, []);
-
-  console.log('Protected Route State:', { isLoading, isAuthenticated, hasProfile });
 
   if (isLoading) {
     return (
@@ -114,12 +85,10 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   }
 
   if (!isAuthenticated) {
-    console.log('Not authenticated, redirecting to login');
     return <Navigate to="/login" replace />;
   }
 
   if (isAuthenticated && !hasProfile && window.location.pathname !== '/photo-upload') {
-    console.log('Authenticated but no profile, redirecting to photo upload');
     return <Navigate to="/photo-upload" replace />;
   }
 
