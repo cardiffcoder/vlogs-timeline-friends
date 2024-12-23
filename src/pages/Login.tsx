@@ -48,12 +48,14 @@ const Login = () => {
 
     try {
       // First try to sign in
-      const signInResult = await supabase.auth.signInWithPassword({
+      const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
         phone: phoneNumber,
         password,
       });
 
-      if (signInResult.error) {
+      if (signInError) {
+        console.log("Sign in error:", signInError);
+        
         // If sign in fails and we have a full name, try to sign up
         if (fullName) {
           if (fullName.length < 2) {
@@ -65,7 +67,7 @@ const Login = () => {
             return;
           }
 
-          const signUpResult = await supabase.auth.signUp({
+          const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
             phone: phoneNumber,
             password,
             options: {
@@ -75,10 +77,11 @@ const Login = () => {
             },
           });
 
-          if (signUpResult.error) {
+          if (signUpError) {
+            console.log("Sign up error:", signUpError);
             toast({
               title: "Error",
-              description: signUpResult.error.message,
+              description: signUpError.message,
               variant: "destructive",
             });
           } else {
@@ -88,9 +91,10 @@ const Login = () => {
             });
           }
         } else {
+          // If no full name provided, show sign in error
           toast({
             title: "Error",
-            description: "Invalid credentials. If you're new, please provide your full name to sign up.",
+            description: "Invalid phone number or password. If you're new, please provide your full name to sign up.",
             variant: "destructive",
           });
         }
