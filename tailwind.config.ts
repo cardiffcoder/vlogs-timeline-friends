@@ -57,6 +57,7 @@ export default {
       fontFamily: {
         poppins: ['Poppins', 'sans-serif'],
         'mona-sans': ['Mona Sans Expanded', 'sans-serif'],
+        'dm-sans': ['DM Sans', 'sans-serif'],
       },
       fontSize: {
         'vlogs': '30.8px',

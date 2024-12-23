@@ -32,14 +32,14 @@ export const VideoCard = ({
     <div className="relative overflow-hidden -mx-4 sm:mx-0">
       <div className="aspect-[9/16] relative">
         <VideoPlayer ref={videoRef} videoUrl={videoUrl} />
-        <div className="absolute bottom-4 left-4 right-4 z-10 flex flex-col gap-1">
+        <div className="absolute bottom-4 left-4 right-4 z-10 flex flex-col gap-0.5">
           <ProfileInfo
             username={username}
             avatarUrl={avatarUrl}
             displayName={displayName}
           />
           {description && (
-            <p className="text-white text-xs pl-4 line-clamp-2 drop-shadow-lg font-mona-sans">
+            <p className="text-white text-xs pl-4 -mt-2 line-clamp-2 drop-shadow-lg font-dm-sans">
               {description}
             </p>
           )}
