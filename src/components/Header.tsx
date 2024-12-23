@@ -3,12 +3,12 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 const Header = () => {
   // Mock data for stories with new photos
   const stories = [
-    { id: 1, username: "Sarah", avatarUrl: "/lovable-uploads/93be06b4-bf6e-44c3-b1de-5902e9267580.png" },
-    { id: 2, username: "Emily", avatarUrl: "/lovable-uploads/6482916c-eb0b-4cd4-a2ca-a63ed98839c6.png" },
-    { id: 3, username: "Sarah", avatarUrl: "/lovable-uploads/93be06b4-bf6e-44c3-b1de-5902e9267580.png" },
-    { id: 4, username: "Emily", avatarUrl: "/lovable-uploads/6482916c-eb0b-4cd4-a2ca-a63ed98839c6.png" },
-    { id: 5, username: "Sarah", avatarUrl: "/lovable-uploads/93be06b4-bf6e-44c3-b1de-5902e9267580.png" },
-    { id: 6, username: "Emily", avatarUrl: "/lovable-uploads/6482916c-eb0b-4cd4-a2ca-a63ed98839c6.png" },
+    { id: 1, username: "Sarah", avatarUrl: "/lovable-uploads/93be06b4-bf6e-44c3-b1de-5902e9267580.png", position: "object-[center_65%]" },
+    { id: 2, username: "Emily", avatarUrl: "/lovable-uploads/6482916c-eb0b-4cd4-a2ca-a63ed98839c6.png", position: "object-[center_60%] scale-125" },
+    { id: 3, username: "Sarah", avatarUrl: "/lovable-uploads/93be06b4-bf6e-44c3-b1de-5902e9267580.png", position: "object-[center_65%]" },
+    { id: 4, username: "Emily", avatarUrl: "/lovable-uploads/6482916c-eb0b-4cd4-a2ca-a63ed98839c6.png", position: "object-[center_60%] scale-125" },
+    { id: 5, username: "Sarah", avatarUrl: "/lovable-uploads/93be06b4-bf6e-44c3-b1de-5902e9267580.png", position: "object-[center_65%]" },
+    { id: 6, username: "Emily", avatarUrl: "/lovable-uploads/6482916c-eb0b-4cd4-a2ca-a63ed98839c6.png", position: "object-[center_60%] scale-125" },
   ];
 
   return (
@@ -23,7 +23,11 @@ const Header = () => {
             <div key={story.id} className="flex flex-col items-center">
               <div className="p-[2px] rounded-full bg-[#E1F9FC]">
                 <Avatar className="h-14 w-14 ring-2 ring-black">
-                  <AvatarImage src={story.avatarUrl} alt={story.username} className="object-cover" />
+                  <AvatarImage 
+                    src={story.avatarUrl} 
+                    alt={story.username} 
+                    className={`object-cover ${story.position}`}
+                  />
                   <AvatarFallback>{story.username[0]}</AvatarFallback>
                 </Avatar>
               </div>
