@@ -1,12 +1,11 @@
 import { useNavigate } from "react-router-dom";
 import { MoreHorizontal } from "lucide-react";
 import {
-  ContextMenu,
-  ContextMenuContent,
-  ContextMenuGroup,
-  ContextMenuItem,
-  ContextMenuTrigger,
-} from "@/components/ui/context-menu";
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
 
@@ -60,28 +59,26 @@ const VideoActionsMenu = ({ videoId, videoUrl, onDelete, userId }: VideoActionsM
   };
 
   return (
-    <ContextMenu>
-      <ContextMenuTrigger>
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
         <button className="p-1 hover:bg-gray-100/10 rounded-full transition-colors">
           <MoreHorizontal className="h-5 w-5 text-white" />
         </button>
-      </ContextMenuTrigger>
-      <ContextMenuContent className="w-48">
-        <ContextMenuGroup>
-          <ContextMenuItem onClick={handlePostVideo}>
-            Post another video
-          </ContextMenuItem>
-          {userId && (
-            <ContextMenuItem
-              onClick={handleDelete}
-              className="text-red-600 focus:text-red-600"
-            >
-              Delete video
-            </ContextMenuItem>
-          )}
-        </ContextMenuGroup>
-      </ContextMenuContent>
-    </ContextMenu>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent className="w-48">
+        <DropdownMenuItem onClick={handlePostVideo}>
+          Post another video
+        </DropdownMenuItem>
+        {userId && (
+          <DropdownMenuItem
+            onClick={handleDelete}
+            className="text-red-600 focus:text-red-600"
+          >
+            Delete video
+          </DropdownMenuItem>
+        )}
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 };
 
