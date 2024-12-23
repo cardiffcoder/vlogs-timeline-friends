@@ -88,7 +88,7 @@ export default function Login() {
         // Login flow - find user by name
         const { data: profile, error: profileError } = await supabase
           .from('profiles')
-          .select('user_id, full_name')
+          .select('user_id')
           .eq('full_name', name)
           .maybeSingle();
 
@@ -111,10 +111,23 @@ export default function Login() {
           return;
         }
 
-        // Since we found the profile, we can proceed with login
+        // Get the user's email from auth.users
+        const { data: { user }, error: userError } = await supabase.auth.admin.getUserById(profile.user_id);
+        
+        if (userError || !user) {
+          console.error("Error getting user:", userError);
+          toast({
+            title: "Error finding user",
+            description: "Please try again",
+            variant: "destructive",
+          });
+          return;
+        }
+
+        // Since we found the profile, we can proceed with login using the email
         const { data: { session }, error: signInError } = await supabase.auth.signInWithPassword({
-          email: `${profile.user_id}@anonymous.com`,
-          password: profile.user_id,
+          email: user.email,
+          password: user.id, // Using the user's ID as the password
         });
 
         if (signInError) {
@@ -130,7 +143,7 @@ export default function Login() {
         if (session) {
           toast({
             title: "Welcome back!",
-            description: `Successfully logged in as ${profile.full_name}`,
+            description: `Successfully logged in as ${name}`,
           });
           navigate('/');
         }
