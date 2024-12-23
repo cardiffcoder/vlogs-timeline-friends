@@ -1,10 +1,8 @@
 import { useRef } from 'react';
 import { Card } from "@/components/ui/card";
-import { supabase } from "@/integrations/supabase/client";
-import { useToast } from "@/components/ui/use-toast";
 import { ProfileInfo } from "./ProfileInfo";
 import VideoPlayer from "./VideoPlayer";
-import DeleteVideoButton from "./DeleteVideoButton";
+import VideoActionsMenu from "./VideoActionsMenu";
 
 interface VideoCardProps {
   id: number;
@@ -27,62 +25,28 @@ export const VideoCard = ({
   displayName,
   onDelete 
 }: VideoCardProps) => {
-  const { toast } = useToast();
   const videoRef = useRef<HTMLVideoElement>(null);
-
-  const handleDelete = async () => {
-    try {
-      const videoFileName = videoUrl.split('/').pop();
-      if (!videoFileName) throw new Error('Invalid video URL');
-
-      const { error: storageError } = await supabase.storage
-        .from('videos')
-        .remove([videoFileName]);
-
-      if (storageError) throw storageError;
-
-      const { error: dbError } = await supabase
-        .from('videos')
-        .delete()
-        .eq('id', id);
-
-      if (dbError) throw dbError;
-
-      toast({
-        title: "Video deleted",
-        description: "Your video has been removed successfully.",
-      });
-
-      if (onDelete) onDelete();
-    } catch (error) {
-      console.error('Error deleting video:', error);
-      toast({
-        title: "Error deleting video",
-        description: error instanceof Error ? error.message : "Please try again.",
-        variant: "destructive",
-      });
-    }
-  };
 
   return (
     <Card className="relative overflow-hidden rounded-lg -mx-4 sm:mx-0">
       <div className="aspect-[9/16] relative">
         <VideoPlayer ref={videoRef} videoUrl={videoUrl} />
-        <div className="absolute bottom-4 left-4 z-10">
+        <div className="absolute bottom-4 left-4 right-4 z-10 flex justify-between items-center">
           <ProfileInfo
             username={username}
             avatarUrl={avatarUrl}
             displayName={displayName}
           />
+          <VideoActionsMenu
+            videoId={id}
+            videoUrl={videoUrl}
+            userId={userId}
+            onDelete={onDelete}
+          />
         </div>
         {description && (
           <div className="absolute bottom-20 left-4 right-4 text-white">
             <p className="line-clamp-2 drop-shadow-lg font-mona-sans text-sm">{description}</p>
-          </div>
-        )}
-        {userId && (
-          <div className="absolute top-4 right-4 z-10">
-            <DeleteVideoButton onClick={handleDelete} />
           </div>
         )}
       </div>
