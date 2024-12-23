@@ -1,10 +1,10 @@
-import React, { useRef } from 'react';
+import { useRef } from 'react';
 import { Card } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Trash2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
 import { ProfileInfo } from "./ProfileInfo";
+import VideoPlayer from "./VideoPlayer";
+import DeleteVideoButton from "./DeleteVideoButton";
 
 interface VideoCardProps {
   id: number;
@@ -67,15 +67,7 @@ export const VideoCard = ({
   return (
     <Card className="relative overflow-hidden rounded-lg -mx-4 sm:mx-0">
       <div className="aspect-[9/16] relative">
-        <video
-          ref={videoRef}
-          src={videoUrl}
-          className="absolute inset-0 h-full w-full object-cover"
-          playsInline
-          autoPlay
-          loop
-          muted
-        />
+        <VideoPlayer ref={videoRef} videoUrl={videoUrl} />
         <div className="absolute bottom-4 left-4 z-10">
           <ProfileInfo
             username={username}
@@ -90,14 +82,7 @@ export const VideoCard = ({
         )}
         {userId && (
           <div className="absolute top-4 right-4 z-10">
-            <Button
-              variant="destructive"
-              size="icon"
-              onClick={handleDelete}
-              className="h-8 w-8"
-            >
-              <Trash2 className="h-4 w-4" />
-            </Button>
+            <DeleteVideoButton onClick={handleDelete} />
           </div>
         )}
       </div>
