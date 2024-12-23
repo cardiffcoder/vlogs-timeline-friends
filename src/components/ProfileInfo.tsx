@@ -16,7 +16,7 @@ export const ProfileInfo = ({ username, avatarUrl, displayName }: ProfileInfoPro
           <User className="h-4 w-4" />
         </AvatarFallback>
       </Avatar>
-      <span className="text-white font-medium drop-shadow-lg">
+      <span className="text-white font-medium font-mona-sans drop-shadow-lg">
         {displayName || username}
       </span>
     </div>
