@@ -1,31 +1,17 @@
-import React, { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from "@/integrations/supabase/client";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { ProfilePhotoUpload } from '@/components/ProfilePhotoUpload';
+import { AuthForm } from '@/components/auth/AuthForm';
 
 export default function Login() {
   const [loading, setLoading] = useState(false);
-  const [name, setName] = useState('');
-  const [vlogName, setVlogName] = useState('');
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const navigate = useNavigate();
   const { toast } = useToast();
 
-  useEffect(() => {
-    if (name.trim()) {
-      setVlogName(`${name}'s 2025 Vlog`);
-    } else {
-      setVlogName('');
-    }
-  }, [name]);
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
+  const handleSubmit = async (name: string, vlogName: string) => {
     if (!avatarUrl) {
       toast({
         title: "Profile photo required",
@@ -79,42 +65,15 @@ export default function Login() {
           <h1 className="text-2xl font-bold">Start your vlog 🤳</h1>
         </div>
         
-        <form onSubmit={handleSubmit} className="space-y-6">
-          <div className="space-y-2">
-            <Label htmlFor="name">Name</Label>
-            <Input
-              id="name"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              required
-              placeholder="Your name"
-            />
-          </div>
+        <ProfilePhotoUpload
+          onPhotoUploaded={setAvatarUrl}
+          currentPhotoUrl={avatarUrl || undefined}
+        />
 
-          <div className="space-y-2">
-            <Label htmlFor="vlogName">Vlog Name</Label>
-            <Input
-              id="vlogName"
-              value={vlogName}
-              onChange={(e) => setVlogName(e.target.value)}
-              required
-              placeholder="Your vlog name"
-            />
-          </div>
-
-          <ProfilePhotoUpload
-            onPhotoUploaded={(url) => setAvatarUrl(url)}
-            currentPhotoUrl={avatarUrl || undefined}
-          />
-
-          <Button
-            type="submit"
-            className="w-full"
-            disabled={loading || !avatarUrl}
-          >
-            {loading ? 'Creating Profile...' : 'Create Profile'}
-          </Button>
-        </form>
+        <AuthForm 
+          onSubmit={handleSubmit}
+          isLoading={loading}
+        />
       </div>
     </div>
   );
