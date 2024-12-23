@@ -75,11 +75,16 @@ const Header = ({ onLogout }: HeaderProps) => {
           username: username,
           avatarUrl: profile.avatar_url || '/placeholder.svg',
           displayName: profile.display_name || username,
-          videoUrl: video.video_url,
+          videoUrl: video.video_url, // Make sure this is set from the first video
           videos: []
         });
       }
-      userVideos.get(username).videos.push(video);
+      userVideos.get(username).videos.push({
+        ...video,
+        username: username,
+        avatarUrl: profile.avatar_url || '/placeholder.svg',
+        displayName: profile.display_name || username
+      });
     });
 
     // Convert to array and add current user if not present and valid
@@ -95,7 +100,7 @@ const Header = ({ onLogout }: HeaderProps) => {
       });
     }
 
-    console.log('Stories with avatars:', storyList);
+    console.log('Stories with videos:', storyList);
     setStories(storyList);
   };
 
