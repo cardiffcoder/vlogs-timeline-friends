@@ -78,7 +78,7 @@ export default function Login() {
         if (signUpData.session) {
           toast({
             title: "Welcome!",
-            description: "Let's create your profile!",
+            description: "Let's set up your profile!",
           });
           // New users are directed to create profile
           navigate('/photo-upload', { replace: true });
