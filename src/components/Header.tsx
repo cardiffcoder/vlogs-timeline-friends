@@ -31,7 +31,7 @@ const Header = () => {
                   <AvatarFallback>{story.username[0]}</AvatarFallback>
                 </Avatar>
               </div>
-              <span className="text-[10px] text-gray-300 mt-1">{story.username}</span>
+              <span className="text-[10px] text-gray-300 mt-1 font-mona-sans">{story.username}</span>
             </div>
           ))}
         </div>
