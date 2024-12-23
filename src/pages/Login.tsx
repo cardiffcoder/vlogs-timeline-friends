@@ -39,7 +39,7 @@ export default function Login() {
           password,
           options: {
             data: {
-              full_name: name
+              name: name // Explicitly set the name in user metadata
             }
           }
         });
@@ -54,16 +54,15 @@ export default function Login() {
         
         navigate('/photo-upload');
       } else {
-        // Login flow - just find the profile by name
-        const { data: profile, error: profileError } = await supabase
+        // Login flow - find the profile by name
+        const { data: profiles, error: profileError } = await supabase
           .from('profiles')
           .select('*')
-          .eq('full_name', name)
-          .maybeSingle();
+          .eq('full_name', name);
 
         if (profileError) throw profileError;
 
-        if (!profile) {
+        if (!profiles || profiles.length === 0) {
           toast({
             title: "User not found",
             description: "No account found with that name. Please sign up instead.",
@@ -72,12 +71,14 @@ export default function Login() {
           return;
         }
 
-        // Get the user's email from their profile
-        const { data: { users }, error: usersError } = await supabase.auth.admin.listUsers();
-        if (usersError) throw usersError;
+        const profile = profiles[0] as Profile;
 
-        const user = users?.find(u => u.id === profile.user_id);
-        if (!user?.email) {
+        // Get the user's auth data
+        const { data: { user }, error: userError } = await supabase.auth.admin.getUserById(
+          profile.user_id!
+        );
+
+        if (userError || !user?.email) {
           toast({
             title: "Error finding user",
             description: "Please try signing up instead",
@@ -89,7 +90,7 @@ export default function Login() {
         // Sign in with the found email
         const { error: signInError } = await supabase.auth.signInWithPassword({
           email: user.email,
-          password: user.user_metadata.password || crypto.randomUUID() // Fallback for older accounts
+          password: user.user_metadata.password || crypto.randomUUID()
         });
 
         if (signInError) throw signInError;
