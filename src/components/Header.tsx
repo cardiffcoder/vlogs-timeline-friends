@@ -6,7 +6,7 @@ const Header = () => {
     { id: 1, username: "Sarah", avatarUrl: "/lovable-uploads/93be06b4-bf6e-44c3-b1de-5902e9267580.png", position: "object-[center_65%]" },
     { id: 2, username: "Emily", avatarUrl: "/lovable-uploads/6482916c-eb0b-4cd4-a2ca-a63ed98839c6.png", position: "object-[center_60%] scale-125" },
     { id: 3, username: "Sarah", avatarUrl: "/lovable-uploads/93be06b4-bf6e-44c3-b1de-5902e9267580.png", position: "object-[center_65%]" },
-    { id: 4, username: "Eric", avatarUrl: "/lovable-uploads/d5bcff19-c702-4c27-8a44-33ea94a88911.png", position: "object-[center_40%] scale-110" },
+    { id: 4, username: "Eric", avatarUrl: "/lovable-uploads/d5bcff19-c702-4c27-8a44-33ea94a88911.png", position: "object-[center_45%] scale-125" },
     { id: 5, username: "Sarah", avatarUrl: "/lovable-uploads/93be06b4-bf6e-44c3-b1de-5902e9267580.png", position: "object-[center_65%]" },
     { id: 6, username: "Emily", avatarUrl: "/lovable-uploads/6482916c-eb0b-4cd4-a2ca-a63ed98839c6.png", position: "object-[center_60%] scale-125" },
   ];
