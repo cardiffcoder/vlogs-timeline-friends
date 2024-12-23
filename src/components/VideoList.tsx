@@ -3,11 +3,14 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
 
+const VIDEOS_PER_PAGE = 5;
+
 const VideoList = () => {
   const [videos, setVideos] = useState<any[]>([]);
+  const [page, setPage] = useState(0);
   const { toast } = useToast();
 
-  const fetchVideos = async () => {
+  const fetchVideos = async (pageNumber: number = 0) => {
     try {
       const { data, error } = await supabase
         .from('videos')
@@ -21,7 +24,8 @@ const VideoList = () => {
             user_id
           )
         `)
-        .order('created_at', { ascending: false });
+        .order('created_at', { ascending: false })
+        .range(pageNumber * VIDEOS_PER_PAGE, (pageNumber + 1) * VIDEOS_PER_PAGE - 1);
 
       if (error) throw error;
 
@@ -36,8 +40,7 @@ const VideoList = () => {
           };
         });
         
-        console.log('Fetched videos with profiles:', processedVideos);
-        setVideos(processedVideos);
+        setVideos(prev => pageNumber === 0 ? processedVideos : [...prev, ...processedVideos]);
       }
     } catch (error) {
       console.error("Error fetching videos:", error);
@@ -54,12 +57,35 @@ const VideoList = () => {
   }, []);
 
   useEffect(() => {
+    const handleScroll = () => {
+      if (
+        window.innerHeight + document.documentElement.scrollTop
+        === document.documentElement.offsetHeight
+      ) {
+        setPage(prev => prev + 1);
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  useEffect(() => {
+    if (page > 0) {
+      fetchVideos(page);
+    }
+  }, [page]);
+
+  useEffect(() => {
     const channel = supabase
       .channel('videos-changes')
       .on(
         'postgres_changes',
         { event: '*', schema: 'public', table: 'videos' },
-        () => fetchVideos()
+        () => {
+          setPage(0);
+          fetchVideos(0);
+        }
       )
       .subscribe();
 
@@ -81,7 +107,10 @@ const VideoList = () => {
           authUserId={video.authUserId}
           avatarUrl={video.avatarUrl}
           displayName={video.displayName}
-          onDelete={fetchVideos}
+          onDelete={() => {
+            setPage(0);
+            fetchVideos(0);
+          }}
         />
       ))}
     </div>

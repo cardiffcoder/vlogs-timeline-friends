@@ -15,14 +15,18 @@ const VideoPlayer = forwardRef<HTMLVideoElement, VideoPlayerProps>(({ videoUrl }
       (entries) => {
         entries.forEach((entry) => {
           if (entry.intersectionRatio >= 0.5) {
-            videoElement.current?.play();
+            if (videoElement.current) {
+              videoElement.current.load(); // Force load when visible
+              videoElement.current.play();
+            }
           } else {
             videoElement.current?.pause();
           }
         });
       },
       {
-        threshold: [0, 0.5, 1], // Observe at 0%, 50%, and 100% visibility
+        threshold: [0, 0.5, 1],
+        rootMargin: '100% 0px', // Preload when within 100% of viewport
       }
     );
 
@@ -37,12 +41,14 @@ const VideoPlayer = forwardRef<HTMLVideoElement, VideoPlayerProps>(({ videoUrl }
     <div ref={containerRef} className="relative w-full h-full">
       <video
         ref={ref}
-        src={videoUrl}
         className="absolute inset-0 h-full w-full object-cover"
         playsInline
         loop
         muted={false}
-      />
+        preload="metadata"
+      >
+        <source src={videoUrl} type="video/mp4" />
+      </video>
     </div>
   );
 });
