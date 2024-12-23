@@ -28,7 +28,7 @@ const VideoList = () => {
         const processedVideos = data.map(video => ({
           ...video,
           displayName: video.profiles?.display_name || video.username,
-          avatarUrl: video.profiles?.avatar_url,
+          avatarUrl: video.profiles?.avatar_url || video.avatar_url, // Fallback to video's avatar_url if profile's avatar_url is not available
         }));
         
         console.log('Fetched videos with profiles:', processedVideos);
