@@ -59,22 +59,24 @@ const Login = () => {
         return;
       }
 
-      const { error } = await supabase.auth.signInWithOtp({
+      const { data, error } = await supabase.auth.signInWithOtp({
         phone: formattedPhone,
-        options: {
-          channel: 'sms'
-        }
       });
 
       if (error) {
-        if (error.message.includes("Invalid From Number")) {
+        // Handle specific error cases
+        if (error.message.includes("sms_send_failed")) {
           toast({
-            title: "Service Configuration Error",
-            description: "The SMS service is not properly configured. Please contact support.",
+            title: "SMS Service Error",
+            description: "There was an issue with the SMS service. Please try again later.",
             variant: "destructive",
           });
         } else {
-          throw error;
+          toast({
+            title: "Error",
+            description: error.message,
+            variant: "destructive",
+          });
         }
         return;
       }
@@ -88,7 +90,7 @@ const Login = () => {
       console.error("Error sending OTP:", error);
       toast({
         title: "Error",
-        description: error.message || "Failed to send OTP",
+        description: "An unexpected error occurred. Please try again.",
         variant: "destructive",
       });
     } finally {
@@ -112,13 +114,21 @@ const Login = () => {
     try {
       const formattedPhone = formatPhoneNumber(phoneNumber);
       
-      const { error } = await supabase.auth.verifyOtp({
+      const { data, error } = await supabase.auth.verifyOtp({
         phone: formattedPhone,
         token: otp,
         type: 'sms'
       });
 
-      if (error) throw error;
+      if (error) {
+        toast({
+          title: "Error",
+          description: error.message,
+          variant: "destructive",
+        });
+        setOTP("");
+        return;
+      }
 
       toast({
         title: "Success",
@@ -129,7 +139,7 @@ const Login = () => {
       console.error("Error verifying OTP:", error);
       toast({
         title: "Error",
-        description: error.message || "Failed to verify OTP",
+        description: "Failed to verify OTP. Please try again.",
         variant: "destructive",
       });
       setOTP("");
