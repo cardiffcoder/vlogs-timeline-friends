@@ -27,7 +27,7 @@ export default function Login() {
       console.log("Starting authentication process...");
       
       if (showSignUp) {
-        // Generate a unique email and password for the user
+        // Generate a unique email for the user
         const email = `${name.toLowerCase().replace(/\s+/g, '')}_${Date.now()}@vlog.local`;
         const password = crypto.randomUUID();
         
@@ -36,8 +36,7 @@ export default function Login() {
           password,
           options: {
             data: {
-              full_name: name,
-              password: password // Store password in metadata for login
+              full_name: name
             }
           }
         });
@@ -52,8 +51,8 @@ export default function Login() {
         
         navigate('/photo-upload');
       } else {
-        // Login flow
-        const { data: profiles, error: profileError } = await supabase
+        // Login flow - just find the profile by name
+        const { data: profile, error: profileError } = await supabase
           .from('profiles')
           .select('user_id, full_name')
           .eq('full_name', name)
@@ -61,7 +60,7 @@ export default function Login() {
 
         if (profileError) throw profileError;
 
-        if (!profiles) {
+        if (!profile) {
           toast({
             title: "User not found",
             description: "No account found with that name. Please sign up instead.",
@@ -70,11 +69,12 @@ export default function Login() {
           return;
         }
 
-        // Get user metadata to retrieve the password
+        // Get the user's email from their profile
         const { data: { users }, error: usersError } = await supabase.auth.admin.listUsers();
-        const user = users?.find(u => u.id === profiles.user_id);
-        
-        if (!user) {
+        if (usersError) throw usersError;
+
+        const user = users?.find(u => u.id === profile.user_id);
+        if (!user?.email) {
           toast({
             title: "Error finding user",
             description: "Please try signing up instead",
@@ -83,13 +83,10 @@ export default function Login() {
           return;
         }
 
-        // Use the stored password from metadata
-        const password = user.user_metadata.password;
-        const email = user.email;
-
-        const { data, error: signInError } = await supabase.auth.signInWithPassword({
-          email,
-          password,
+        // Sign in with the found email
+        const { error: signInError } = await supabase.auth.signInWithPassword({
+          email: user.email,
+          password: user.user_metadata.password || crypto.randomUUID() // Fallback for older accounts
         });
 
         if (signInError) throw signInError;
