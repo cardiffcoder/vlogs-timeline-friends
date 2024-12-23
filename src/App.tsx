@@ -7,6 +7,7 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import Index from "./pages/Index";
 import Login from "./pages/Login";
+import PhotoUpload from "./pages/PhotoUpload";
 
 const queryClient = new QueryClient();
 
@@ -45,6 +46,11 @@ const App = () => (
       <BrowserRouter>
         <Routes>
           <Route path="/login" element={<Login />} />
+          <Route path="/photo-upload" element={
+            <ProtectedRoute>
+              <PhotoUpload />
+            </ProtectedRoute>
+          } />
           <Route path="/" element={
             <ProtectedRoute>
               <Index />

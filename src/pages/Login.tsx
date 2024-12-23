@@ -2,16 +2,13 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { ProfilePhotoUpload } from '@/components/ProfilePhotoUpload';
 import { AuthForm } from '@/components/auth/AuthForm';
 
 export default function Login() {
   const [loading, setLoading] = useState(false);
-  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const navigate = useNavigate();
   const { toast } = useToast();
 
-  // Check if user is already authenticated
   useEffect(() => {
     const checkAuth = async () => {
       const { data: { session } } = await supabase.auth.getSession();
@@ -23,19 +20,10 @@ export default function Login() {
   }, [navigate]);
 
   const handleSubmit = async (name: string, vlogName: string) => {
-    if (!avatarUrl) {
-      toast({
-        title: "Profile photo required",
-        description: "Please upload a profile photo to continue.",
-        variant: "destructive",
-      });
-      return;
-    }
-
     try {
       setLoading(true);
       
-      // First, create an anonymous session
+      // Create an anonymous session
       const { data: { session }, error: authError } = await supabase.auth.signInWithPassword({
         email: `${crypto.randomUUID()}@anonymous.com`,
         password: crypto.randomUUID(),
@@ -50,7 +38,6 @@ export default function Login() {
           user_id: session.user.id,
           username: name.toLowerCase().replace(/\s+/g, ''),
           full_name: name,
-          avatar_url: avatarUrl,
           updated_at: new Date().toISOString(),
         });
 
@@ -58,10 +45,10 @@ export default function Login() {
 
       toast({
         title: "Profile created successfully",
-        description: "Welcome to the platform!",
+        description: "Now let's add a profile photo!",
       });
       
-      navigate('/');
+      navigate('/photo-upload');
     } catch (error) {
       console.error('Error:', error);
       toast({
@@ -80,11 +67,6 @@ export default function Login() {
         <div className="text-center">
           <h1 className="text-2xl font-bold">Start your vlog 🤳</h1>
         </div>
-        
-        <ProfilePhotoUpload
-          onPhotoUploaded={setAvatarUrl}
-          currentPhotoUrl={avatarUrl || undefined}
-        />
 
         <AuthForm 
           onSubmit={handleSubmit}
