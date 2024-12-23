@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -10,6 +10,17 @@ export default function Login() {
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const navigate = useNavigate();
   const { toast } = useToast();
+
+  // Check if user is already authenticated
+  useEffect(() => {
+    const checkAuth = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session) {
+        navigate('/');
+      }
+    };
+    checkAuth();
+  }, [navigate]);
 
   const handleSubmit = async (name: string, vlogName: string) => {
     if (!avatarUrl) {
@@ -24,21 +35,26 @@ export default function Login() {
     try {
       setLoading(true);
       
-      const { data: { user } } = await supabase.auth.getUser();
-      
-      if (!user) throw new Error('No user found');
+      // First, create an anonymous session
+      const { data: { session }, error: authError } = await supabase.auth.signInWithPassword({
+        email: `${crypto.randomUUID()}@anonymous.com`,
+        password: crypto.randomUUID(),
+      });
 
-      const { error } = await supabase
+      if (authError) throw authError;
+      if (!session?.user) throw new Error('No session created');
+
+      const { error: profileError } = await supabase
         .from('profiles')
         .upsert({
-          user_id: user.id,
+          user_id: session.user.id,
           username: name.toLowerCase().replace(/\s+/g, ''),
           full_name: name,
           avatar_url: avatarUrl,
           updated_at: new Date().toISOString(),
         });
 
-      if (error) throw error;
+      if (profileError) throw profileError;
 
       toast({
         title: "Profile created successfully",
@@ -47,12 +63,12 @@ export default function Login() {
       
       navigate('/');
     } catch (error) {
+      console.error('Error:', error);
       toast({
         title: "Error creating profile",
-        description: "Please try again.",
+        description: error instanceof Error ? error.message : "Please try again.",
         variant: "destructive",
       });
-      console.error('Error:', error);
     } finally {
       setLoading(false);
     }

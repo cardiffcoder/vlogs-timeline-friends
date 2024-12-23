@@ -31,13 +31,7 @@ export const ProfilePhotoUpload = ({ onPhotoUploaded, currentPhotoUrl }: Profile
         throw new Error('No file selected');
       }
 
-      // Check authentication status
-      const { data: { session }, error: authError } = await supabase.auth.getSession();
-      if (authError || !session) {
-        throw new Error('Authentication required');
-      }
-
-      // Create preview
+      // Create preview immediately
       const objectUrl = URL.createObjectURL(file);
       setPreview(objectUrl);
 
@@ -85,6 +79,8 @@ export const ProfilePhotoUpload = ({ onPhotoUploaded, currentPhotoUrl }: Profile
         description: error instanceof Error ? error.message : "Please try again.",
         variant: "destructive",
       });
+      // Reset preview on error
+      setPreview(currentPhotoUrl || null);
     } finally {
       setUploading(false);
     }
