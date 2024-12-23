@@ -9,8 +9,7 @@ import { ProfilePhotoUpload } from '@/components/ProfilePhotoUpload';
 
 export default function Login() {
   const [loading, setLoading] = useState(false);
-  const [fullName, setFullName] = useState('');
-  const [username, setUsername] = useState('');
+  const [name, setName] = useState('');
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -38,8 +37,8 @@ export default function Login() {
         .from('profiles')
         .upsert({
           user_id: user.id,
-          username,
-          full_name: fullName,
+          username: name.toLowerCase().replace(/\s+/g, ''),
+          full_name: name,
           avatar_url: avatarUrl,
           updated_at: new Date().toISOString(),
         });
@@ -74,24 +73,13 @@ export default function Login() {
         
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="space-y-2">
-            <Label htmlFor="fullName">Full Name</Label>
+            <Label htmlFor="name">Name</Label>
             <Input
-              id="fullName"
-              value={fullName}
-              onChange={(e) => setFullName(e.target.value)}
+              id="name"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
               required
-              placeholder="John Doe"
-            />
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="username">Username</Label>
-            <Input
-              id="username"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              required
-              placeholder="johndoe"
+              placeholder="Your name"
             />
           </div>
 
@@ -111,4 +99,4 @@ export default function Login() {
       </div>
     </div>
   );
-};
+}
