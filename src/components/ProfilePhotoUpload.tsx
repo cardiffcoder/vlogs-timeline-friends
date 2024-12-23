@@ -14,6 +14,13 @@ export const ProfilePhotoUpload = ({ onPhotoUploaded, currentPhotoUrl }: Profile
   const [uploading, setUploading] = useState(false);
   const [preview, setPreview] = useState<string | null>(currentPhotoUrl || null);
   const { toast } = useToast();
+  const defaultAvatarUrl = "/lovable-uploads/dc3f5a45-fb4f-4499-a1ff-66f5113b9983.png";
+
+  // Preload the default avatar image
+  React.useEffect(() => {
+    const img = new Image();
+    img.src = defaultAvatarUrl;
+  }, []);
 
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     try {
@@ -63,17 +70,24 @@ export const ProfilePhotoUpload = ({ onPhotoUploaded, currentPhotoUrl }: Profile
     }
   };
 
-  const defaultAvatarUrl = "/lovable-uploads/dc3f5a45-fb4f-4499-a1ff-66f5113b9983.png";
-
   return (
     <div className="space-y-4">
       <Label>Profile Photo</Label>
       <div className="flex flex-col items-center gap-4">
         <div className="relative h-24 w-24">
           <Avatar className="h-full w-full">
-            <AvatarImage src={preview || defaultAvatarUrl} />
+            <AvatarImage 
+              src={preview || defaultAvatarUrl} 
+              loading="eager"
+              className="object-cover"
+            />
             <AvatarFallback>
-              <img src={defaultAvatarUrl} alt="Default profile" className="h-full w-full object-cover" />
+              <img 
+                src={defaultAvatarUrl} 
+                alt="Default profile" 
+                className="h-full w-full object-cover"
+                loading="eager"
+              />
             </AvatarFallback>
           </Avatar>
           {!preview && (
