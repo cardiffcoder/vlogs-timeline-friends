@@ -5,6 +5,7 @@ import { Input } from "./ui/input";
 import { Label } from "./ui/label";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "./ui/dialog";
 import { useToast } from "./ui/use-toast";
+import { supabase } from "@/lib/supabaseClient";
 
 interface AddVideoProps {
   onVideoAdd: (video: {
@@ -19,6 +20,7 @@ const AddVideoButton = ({ onVideoAdd }: AddVideoProps) => {
   const [description, setDescription] = useState("");
   const [isOpen, setIsOpen] = useState(false);
   const [selectedVideo, setSelectedVideo] = useState<File | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
 
@@ -37,7 +39,7 @@ const AddVideoButton = ({ onVideoAdd }: AddVideoProps) => {
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     if (!selectedVideo) {
@@ -49,24 +51,63 @@ const AddVideoButton = ({ onVideoAdd }: AddVideoProps) => {
       return;
     }
 
-    // For now, we'll use placeholder data for username and avatar
-    // In a real app, these would come from user authentication
-    const newVideo = {
-      username: "TEJES",
-      avatarUrl: "/lovable-uploads/f8624281-c4d8-4e78-8b29-c0d8ef3ba36a.png",
-      videoUrl: URL.createObjectURL(selectedVideo), // Create a temporary URL for the video
-      description: description,
-    };
+    setIsUploading(true);
 
-    onVideoAdd(newVideo);
-    setDescription("");
-    setSelectedVideo(null);
-    setIsOpen(false);
-    
-    toast({
-      title: "Video added successfully!",
-      description: "Your video has been added to the feed.",
-    });
+    try {
+      // Upload video to Supabase Storage
+      const fileExt = selectedVideo.name.split('.').pop();
+      const fileName = `${Math.random()}.${fileExt}`;
+      const { data: uploadData, error: uploadError } = await supabase.storage
+        .from('videos')
+        .upload(fileName, selectedVideo);
+
+      if (uploadError) throw uploadError;
+
+      // Get the public URL for the uploaded video
+      const { data: { publicUrl } } = supabase.storage
+        .from('videos')
+        .getPublicUrl(fileName);
+
+      // Insert video metadata into the database
+      const { error: dbError } = await supabase
+        .from('videos')
+        .insert([
+          {
+            username: "TEJES",
+            avatar_url: "/lovable-uploads/f8624281-c4d8-4e78-8b29-c0d8ef3ba36a.png",
+            video_url: publicUrl,
+            description: description,
+          }
+        ]);
+
+      if (dbError) throw dbError;
+
+      // Update UI
+      onVideoAdd({
+        username: "TEJES",
+        avatarUrl: "/lovable-uploads/f8624281-c4d8-4e78-8b29-c0d8ef3ba36a.png",
+        videoUrl: publicUrl,
+        description: description,
+      });
+
+      setDescription("");
+      setSelectedVideo(null);
+      setIsOpen(false);
+      
+      toast({
+        title: "Video added successfully!",
+        description: "Your video has been uploaded and added to the feed.",
+      });
+    } catch (error) {
+      console.error('Error uploading video:', error);
+      toast({
+        title: "Error uploading video",
+        description: "There was a problem uploading your video. Please try again.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsUploading(false);
+    }
   };
 
   return (
@@ -93,6 +134,7 @@ const AddVideoButton = ({ onVideoAdd }: AddVideoProps) => {
               onChange={handleFileSelect}
               ref={fileInputRef}
               className="mt-2"
+              disabled={isUploading}
             />
             {selectedVideo && (
               <p className="text-sm text-muted-foreground mt-1">
@@ -108,10 +150,11 @@ const AddVideoButton = ({ onVideoAdd }: AddVideoProps) => {
               onChange={(e) => setDescription(e.target.value)}
               placeholder="What's happening in your video?"
               className="mt-2"
+              disabled={isUploading}
             />
           </div>
-          <Button type="submit" className="w-full">
-            Post Video
+          <Button type="submit" className="w-full" disabled={isUploading}>
+            {isUploading ? "Uploading..." : "Post Video"}
           </Button>
         </form>
       </DialogContent>
