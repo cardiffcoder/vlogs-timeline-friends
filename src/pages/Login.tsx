@@ -14,74 +14,75 @@ const Login = () => {
     setIsLoading(true);
 
     try {
-      // Check if the username already exists
-      const { data: existingProfiles } = await supabase
-        .from('profiles')
-        .select('user_id')
-        .eq('username', username)
-        .single();
-
       // Generate email and password based on username
       const email = `${username}@temporary.app`;
       const password = username;
 
-      if (existingProfiles) {
-        // If username exists, try to sign in
-        const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
-          email,
-          password,
-        });
+      // First try to sign in
+      const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
 
-        if (signInError) {
+      if (signInError) {
+        if (signInError.message.includes("Invalid login credentials")) {
+          // If login fails, try to sign up
+          const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
+            email,
+            password,
+            options: {
+              data: {
+                username: username,
+              },
+            },
+          });
+
+          if (signUpError) {
+            if (signUpError.message.includes("User already registered")) {
+              // If user exists but password is wrong, show error
+              toast({
+                title: "Error",
+                description: "Invalid username or password",
+                variant: "destructive",
+              });
+              return;
+            }
+            throw signUpError;
+          }
+
+          if (signUpData.user) {
+            // Create profile after successful signup
+            const { error: profileError } = await supabase
+              .from('profiles')
+              .insert({
+                user_id: signUpData.user.id,
+                username: username
+              });
+
+            if (profileError) {
+              toast({
+                title: "Warning",
+                description: "Account created but failed to save profile information",
+                variant: "destructive",
+              });
+            } else {
+              toast({
+                title: "Success",
+                description: "Account created successfully!",
+              });
+            }
+            navigate("/");
+          }
+        } else {
           throw signInError;
         }
-
+      } else {
+        // Successful login
         toast({
           title: "Welcome back!",
           description: "Successfully logged in.",
         });
-        
         navigate("/");
-      } else {
-        // If username doesn't exist, create new account
-        const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
-          email,
-          password,
-          options: {
-            data: {
-              username: username,
-            },
-          },
-        });
-
-        if (signUpError) {
-          throw signUpError;
-        }
-
-        if (signUpData.user) {
-          // Create profile after successful signup
-          const { error: profileError } = await supabase
-            .from('profiles')
-            .insert({
-              user_id: signUpData.user.id,
-              username: username
-            });
-
-          if (profileError) {
-            toast({
-              title: "Warning",
-              description: "Account created but failed to save profile information",
-              variant: "destructive",
-            });
-          } else {
-            toast({
-              title: "Success",
-              description: "Account created successfully!",
-            });
-            
-            navigate("/");
-          }
-        }
       }
     } catch (error: any) {
       toast({
