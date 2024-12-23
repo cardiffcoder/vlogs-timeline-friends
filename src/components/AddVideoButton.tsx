@@ -109,29 +109,34 @@ const AddVideoButton = ({ onVideoAdd }: AddVideoProps) => {
 
       console.log('Database insert successful:', insertData);
 
-      // Update UI
-      onVideoAdd({
-        username: "TEJES",
-        avatarUrl: "/lovable-uploads/f8624281-c4d8-4e78-8b29-c0d8ef3ba36a.png",
-        videoUrl: publicUrl,
-        description: description,
-      });
+      // Only call onVideoAdd if we have insertData
+      if (insertData && insertData.length > 0) {
+        onVideoAdd({
+          username: "TEJES",
+          avatarUrl: "/lovable-uploads/f8624281-c4d8-4e78-8b29-c0d8ef3ba36a.png",
+          videoUrl: publicUrl,
+          description: description,
+        });
 
-      setDescription("");
-      setSelectedVideo(null);
-      setIsOpen(false);
-      
-      toast({
-        title: "Video added successfully!",
-        description: "Your video has been uploaded and added to the feed.",
-      });
+        setDescription("");
+        setSelectedVideo(null);
+        setIsOpen(false);
+        
+        toast({
+          title: "Video added successfully!",
+          description: "Your video has been uploaded and added to the feed.",
+        });
+      }
     } catch (error) {
       console.error('Detailed upload error:', error);
-      toast({
-        title: "Error uploading video",
-        description: error.message || "There was a problem uploading your video. Please try again.",
-        variant: "destructive"
-      });
+      // Only show error toast if it's actually an error
+      if (error.message !== "AbortError") {
+        toast({
+          title: "Error uploading video",
+          description: error.message || "There was a problem uploading your video. Please try again.",
+          variant: "destructive"
+        });
+      }
     } finally {
       setIsUploading(false);
     }
