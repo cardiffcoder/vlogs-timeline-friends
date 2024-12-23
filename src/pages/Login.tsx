@@ -16,30 +16,45 @@ export default function Login() {
     setIsLoading(true);
 
     try {
+      console.log('Checking for existing profile with name:', name);
+      
       // First, check if a profile with this name exists
-      const { data: existingProfiles } = await supabase
+      const { data: existingProfiles, error: profileError } = await supabase
         .from('profiles')
         .select('user_id, display_name')
         .eq('display_name', name)
-        .single();
+        .maybeSingle();
+
+      if (profileError) {
+        console.error('Error checking profile:', profileError);
+        throw profileError;
+      }
+
+      console.log('Profile check result:', existingProfiles);
+
+      // Generate deterministic email and password
+      const email = `${name.toLowerCase().replace(/\s+/g, '.')}.user@example.com`;
+      const password = `${name.toLowerCase()}_password`;
+
+      console.log('Using email:', email);
 
       if (existingProfiles) {
-        // User exists, generate their deterministic email and password
-        const email = `${name.toLowerCase().replace(/\s+/g, '.')}.user@example.com`;
-        const password = `${name.toLowerCase()}_password`;
-
-        // Try to sign in
+        console.log('Existing user found, attempting sign in');
+        
+        // User exists, try to sign in
         const { error: signInError } = await supabase.auth.signInWithPassword({
           email,
           password
         });
 
-        if (signInError) throw signInError;
+        if (signInError) {
+          console.error('Sign in error:', signInError);
+          throw signInError;
+        }
       } else {
-        // New user, create account with deterministic email and password
-        const email = `${name.toLowerCase().replace(/\s+/g, '.')}.user@example.com`;
-        const password = `${name.toLowerCase()}_password`;
-
+        console.log('New user, attempting sign up');
+        
+        // New user, create account
         const { error: signUpError } = await supabase.auth.signUp({
           email,
           password,
@@ -50,7 +65,10 @@ export default function Login() {
           }
         });
 
-        if (signUpError) throw signUpError;
+        if (signUpError) {
+          console.error('Sign up error:', signUpError);
+          throw signUpError;
+        }
       }
 
       toast({
@@ -63,7 +81,7 @@ export default function Login() {
       console.error('Auth error:', error);
       toast({
         title: "Error",
-        description: "Something went wrong. Please try again.",
+        description: error instanceof Error ? error.message : "Something went wrong. Please try again.",
         variant: "destructive",
       });
     } finally {
