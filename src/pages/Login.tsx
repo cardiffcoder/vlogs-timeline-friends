@@ -3,7 +3,6 @@ import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { toast } from "@/hooks/use-toast";
 import { PhoneInput } from "@/components/auth/PhoneInput";
-import { OTPVerification } from "@/components/auth/OTPVerification";
 
 const Login = () => {
   const navigate = useNavigate();
@@ -11,8 +10,6 @@ const Login = () => {
   const [fullName, setFullName] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [showOTP, setShowOTP] = useState(false);
-  const [otp, setOTP] = useState("");
 
   useEffect(() => {
     const checkUser = async () => {
@@ -85,10 +82,9 @@ const Login = () => {
               variant: "destructive",
             });
           } else {
-            setShowOTP(true);
             toast({
               title: "Success",
-              description: "Account created successfully! Please verify your phone number.",
+              description: "Account created successfully! You can now sign in.",
             });
           }
         } else {
@@ -116,104 +112,58 @@ const Login = () => {
     }
   };
 
-  const handleVerifyOTP = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsLoading(true);
-
-    try {
-      const { error } = await supabase.auth.verifyOtp({
-        phone: phoneNumber,
-        token: otp,
-        type: 'sms'
-      });
-
-      if (error) {
-        toast({
-          title: "Error",
-          description: error.message,
-          variant: "destructive",
-        });
-      } else {
-        toast({
-          title: "Success",
-          description: "Phone number verified successfully!",
-        });
-        navigate("/");
-      }
-    } catch (error: any) {
-      console.error("OTP verification error:", error);
-      toast({
-        title: "Error",
-        description: "Failed to verify OTP",
-        variant: "destructive",
-      });
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
   return (
     <div className="min-h-screen bg-[#111111] flex items-center justify-center p-4">
       <div className="w-full max-w-md bg-black/50 p-8 rounded-lg backdrop-blur-sm border border-gray-800">
         <h1 className="text-3xl font-semibold text-vlogs-text mb-8 text-center">Vlogs</h1>
         
-        {showOTP ? (
-          <OTPVerification
-            otp={otp}
-            setOTP={setOTP}
-            onSubmit={handleVerifyOTP}
-            onBack={() => setShowOTP(false)}
+        <form onSubmit={handleSubmit} className="space-y-6">
+          <PhoneInput
+            phoneNumber={phoneNumber}
+            setPhoneNumber={setPhoneNumber}
             isLoading={isLoading}
           />
-        ) : (
-          <form onSubmit={handleSubmit} className="space-y-6">
-            <PhoneInput
-              phoneNumber={phoneNumber}
-              setPhoneNumber={setPhoneNumber}
-              isLoading={isLoading}
-            />
 
-            <div>
-              <label htmlFor="fullName" className="block text-sm font-medium text-gray-200 mb-2">
-                Full Name (required for new accounts)
-              </label>
-              <input
-                id="fullName"
-                type="text"
-                value={fullName}
-                onChange={(e) => setFullName(e.target.value)}
-                className="w-full bg-black/30 border border-gray-700 rounded-md px-4 py-2 text-gray-200 focus:outline-none focus:ring-2 focus:ring-vlogs-primary"
-                placeholder="Enter your full name"
-                disabled={isLoading}
-              />
-            </div>
-
-            <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-200 mb-2">
-                Password (min 6 characters)
-              </label>
-              <input
-                id="password"
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="w-full bg-black/30 border border-gray-700 rounded-md px-4 py-2 text-gray-200 focus:outline-none focus:ring-2 focus:ring-vlogs-primary"
-                placeholder="Enter your password"
-                required
-                disabled={isLoading}
-                minLength={6}
-              />
-            </div>
-
-            <button
-              type="submit"
-              className="w-full bg-vlogs-primary text-white py-2 px-4 rounded-md hover:bg-vlogs-primary/90 transition-colors disabled:opacity-50"
+          <div>
+            <label htmlFor="fullName" className="block text-sm font-medium text-gray-200 mb-2">
+              Full Name (required for new accounts)
+            </label>
+            <input
+              id="fullName"
+              type="text"
+              value={fullName}
+              onChange={(e) => setFullName(e.target.value)}
+              className="w-full bg-black/30 border border-gray-700 rounded-md px-4 py-2 text-gray-200 focus:outline-none focus:ring-2 focus:ring-vlogs-primary"
+              placeholder="Enter your full name"
               disabled={isLoading}
-            >
-              {isLoading ? "Processing..." : "Sign In / Sign Up"}
-            </button>
-          </form>
-        )}
+            />
+          </div>
+
+          <div>
+            <label htmlFor="password" className="block text-sm font-medium text-gray-200 mb-2">
+              Password (min 6 characters)
+            </label>
+            <input
+              id="password"
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="w-full bg-black/30 border border-gray-700 rounded-md px-4 py-2 text-gray-200 focus:outline-none focus:ring-2 focus:ring-vlogs-primary"
+              placeholder="Enter your password"
+              required
+              disabled={isLoading}
+              minLength={6}
+            />
+          </div>
+
+          <button
+            type="submit"
+            className="w-full bg-vlogs-primary text-white py-2 px-4 rounded-md hover:bg-vlogs-primary/90 transition-colors disabled:opacity-50"
+            disabled={isLoading}
+          >
+            {isLoading ? "Processing..." : "Sign In / Sign Up"}
+          </button>
+        </form>
       </div>
     </div>
   );
