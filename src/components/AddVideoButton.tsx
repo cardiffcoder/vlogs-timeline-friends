@@ -27,12 +27,19 @@ const AddVideoButton = ({ onVideoAdd }: AddVideoProps) => {
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      if (file.type.startsWith('video/')) {
+      console.log('Selected file:', { 
+        name: file.name, 
+        type: file.type, 
+        size: file.size 
+      });
+      
+      // Accept any video/* MIME type
+      if (file.type.startsWith('video/') || file.type === 'video') {
         setSelectedVideo(file);
       } else {
         toast({
           title: "Invalid file type",
-          description: "Please select a video file.",
+          description: `File type ${file.type} is not supported. Please select a video file.`,
           variant: "destructive"
         });
       }
@@ -54,19 +61,38 @@ const AddVideoButton = ({ onVideoAdd }: AddVideoProps) => {
     setIsUploading(true);
 
     try {
+      console.log('Starting upload for file:', {
+        name: selectedVideo.name,
+        type: selectedVideo.type,
+        size: selectedVideo.size
+      });
+
       // Upload video to Supabase Storage
-      const fileExt = selectedVideo.name.split('.').pop();
+      const fileExt = selectedVideo.name.split('.').pop() || 'mp4';
       const fileName = `${Math.random()}.${fileExt}`;
+      
+      console.log('Uploading to storage with filename:', fileName);
+      
       const { data: uploadData, error: uploadError } = await supabase.storage
         .from('videos')
-        .upload(fileName, selectedVideo);
+        .upload(fileName, selectedVideo, {
+          cacheControl: '3600',
+          contentType: selectedVideo.type || 'video/mp4'
+        });
 
-      if (uploadError) throw uploadError;
+      if (uploadError) {
+        console.error('Storage upload error:', uploadError);
+        throw uploadError;
+      }
+
+      console.log('Upload successful:', uploadData);
 
       // Get the public URL for the uploaded video
       const { data: { publicUrl } } = supabase.storage
         .from('videos')
         .getPublicUrl(fileName);
+
+      console.log('Generated public URL:', publicUrl);
 
       // Insert video metadata into the database
       const { error: dbError } = await supabase
@@ -80,7 +106,10 @@ const AddVideoButton = ({ onVideoAdd }: AddVideoProps) => {
           }
         ]);
 
-      if (dbError) throw dbError;
+      if (dbError) {
+        console.error('Database insert error:', dbError);
+        throw dbError;
+      }
 
       // Update UI
       onVideoAdd({
@@ -99,10 +128,10 @@ const AddVideoButton = ({ onVideoAdd }: AddVideoProps) => {
         description: "Your video has been uploaded and added to the feed.",
       });
     } catch (error) {
-      console.error('Error uploading video:', error);
+      console.error('Detailed upload error:', error);
       toast({
         title: "Error uploading video",
-        description: "There was a problem uploading your video. Please try again.",
+        description: error.message || "There was a problem uploading your video. Please try again.",
         variant: "destructive"
       });
     } finally {
@@ -131,6 +160,7 @@ const AddVideoButton = ({ onVideoAdd }: AddVideoProps) => {
               id="video"
               type="file"
               accept="video/*"
+              capture="environment"
               onChange={handleFileSelect}
               ref={fileInputRef}
               className="mt-2"
