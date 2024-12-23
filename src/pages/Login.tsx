@@ -37,37 +37,58 @@ const Login = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (!phoneNumber || !password) {
+      toast({
+        title: "Error",
+        description: "Please fill in all required fields",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Ensure phone number is in E.164 format
+    const formattedPhone = phoneNumber.startsWith('+') ? phoneNumber : `+${phoneNumber}`;
     setIsLoading(true);
 
     try {
       // First try to sign in
       const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
-        phone: phoneNumber,
+        phone: formattedPhone,
         password,
       });
 
       if (signInError) {
-        // If sign in fails, try to sign up
-        const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
-          phone: phoneNumber,
-          password,
-          options: {
-            data: {
-              full_name: fullName,
+        // If sign in fails and we have a full name, try to sign up
+        if (fullName) {
+          const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
+            phone: formattedPhone,
+            password,
+            options: {
+              data: {
+                full_name: fullName,
+              },
             },
-          },
-        });
+          });
 
-        if (signUpError) {
+          if (signUpError) {
+            toast({
+              title: "Error",
+              description: signUpError.message,
+              variant: "destructive",
+            });
+          } else if (signUpData.user) {
+            toast({
+              title: "Success",
+              description: "Account created successfully",
+            });
+          }
+        } else {
+          // If sign in fails and we don't have a full name, show error
           toast({
             title: "Error",
-            description: signUpError.message,
+            description: "Invalid credentials or user doesn't exist",
             variant: "destructive",
-          });
-        } else if (signUpData.user) {
-          toast({
-            title: "Success",
-            description: "Account created successfully",
           });
         }
       } else if (signInData.user) {
@@ -110,7 +131,6 @@ const Login = () => {
               value={fullName}
               onChange={(e) => setFullName(e.target.value)}
               placeholder="Enter your full name"
-              required
               disabled={isLoading}
             />
           </div>
