@@ -11,6 +11,7 @@ interface VideoUploadProps {
 
 export const VideoUpload = ({ onVideoUploaded }: VideoUploadProps) => {
   const [uploading, setUploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
   const { toast } = useToast();
 
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -48,6 +49,17 @@ export const VideoUpload = ({ onVideoUploaded }: VideoUploadProps) => {
         throw new Error('Authentication required');
       }
 
+      // Get user's profile ID
+      const { data: profileData, error: profileError } = await supabase
+        .from('profiles')
+        .select('id')
+        .eq('user_id', session.user.id)
+        .single();
+
+      if (profileError || !profileData) {
+        throw new Error('Could not find user profile');
+      }
+
       // Upload to Supabase Storage
       const fileExt = file.name.split('.').pop();
       const fileName = `${Math.random()}.${fileExt}`;
@@ -69,6 +81,18 @@ export const VideoUpload = ({ onVideoUploaded }: VideoUploadProps) => {
         .from('videos')
         .getPublicUrl(filePath);
 
+      // Create video record with profile ID
+      const { error: insertError } = await supabase
+        .from('videos')
+        .insert({
+          video_url: publicUrl,
+          user_id: profileData.id // Use profile ID instead of auth.uid
+        });
+
+      if (insertError) {
+        throw insertError;
+      }
+
       onVideoUploaded(publicUrl);
       
       toast({
@@ -85,6 +109,7 @@ export const VideoUpload = ({ onVideoUploaded }: VideoUploadProps) => {
       });
     } finally {
       setUploading(false);
+      setUploadProgress(0);
     }
   };
 

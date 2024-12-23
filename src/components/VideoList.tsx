@@ -43,8 +43,9 @@ const VideoList = () => {
       if (data) {
         const processedVideos = data.map(video => ({
           ...video,
-          displayName: video.profiles?.display_name || video.display_name || video.username,
-          avatarUrl: video.profiles?.avatar_url || video.avatar_url || "/placeholder.svg",
+          displayName: video.profiles?.display_name || '',
+          username: video.profiles?.username || '',
+          avatarUrl: video.profiles?.avatar_url || '/placeholder.svg',
           authUserId: video.profiles?.user_id,
         }));
         
