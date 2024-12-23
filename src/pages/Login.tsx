@@ -13,7 +13,11 @@ export default function Login() {
     const checkAuth = async () => {
       const { data: { session } } = await supabase.auth.getSession();
       if (session) {
+        // Only redirect if user is actually authenticated
+        console.log("User is authenticated:", session.user);
         navigate('/');
+      } else {
+        console.log("No active session found");
       }
     };
     checkAuth();
@@ -22,6 +26,7 @@ export default function Login() {
   const handleSubmit = async (name: string, vlogName: string) => {
     try {
       setLoading(true);
+      console.log("Starting authentication process...");
       
       // Generate a random email and password for anonymous auth
       const email = `${crypto.randomUUID()}@anonymous.com`;
@@ -33,8 +38,13 @@ export default function Login() {
         password,
       });
 
-      if (signUpError) throw signUpError;
+      if (signUpError) {
+        console.error("Signup error:", signUpError);
+        throw signUpError;
+      }
       if (!user) throw new Error('No user created');
+
+      console.log("User created successfully:", user.id);
 
       // Create the user profile
       const { error: profileError } = await supabase
@@ -46,14 +56,25 @@ export default function Login() {
           updated_at: new Date().toISOString(),
         });
 
-      if (profileError) throw profileError;
+      if (profileError) {
+        console.error("Profile creation error:", profileError);
+        throw profileError;
+      }
 
+      console.log("Profile created successfully");
       toast({
         title: "Profile created successfully",
         description: "Now let's add a profile photo!",
       });
       
-      navigate('/photo-upload');
+      // Only navigate after confirming the user is actually logged in
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session) {
+        console.log("Session confirmed, navigating to photo upload");
+        navigate('/photo-upload');
+      } else {
+        throw new Error('Failed to create session');
+      }
     } catch (error) {
       console.error('Error:', error);
       toast({

@@ -6,10 +6,16 @@ import { supabase } from "@/integrations/supabase/client";
 
 const PhotoUpload = () => {
   const navigate = useNavigate();
-  const [isUploading, setIsUploading] = useState(false);
+  const [currentPhotoUrl, setCurrentPhotoUrl] = useState<string>();
 
   const handleLogin = () => {
     navigate('/login');
+  };
+
+  const handlePhotoUploaded = (url: string) => {
+    setCurrentPhotoUrl(url);
+    // Navigate to home after successful upload
+    navigate('/');
   };
 
   return (
@@ -20,7 +26,10 @@ const PhotoUpload = () => {
           <p className="text-gray-400">Add a photo to personalize your profile</p>
           
           <div className="flex flex-col space-y-4">
-            <ProfilePhotoUpload isUploading={isUploading} setIsUploading={setIsUploading} />
+            <ProfilePhotoUpload 
+              onPhotoUploaded={handlePhotoUploaded}
+              currentPhotoUrl={currentPhotoUrl}
+            />
             
             <div className="pt-4">
               <p className="text-gray-400 text-sm mb-2">Already have an account?</p>
