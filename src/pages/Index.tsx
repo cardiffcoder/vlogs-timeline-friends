@@ -11,7 +11,14 @@ const Index = () => {
 
   const handleLogout = async () => {
     try {
-      const { error } = await supabase.auth.signOut();
+      // First clear any existing session
+      await supabase.auth.clearSession();
+      
+      // Then attempt to sign out
+      const { error } = await supabase.auth.signOut({
+        scope: 'local'  // Changed from global to local scope
+      });
+      
       if (error) throw error;
       
       toast({
@@ -19,13 +26,18 @@ const Index = () => {
         description: "Come back soon!",
       });
       
-      navigate('/login');
+      // Force navigation to login page
+      navigate('/login', { replace: true });
     } catch (error) {
-      console.error('Error:', error);
+      console.error('Logout error:', error);
+      
+      // Even if there's an error, we'll clear local storage and redirect
+      localStorage.clear();
+      navigate('/login', { replace: true });
+      
       toast({
-        title: "Error logging out",
-        description: error instanceof Error ? error.message : "Please try again.",
-        variant: "destructive",
+        title: "Logged out",
+        description: "You have been signed out.",
       });
     }
   };
