@@ -9,7 +9,7 @@ interface ProfileInfoProps {
 
 export const ProfileInfo = ({ username, avatarUrl, displayName }: ProfileInfoProps) => {
   return (
-    <div className="flex items-center gap-2">
+    <div className="flex items-center gap-2 pl-4">
       <Avatar className="h-8 w-8 border-2 border-white">
         <AvatarImage src={avatarUrl} alt={username} className="object-cover" />
         <AvatarFallback>
