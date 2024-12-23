@@ -25,7 +25,15 @@ const Index = () => {
         },
         (payload) => {
           console.log('Real-time update:', payload);
-          fetchVideos();
+          if (payload.eventType === 'DELETE') {
+            // Immediately remove the deleted video from state
+            setVideos(currentVideos => 
+              currentVideos.filter(video => video.id !== payload.old.id)
+            );
+          } else {
+            // For other changes (INSERT, UPDATE), fetch all videos
+            fetchVideos();
+          }
         }
       )
       .subscribe();
@@ -42,7 +50,7 @@ const Index = () => {
       const { data, error } = await supabase
         .from('videos')
         .select('*, profiles:user_id(id)')
-        .order('created_at', { ascending: false }); // Sort by created_at in descending order
+        .order('created_at', { ascending: false });
 
       if (error) {
         throw error;
@@ -154,7 +162,12 @@ const Index = () => {
               timestamp={video.timestamp}
               description={video.description}
               userId={video.userId}
-              onDelete={fetchVideos}
+              onDelete={() => {
+                // Immediately remove the video from state
+                setVideos(currentVideos => 
+                  currentVideos.filter(v => v.id !== video.id)
+                );
+              }}
             />
           ))}
         </div>
