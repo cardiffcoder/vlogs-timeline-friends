@@ -35,7 +35,6 @@ const VideoCard = ({ username, avatarUrl, videoUrl, timestamp, description }: Vi
           playsInline
           loop
           autoPlay
-          muted
           preload="metadata"
         />
         
