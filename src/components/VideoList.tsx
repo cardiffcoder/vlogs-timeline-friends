@@ -25,11 +25,16 @@ const VideoList = () => {
       if (error) throw error;
 
       if (data) {
-        const processedVideos = data.map(video => ({
-          ...video,
-          displayName: video.profiles?.display_name || video.username,
-          avatarUrl: video.profiles?.avatar_url || video.avatar_url, // Fallback to video's avatar_url if profile's avatar_url is not available
-        }));
+        const processedVideos = data.map(video => {
+          // If profile exists, use its data, otherwise fallback to video data
+          const profile = video.profiles;
+          return {
+            ...video,
+            displayName: profile?.display_name || video.display_name || video.username,
+            // Only use placeholder if both profile and video avatar_url are null/undefined
+            avatarUrl: profile?.avatar_url || video.avatar_url || "/placeholder.svg",
+          };
+        });
         
         console.log('Fetched videos with profiles:', processedVideos);
         setVideos(processedVideos);
