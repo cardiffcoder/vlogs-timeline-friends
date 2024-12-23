@@ -6,7 +6,7 @@ interface AddVideoButtonProps {
 
 const AddVideoButton = ({ onVideoAdd }: AddVideoButtonProps) => {
   return (
-    <div className="fixed bottom-1 right-4 mb-[1px] mr-[1px] z-50">
+    <div className="fixed bottom-[1px] right-[1px] z-50">
       <img 
         src="/lovable-uploads/964d6cf8-df84-48fa-a72d-9e05551730c1.png" 
         alt="Add video"
