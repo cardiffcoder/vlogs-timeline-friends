@@ -76,33 +76,27 @@ export type Database = {
       }
       videos: {
         Row: {
-          avatar_url: string
           created_at: string
           description: string | null
-          display_name: string | null
           id: number
+          thumbnail_url: string | null
           user_id: number | null
-          username: string
           video_url: string
         }
         Insert: {
-          avatar_url: string
           created_at?: string
           description?: string | null
-          display_name?: string | null
           id?: number
+          thumbnail_url?: string | null
           user_id?: number | null
-          username: string
           video_url: string
         }
         Update: {
-          avatar_url?: string
           created_at?: string
           description?: string | null
-          display_name?: string | null
           id?: number
+          thumbnail_url?: string | null
           user_id?: number | null
-          username?: string
           video_url?: string
         }
         Relationships: [
