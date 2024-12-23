@@ -45,7 +45,7 @@ const AddVideoButton = ({ onVideoAdd }: AddVideoProps) => {
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
         <Button
-          className="fixed bottom-6 right-6 h-14 w-14 rounded-full bg-vlogs-text/25 border-2 border-vlogs-text hover:bg-vlogs-text/60"
+          className="fixed bottom-6 right-6 h-14 w-14 rounded-full bg-vlogs-text/25 border border-vlogs-text hover:bg-vlogs-text/60"
           size="icon"
         >
           <Plus className="h-6 w-6 text-vlogs-text" strokeWidth={4} />
