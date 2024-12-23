@@ -18,9 +18,9 @@ const Header = () => {
     <header className={`fixed top-0 left-0 right-0 z-50 border-b border-gray-800 transition-transform duration-300 relative ${
       isVisible ? 'translate-y-0' : '-translate-y-full'
     }`}>
-      <div className="absolute inset-0 bg-black/90 backdrop-blur-sm" /> {/* Dark overlay */}
+      <div className="absolute inset-0 bg-black/95 backdrop-blur-sm" /> {/* Darkened overlay */}
       <div 
-        className="absolute inset-0 w-full h-full bg-cover bg-center opacity-75 blur-md"
+        className="absolute inset-0 w-full h-full bg-cover bg-center opacity-30 blur-md"
         style={{
           backgroundImage: "url('/lovable-uploads/0e1be55a-6ca2-4b99-92f1-534f17c1ea5a.png')",
           transform: 'scale(1.1)'
