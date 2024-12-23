@@ -21,7 +21,7 @@ const Header = ({ onLogout }: HeaderProps) => {
   ];
 
   return (
-    <header className={`fixed top-0 left-0 right-0 z-50 border-b border-gray-800 transition-transform duration-300 relative ${
+    <header className={`fixed top-0 left-0 right-0 z-50 border-b border-gray-800 transition-transform duration-500 ease-in-out ${
       isVisible ? 'translate-y-0' : '-translate-y-full'
     }`}>
       <div className="absolute inset-0 bg-black/92 backdrop-blur-sm" />
