@@ -74,8 +74,7 @@ export const VideoCard = ({
           playsInline
           autoPlay
           loop
-          muted={true}
-          defaultMuted
+          muted
         />
         <div className="absolute bottom-4 left-4 z-10">
           <ProfileInfo
