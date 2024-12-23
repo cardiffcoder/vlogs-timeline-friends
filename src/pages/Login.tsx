@@ -23,19 +23,24 @@ export default function Login() {
     try {
       setLoading(true);
       
-      // Create an anonymous session
-      const { data: { session }, error: authError } = await supabase.auth.signInWithPassword({
-        email: `${crypto.randomUUID()}@anonymous.com`,
-        password: crypto.randomUUID(),
+      // Generate a random email and password for anonymous auth
+      const email = `${crypto.randomUUID()}@anonymous.com`;
+      const password = crypto.randomUUID();
+      
+      // Create a new user account
+      const { data: { user }, error: signUpError } = await supabase.auth.signUp({
+        email,
+        password,
       });
 
-      if (authError) throw authError;
-      if (!session?.user) throw new Error('No session created');
+      if (signUpError) throw signUpError;
+      if (!user) throw new Error('No user created');
 
+      // Create the user profile
       const { error: profileError } = await supabase
         .from('profiles')
         .upsert({
-          user_id: session.user.id,
+          user_id: user.id,
           username: name.toLowerCase().replace(/\s+/g, ''),
           full_name: name,
           updated_at: new Date().toISOString(),
