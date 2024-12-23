@@ -12,8 +12,35 @@ const Index = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    fetchVideos();
+    // Check authentication status when component mounts
+    checkUser();
+    
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (!session) {
+        navigate('/login');
+      }
+    });
 
+    return () => subscription.unsubscribe();
+  }, [navigate]);
+
+  const checkUser = async () => {
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        navigate('/login');
+        return;
+      }
+      fetchVideos();
+    } catch (error) {
+      console.error('Error checking auth status:', error);
+      navigate('/login');
+    }
+  };
+
+  useEffect(() => {
     const channel = supabase
       .channel('videos-changes')
       .on(
@@ -26,12 +53,10 @@ const Index = () => {
         (payload) => {
           console.log('Real-time update:', payload);
           if (payload.eventType === 'DELETE') {
-            // Immediately remove the deleted video from state
             setVideos(currentVideos => 
               currentVideos.filter(video => video.id !== payload.old.id)
             );
           } else {
-            // For other changes (INSERT, UPDATE), fetch all videos
             fetchVideos();
           }
         }
@@ -45,8 +70,12 @@ const Index = () => {
 
   const fetchVideos = async () => {
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-      
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        navigate('/login');
+        return;
+      }
+
       // First, get all videos
       const { data, error } = await supabase
         .from('videos')
@@ -100,13 +129,16 @@ const Index = () => {
     description: string;
   }) => {
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error('No user found');
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        navigate('/login');
+        return;
+      }
 
       const { data: profileData, error: profileError } = await supabase
         .from('profiles')
         .select('id')
-        .eq('user_id', user.id)
+        .eq('user_id', session.user.id)
         .single();
 
       if (profileError) throw profileError;
@@ -183,7 +215,6 @@ const Index = () => {
               description={video.description}
               userId={video.userId}
               onDelete={() => {
-                // Immediately remove the video from state
                 setVideos(currentVideos => 
                   currentVideos.filter(v => v.id !== video.id)
                 );
