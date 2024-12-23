@@ -16,33 +16,45 @@ export default function Login() {
     setIsLoading(true);
 
     try {
-      // Generate a random password for the user
-      const email = `${name.toLowerCase().replace(/\s+/g, '.')}.${Date.now()}@example.com`;
-      const password = Math.random().toString(36).slice(-8);
+      // First, check if a profile with this name exists
+      const { data: existingProfiles } = await supabase
+        .from('profiles')
+        .select('user_id, display_name')
+        .eq('display_name', name)
+        .single();
 
-      // Try to sign up the user first
-      const { error: signUpError } = await supabase.auth.signUp({
-        email,
-        password,
-        options: {
-          data: {
-            name: name,
-          }
-        }
-      });
+      if (existingProfiles) {
+        // User exists, generate their deterministic email and password
+        const email = `${name.toLowerCase().replace(/\s+/g, '.')}.user@example.com`;
+        const password = `${name.toLowerCase()}_password`;
 
-      if (signUpError) {
-        // If signup fails, try to sign in (user might already exist)
+        // Try to sign in
         const { error: signInError } = await supabase.auth.signInWithPassword({
           email,
           password
         });
 
         if (signInError) throw signInError;
+      } else {
+        // New user, create account with deterministic email and password
+        const email = `${name.toLowerCase().replace(/\s+/g, '.')}.user@example.com`;
+        const password = `${name.toLowerCase()}_password`;
+
+        const { error: signUpError } = await supabase.auth.signUp({
+          email,
+          password,
+          options: {
+            data: {
+              name: name,
+            }
+          }
+        });
+
+        if (signUpError) throw signUpError;
       }
 
       toast({
-        title: "Welcome!",
+        title: existingProfiles ? "Welcome back!" : "Welcome!",
         description: `Hey ${name}, good to see you!`,
       });
 
