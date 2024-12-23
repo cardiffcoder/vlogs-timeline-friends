@@ -17,7 +17,8 @@ const VideoList = () => {
             id,
             full_name,
             display_name,
-            avatar_url
+            avatar_url,
+            user_id
           )
         `)
         .order('created_at', { ascending: false });
@@ -28,11 +29,11 @@ const VideoList = () => {
         const processedVideos = data.map(video => ({
           ...video,
           displayName: video.profiles?.display_name || video.profiles?.full_name || video.username,
-          avatarUrl: video.profiles?.avatar_url || null,
+          avatarUrl: video.profiles?.avatar_url,
           userId: video.profiles?.id
         }));
 
-        console.log('Processed videos:', processedVideos);
+        console.log('Fetched videos with profiles:', processedVideos);
         setVideos(processedVideos);
       }
     } catch (error) {
@@ -49,7 +50,6 @@ const VideoList = () => {
     fetchVideos();
   }, []);
 
-  // Handle real-time updates
   useEffect(() => {
     const channel = supabase
       .channel('videos-changes')
