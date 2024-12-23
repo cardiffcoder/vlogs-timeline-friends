@@ -27,7 +27,16 @@ export const ProfilePhotoUpload = ({ onPhotoUploaded, currentPhotoUrl }: Profile
       setUploading(true);
       const file = event.target.files?.[0];
       
-      if (!file) return;
+      if (!file) {
+        throw new Error('No file selected');
+      }
+
+      // Log file details
+      console.log('File details:', {
+        name: file.name,
+        type: file.type,
+        size: file.size
+      });
 
       // Create preview
       const objectUrl = URL.createObjectURL(file);
@@ -38,18 +47,28 @@ export const ProfilePhotoUpload = ({ onPhotoUploaded, currentPhotoUrl }: Profile
       const fileName = `${Math.random()}.${fileExt}`;
       const filePath = `${fileName}`;
 
+      console.log('Attempting to upload file:', filePath);
+
       const { data, error: uploadError } = await supabase.storage
         .from('avatars')
-        .upload(filePath, file);
+        .upload(filePath, file, {
+          cacheControl: '3600',
+          upsert: false
+        });
 
       if (uploadError) {
+        console.error('Upload error:', uploadError);
         throw uploadError;
       }
+
+      console.log('Upload successful:', data);
 
       // Get public URL
       const { data: { publicUrl } } = supabase.storage
         .from('avatars')
         .getPublicUrl(filePath);
+
+      console.log('Public URL:', publicUrl);
 
       onPhotoUploaded(publicUrl);
       
@@ -59,12 +78,12 @@ export const ProfilePhotoUpload = ({ onPhotoUploaded, currentPhotoUrl }: Profile
       });
 
     } catch (error) {
+      console.error('Detailed error:', error);
       toast({
         title: "Error uploading photo",
-        description: "Please try again.",
+        description: error instanceof Error ? error.message : "Please try again.",
         variant: "destructive",
       });
-      console.error('Error uploading photo:', error);
     } finally {
       setUploading(false);
     }
@@ -104,7 +123,7 @@ export const ProfilePhotoUpload = ({ onPhotoUploaded, currentPhotoUrl }: Profile
               className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
             />
             <Button variant="secondary" disabled={uploading}>
-              Choose Pic
+              {uploading ? 'Uploading...' : 'Choose Pic'}
             </Button>
           </div>
           {uploading && <span>Uploading...</span>}
