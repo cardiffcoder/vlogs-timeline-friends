@@ -31,12 +31,11 @@ export const ProfilePhotoUpload = ({ onPhotoUploaded, currentPhotoUrl }: Profile
         throw new Error('No file selected');
       }
 
-      // Log file details
-      console.log('File details:', {
-        name: file.name,
-        type: file.type,
-        size: file.size
-      });
+      // Check authentication status
+      const { data: { session }, error: authError } = await supabase.auth.getSession();
+      if (authError || !session) {
+        throw new Error('Authentication required');
+      }
 
       // Create preview
       const objectUrl = URL.createObjectURL(file);
@@ -47,24 +46,31 @@ export const ProfilePhotoUpload = ({ onPhotoUploaded, currentPhotoUrl }: Profile
       const fileName = `${Math.random()}.${fileExt}`;
       const filePath = `${fileName}`;
 
-      console.log('Attempting to upload file:', filePath);
+      console.log('Starting file upload:', {
+        bucket: 'avatars',
+        path: filePath,
+        fileType: file.type,
+        size: file.size
+      });
 
-      let { error: uploadError } = await supabase.storage
+      const { error: uploadError } = await supabase.storage
         .from('avatars')
-        .upload(filePath, file);
+        .upload(filePath, file, {
+          cacheControl: '3600',
+          upsert: false
+        });
 
       if (uploadError) {
         console.error('Upload error:', uploadError);
         throw uploadError;
       }
 
-      // Get public URL in a separate call
+      // Get public URL
       const { data: { publicUrl } } = supabase.storage
         .from('avatars')
         .getPublicUrl(filePath);
 
-      console.log('Public URL:', publicUrl);
-
+      console.log('Upload successful, public URL:', publicUrl);
       onPhotoUploaded(publicUrl);
       
       toast({
@@ -73,7 +79,7 @@ export const ProfilePhotoUpload = ({ onPhotoUploaded, currentPhotoUrl }: Profile
       });
 
     } catch (error) {
-      console.error('Detailed error:', error);
+      console.error('Upload error:', error);
       toast({
         title: "Error uploading photo",
         description: error instanceof Error ? error.message : "Please try again.",
