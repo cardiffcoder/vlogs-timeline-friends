@@ -25,7 +25,7 @@ const Index = () => {
       timestamp: thirteenMinutesAgo,
       description: "Concert night with friends! 🎸",
     },
-  ];
+  ].sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime());
 
   return (
     <div className="min-h-screen bg-black">
