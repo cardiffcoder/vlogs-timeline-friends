@@ -4,10 +4,12 @@ import AddVideoButton from "@/components/AddVideoButton";
 import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabaseClient";
 import { useToast } from "@/components/ui/use-toast";
+import { useNavigate } from "react-router-dom";
 
 const Index = () => {
   const [videos, setVideos] = useState<any[]>([]);
   const { toast } = useToast();
+  const navigate = useNavigate();
 
   // Fetch videos from Supabase on component mount
   useEffect(() => {
@@ -95,9 +97,22 @@ const Index = () => {
     }
   };
 
+  const handleLogout = async () => {
+    const { error } = await supabase.auth.signOut();
+    if (error) {
+      toast({
+        title: "Error signing out",
+        description: error.message,
+        variant: "destructive"
+      });
+    } else {
+      navigate("/login");
+    }
+  };
+
   return (
     <div className="min-h-screen bg-[#111111]">
-      <Header />
+      <Header onLogout={handleLogout} />
       <main className="pt-0">
         <div className="w-full mx-auto">
           {videos.map((video) => (

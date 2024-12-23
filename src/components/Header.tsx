@@ -1,7 +1,13 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useScrollDirection } from "@/hooks/useScrollDirection";
+import { Button } from "@/components/ui/button";
+import { LogOut } from "lucide-react";
 
-const Header = () => {
+interface HeaderProps {
+  onLogout: () => void;
+}
+
+const Header = ({ onLogout }: HeaderProps) => {
   const isVisible = useScrollDirection();
 
   // Mock data for stories with new photos
@@ -18,7 +24,7 @@ const Header = () => {
     <header className={`fixed top-0 left-0 right-0 z-50 border-b border-gray-800 transition-transform duration-300 relative ${
       isVisible ? 'translate-y-0' : '-translate-y-full'
     }`}>
-      <div className="absolute inset-0 bg-black/92 backdrop-blur-sm" /> {/* Darkened overlay */}
+      <div className="absolute inset-0 bg-black/92 backdrop-blur-sm" />
       <div 
         className="absolute inset-0 w-full h-full bg-cover bg-center opacity-25 blur-md"
         style={{
@@ -26,9 +32,17 @@ const Header = () => {
           transform: 'scale(1.1)'
         }}
       />
-      <div className="relative z-10 px-4 pt-4 pb-4"> {/* Content wrapper */}
-        <div className="flex items-center mb-4">
+      <div className="relative z-10 px-4 pt-4 pb-4">
+        <div className="flex items-center justify-between mb-4">
           <h1 className="text-3xl font-semibold font-poppins text-vlogs-text">Vlogs</h1>
+          <Button 
+            variant="ghost" 
+            size="icon"
+            onClick={onLogout}
+            className="text-vlogs-text hover:bg-vlogs-text/10"
+          >
+            <LogOut className="h-5 w-5" />
+          </Button>
         </div>
         
         <div className="flex space-x-6 overflow-x-auto pb-4 pr-4 scrollbar-hide scale-[1.2] origin-left mt-6">
