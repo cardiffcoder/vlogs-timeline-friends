@@ -80,7 +80,7 @@ export default function Login() {
           backgroundImage: 'url("/lovable-uploads/8a6b52e0-e6ad-47ab-bc01-d4e81e251bdc.png")',
           backgroundSize: 'cover',
           backgroundPosition: 'center bottom -100px',
-          opacity: 0.75,
+          opacity: 0.85,
           transform: 'scale(1.44)',
         }}
       />
