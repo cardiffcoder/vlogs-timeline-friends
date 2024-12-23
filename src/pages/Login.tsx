@@ -3,9 +3,13 @@ import { useNavigate } from 'react-router-dom';
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { AuthForm } from '@/components/auth/AuthForm';
+import { Button } from '@/components/ui/button';
+import { Auth } from '@supabase/auth-ui-react';
+import { ThemeSupa } from '@supabase/auth-ui-shared';
 
 export default function Login() {
   const [loading, setLoading] = useState(false);
+  const [showSignUp, setShowSignUp] = useState(true);
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -90,14 +94,49 @@ export default function Login() {
   return (
     <div className="relative flex min-h-screen items-center justify-center bg-background p-4">
       <div className="w-full max-w-md space-y-8 relative z-10">
-        <div className="text-center">
-          <h1 className="text-2xl font-bold">Start your vlog 🤳</h1>
+        <div className="text-center space-y-2">
+          {showSignUp ? (
+            <>
+              <h1 className="text-2xl font-bold">Start your vlog 🤳</h1>
+              <p className="text-muted-foreground">
+                Already have an account?{" "}
+                <button 
+                  onClick={() => setShowSignUp(false)}
+                  className="text-primary hover:underline"
+                >
+                  Log in
+                </button>
+              </p>
+            </>
+          ) : (
+            <>
+              <h1 className="text-2xl font-bold">Welcome back! 👋</h1>
+              <p className="text-muted-foreground">
+                Don't have an account?{" "}
+                <button 
+                  onClick={() => setShowSignUp(true)}
+                  className="text-primary hover:underline"
+                >
+                  Sign up
+                </button>
+              </p>
+            </>
+          )}
         </div>
 
-        <AuthForm 
-          onSubmit={handleSubmit}
-          isLoading={loading}
-        />
+        {showSignUp ? (
+          <AuthForm 
+            onSubmit={handleSubmit}
+            isLoading={loading}
+          />
+        ) : (
+          <Auth
+            supabaseClient={supabase}
+            appearance={{ theme: ThemeSupa }}
+            providers={[]}
+            redirectTo={`${window.location.origin}/`}
+          />
+        )}
       </div>
     </div>
   );
