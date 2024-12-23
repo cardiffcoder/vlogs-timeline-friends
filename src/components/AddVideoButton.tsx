@@ -10,7 +10,7 @@ const AddVideoButton = ({ onVideoAdd }: AddVideoButtonProps) => {
       <img 
         src="/lovable-uploads/964d6cf8-df84-48fa-a72d-9e05551730c1.png" 
         alt="Add video"
-        className="w-14 h-14 cursor-pointer hover:opacity-90 transition-opacity"
+        className="cursor-pointer hover:opacity-90 transition-opacity"
         onClick={onVideoAdd}
       />
     </div>
