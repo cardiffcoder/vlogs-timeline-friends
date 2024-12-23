@@ -16,8 +16,6 @@ export default function Login() {
       if (session) {
         console.log("User is authenticated:", session.user);
         navigate('/');
-      } else {
-        console.log("No active session found");
       }
     };
     checkAuth();
@@ -29,55 +27,24 @@ export default function Login() {
       console.log("Starting authentication process...");
       
       if (showSignUp) {
-        // Check if a user with this name already exists
-        const { data: existingProfiles } = await supabase
-          .from('profiles')
-          .select('full_name')
-          .eq('full_name', name)
-          .maybeSingle();
-
-        if (existingProfiles) {
-          toast({
-            title: "Name already taken",
-            description: "Please choose a different name or log in instead",
-            variant: "destructive",
-          });
-          return;
-        }
-
-        // Generate a random email and password for anonymous auth
-        const email = `${crypto.randomUUID()}@anonymous.com`;
+        // Generate a unique email and password for the user
+        const email = `${name.toLowerCase().replace(/\s+/g, '')}_${Date.now()}@vlog.local`;
         const password = crypto.randomUUID();
         
         const { data: { user }, error: signUpError } = await supabase.auth.signUp({
           email,
           password,
+          options: {
+            data: {
+              full_name: name,
+              password: password // Store password in metadata for login
+            }
+          }
         });
 
-        if (signUpError) {
-          console.error("Signup error:", signUpError);
-          throw signUpError;
-        }
+        if (signUpError) throw signUpError;
         if (!user) throw new Error('No user created');
 
-        console.log("User created successfully:", user.id);
-
-        // Create the user profile with the provided name
-        const { error: profileError } = await supabase
-          .from('profiles')
-          .insert({
-            user_id: user.id,
-            username: `${name.toLowerCase().replace(/\s+/g, '')}_${crypto.randomUUID().slice(0, 8)}`,
-            full_name: name,
-            updated_at: new Date().toISOString(),
-          });
-
-        if (profileError) {
-          console.error("Profile creation error:", profileError);
-          throw profileError;
-        }
-
-        console.log("Profile created successfully");
         toast({
           title: "Profile created successfully",
           description: "Now let's add a profile photo!",
@@ -85,14 +52,16 @@ export default function Login() {
         
         navigate('/photo-upload');
       } else {
-        // Login flow - find user by name
-        const { data: profile, error: profileError } = await supabase
+        // Login flow
+        const { data: profiles, error: profileError } = await supabase
           .from('profiles')
-          .select('user_id')
+          .select('user_id, full_name')
           .eq('full_name', name)
           .maybeSingle();
 
-        if (!profile) {
+        if (profileError) throw profileError;
+
+        if (!profiles) {
           toast({
             title: "User not found",
             description: "No account found with that name. Please sign up instead.",
@@ -101,58 +70,41 @@ export default function Login() {
           return;
         }
 
-        if (profileError) {
-          console.error("Profile lookup error:", profileError);
-          toast({
-            title: "Error looking up profile",
-            description: "Please try again",
-            variant: "destructive",
-          });
-          return;
-        }
-
-        // Get the user's email from auth.users
-        const { data: { user }, error: userError } = await supabase.auth.admin.getUserById(profile.user_id);
+        // Get user metadata to retrieve the password
+        const { data: { users }, error: usersError } = await supabase.auth.admin.listUsers();
+        const user = users?.find(u => u.id === profiles.user_id);
         
-        if (userError || !user) {
-          console.error("Error getting user:", userError);
+        if (!user) {
           toast({
             title: "Error finding user",
-            description: "Please try again",
+            description: "Please try signing up instead",
             variant: "destructive",
           });
           return;
         }
 
-        // Since we found the profile, we can proceed with login using the email
-        const { data: { session }, error: signInError } = await supabase.auth.signInWithPassword({
-          email: user.email,
-          password: user.id, // Using the user's ID as the password
+        // Use the stored password from metadata
+        const password = user.user_metadata.password;
+        const email = user.email;
+
+        const { data, error: signInError } = await supabase.auth.signInWithPassword({
+          email,
+          password,
         });
 
-        if (signInError) {
-          console.error("Login error:", signInError);
-          toast({
-            title: "Login failed",
-            description: "Please try again",
-            variant: "destructive",
-          });
-          return;
-        }
+        if (signInError) throw signInError;
 
-        if (session) {
-          toast({
-            title: "Welcome back!",
-            description: `Successfully logged in as ${name}`,
-          });
-          navigate('/');
-        }
+        toast({
+          title: "Welcome back!",
+          description: `Successfully logged in as ${name}`,
+        });
+        navigate('/');
       }
     } catch (error) {
       console.error('Error:', error);
       toast({
         title: "Error",
-        description: error instanceof Error ? error.message : "Please try again.",
+        description: error instanceof Error ? error.message : "Please try again",
         variant: "destructive",
       });
     } finally {
