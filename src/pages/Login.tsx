@@ -27,30 +27,13 @@ const Login = () => {
 
       if (existingProfiles) {
         // If username exists, try to sign in
-        const { error: signInError } = await supabase.auth.signInWithPassword({
+        const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
           email,
           password,
         });
 
         if (signInError) {
-          if (signInError.message.includes("Email not confirmed")) {
-            // Handle unconfirmed email case
-            const { error: signUpError } = await supabase.auth.signUp({
-              email,
-              password,
-              options: {
-                data: {
-                  username: username,
-                },
-              },
-            });
-
-            if (signUpError) {
-              throw signUpError;
-            }
-          } else {
-            throw signInError;
-          }
+          throw signInError;
         }
 
         toast({
@@ -76,6 +59,7 @@ const Login = () => {
         }
 
         if (signUpData.user) {
+          // Create profile after successful signup
           const { error: profileError } = await supabase
             .from('profiles')
             .insert({
