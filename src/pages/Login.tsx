@@ -78,10 +78,13 @@ export default function Login() {
         className="absolute inset-0 z-0"
         style={{
           backgroundImage: 'url("/lovable-uploads/3717075d-709b-41b3-905a-8d1d59e76824.png")',
-          backgroundSize: 'cover',
+          backgroundSize: 'contain',
           backgroundPosition: 'center',
+          backgroundRepeat: 'no-repeat',
           opacity: 0.95,
           transform: 'rotate(90deg)',
+          width: '100vw',
+          height: '100vh'
         }}
       />
       <div className="w-full max-w-md space-y-8 relative z-10">
