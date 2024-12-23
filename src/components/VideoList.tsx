@@ -80,14 +80,34 @@ const VideoList = () => {
           schema: 'public',
           table: 'videos'
         },
-        (payload) => {
+        async (payload) => {
           console.log('Real-time update:', payload);
-          if (payload.eventType === 'DELETE') {
+          
+          if (payload.eventType === 'INSERT') {
+            const newVideo = payload.new;
+            // Verify the video exists in storage
+            const videoPath = newVideo.video_url.split('/').pop();
+            if (!videoPath) return;
+
+            const { data: exists } = await supabase.storage
+              .from('videos')
+              .list('public', {
+                search: videoPath
+              });
+
+            if (exists && exists.length > 0) {
+              setVideos(currentVideos => [
+                {
+                  ...newVideo,
+                  timestamp: new Date(newVideo.created_at),
+                },
+                ...currentVideos
+              ]);
+            }
+          } else if (payload.eventType === 'DELETE') {
             setVideos(currentVideos => 
               currentVideos.filter(video => video.id !== payload.old.id)
             );
-          } else {
-            fetchVideos();
           }
         }
       )
