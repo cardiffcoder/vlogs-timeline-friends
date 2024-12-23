@@ -21,8 +21,8 @@ const Header = () => {
         <div className="flex space-x-4 overflow-x-auto pb-2 scrollbar-hide">
           {stories.map((story) => (
             <div key={story.id} className="flex flex-col items-center">
-              <div className="rounded-full p-[3px] bg-[#E1F9FC]">
-                <Avatar className="h-14 w-14">
+              <div className="rounded-full p-[2px] bg-[#E1F9FC]">
+                <Avatar className="h-7 w-7">
                   <AvatarImage 
                     src={story.avatarUrl} 
                     alt={story.username} 
