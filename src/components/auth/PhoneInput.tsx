@@ -4,8 +4,6 @@ import { Input } from "@/components/ui/input";
 interface PhoneInputProps {
   phoneNumber: string;
   setPhoneNumber: (phone: string) => void;
-  password: string;
-  setPassword: (password: string) => void;
   fullName: string;
   setFullName: (name: string) => void;
   isLoading: boolean;
@@ -14,8 +12,6 @@ interface PhoneInputProps {
 export const PhoneInput = ({ 
   phoneNumber, 
   setPhoneNumber, 
-  password, 
-  setPassword,
   fullName,
   setFullName,
   isLoading 
@@ -58,22 +54,6 @@ export const PhoneInput = ({
           onChange={handlePhoneChange}
           className="w-full"
           placeholder="+1234567890"
-          disabled={isLoading}
-          required
-        />
-      </div>
-
-      <div className="space-y-2">
-        <label htmlFor="password" className="block text-sm font-medium text-gray-200">
-          Password
-        </label>
-        <Input
-          id="password"
-          type="password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          className="w-full"
-          placeholder="Enter your password"
           disabled={isLoading}
           required
         />

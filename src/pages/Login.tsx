@@ -7,7 +7,6 @@ import { toast } from "@/hooks/use-toast";
 const Login = () => {
   const navigate = useNavigate();
   const [phoneNumber, setPhoneNumber] = useState("");
-  const [password, setPassword] = useState("");
   const [fullName, setFullName] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
@@ -16,73 +15,51 @@ const Login = () => {
     setIsLoading(true);
 
     try {
-      // First try to sign in
-      const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
+      // Generate a random password since Supabase requires one
+      const randomPassword = Math.random().toString(36).slice(-12);
+      
+      const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
         phone: phoneNumber,
-        password: password,
+        password: randomPassword,
+        options: {
+          data: {
+            full_name: fullName,
+          },
+        },
       });
 
-      // If sign in fails because user doesn't exist, try to sign up
-      if (signInError) {
-        if (signInError.message.includes("Invalid login credentials")) {
-          const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
-            phone: phoneNumber,
-            password: password,
-            options: {
-              data: {
-                full_name: fullName,
-              },
-            },
+      if (signUpError) {
+        toast({
+          title: "Error",
+          description: signUpError.message,
+          variant: "destructive",
+        });
+        return;
+      }
+
+      if (signUpData.user) {
+        // Generate a username from the phone number (removing the + and any spaces)
+        const username = phoneNumber.replace(/[+\s]/g, '');
+        
+        const { error: profileError } = await supabase
+          .from('profiles')
+          .insert({
+            user_id: signUpData.user.id,
+            full_name: fullName,
+            username: username
           });
 
-          if (signUpError) {
-            toast({
-              title: "Error",
-              description: signUpError.message,
-              variant: "destructive",
-            });
-            return;
-          }
-
-          if (signUpData.user) {
-            // Generate a username from the phone number (removing the + and any spaces)
-            const username = phoneNumber.replace(/[+\s]/g, '');
-            
-            const { error: profileError } = await supabase
-              .from('profiles')
-              .insert({
-                user_id: signUpData.user.id,
-                full_name: fullName,
-                username: username
-              });
-
-            if (profileError) {
-              toast({
-                title: "Warning",
-                description: "Account created but failed to save profile information",
-                variant: "destructive",
-              });
-            }
-
-            toast({
-              title: "Success",
-              description: "Account created successfully!",
-            });
-            navigate("/");
-          }
-        } else {
+        if (profileError) {
           toast({
-            title: "Error",
-            description: signInError.message,
+            title: "Warning",
+            description: "Account created but failed to save profile information",
             variant: "destructive",
           });
-          return;
         }
-      } else if (signInData.user) {
-        // Sign in successful
+
         toast({
           title: "Success",
-          description: "Successfully logged in!",
+          description: "Account created successfully!",
         });
         navigate("/");
       }
@@ -108,8 +85,6 @@ const Login = () => {
           <PhoneInput
             phoneNumber={phoneNumber}
             setPhoneNumber={setPhoneNumber}
-            password={password}
-            setPassword={setPassword}
             fullName={fullName}
             setFullName={setFullName}
             isLoading={isLoading}
