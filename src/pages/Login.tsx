@@ -80,7 +80,7 @@ export default function Login() {
           backgroundImage: 'url("/lovable-uploads/8a6b52e0-e6ad-47ab-bc01-d4e81e251bdc.png")',
           backgroundSize: 'cover',
           backgroundPosition: 'center',
-          opacity: 0.3,
+          opacity: 0.55,
         }}
       />
       <div className="w-full max-w-md space-y-8 relative z-10">
