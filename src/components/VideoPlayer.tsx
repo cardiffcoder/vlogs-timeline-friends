@@ -8,7 +8,7 @@ interface VideoPlayerProps {
 const VideoPlayer = forwardRef<HTMLVideoElement, VideoPlayerProps>(({ videoUrl }, ref) => {
   const handleVisibilityChange = (isVisible: boolean) => {
     const videoElement = ref as React.RefObject<HTMLVideoElement>;
-    if (!videoElement.current) return;
+    if (!videoElement?.current) return;
 
     if (isVisible) {
       videoElement.current.play().catch(error => {
@@ -22,7 +22,7 @@ const VideoPlayer = forwardRef<HTMLVideoElement, VideoPlayerProps>(({ videoUrl }
   useEffect(() => {
     return () => {
       const videoElement = ref as React.RefObject<HTMLVideoElement>;
-      if (videoElement.current) {
+      if (videoElement?.current) {
         videoElement.current.pause();
       }
     };

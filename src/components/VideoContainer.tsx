@@ -11,6 +11,8 @@ const VideoContainer = ({ children, onVisibilityChange }: VideoContainerProps) =
   const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
+    if (!containerRef.current) return;
+
     const observer = new IntersectionObserver(
       (entries) => {
         const isIntersecting = entries[0].isIntersecting;
@@ -20,11 +22,14 @@ const VideoContainer = ({ children, onVisibilityChange }: VideoContainerProps) =
       { threshold: 0.1 }
     );
 
-    if (containerRef.current) {
-      observer.observe(containerRef.current);
-    }
+    observer.observe(containerRef.current);
 
-    return () => observer.disconnect();
+    return () => {
+      if (containerRef.current) {
+        observer.unobserve(containerRef.current);
+      }
+      observer.disconnect();
+    };
   }, [onVisibilityChange]);
 
   return (
