@@ -97,6 +97,8 @@ export const VideoCard = ({
     }
   };
 
+  const finalAvatarUrl = avatarUrl || defaultAvatarUrl;
+
   return (
     <Card className="relative overflow-hidden rounded-lg -mx-4 sm:mx-0">
       <div className="aspect-[9/16] relative">
@@ -111,7 +113,7 @@ export const VideoCard = ({
         />
         <div className="absolute bottom-4 left-4 flex items-center gap-2 z-10">
           <Avatar className="h-10 w-10 border-2 border-white">
-            <AvatarImage src={avatarUrl || defaultAvatarUrl} alt={displayName || username} />
+            <AvatarImage src={finalAvatarUrl} alt={displayName || username} />
             <AvatarFallback>
               <img 
                 src={defaultAvatarUrl} 

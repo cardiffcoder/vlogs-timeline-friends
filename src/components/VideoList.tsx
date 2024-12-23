@@ -52,12 +52,13 @@ const VideoList = () => {
 
             if (exists && exists.length > 0) {
               const displayName = video.profiles?.display_name || video.profiles?.full_name || video.username;
+              const avatarUrl = video.profiles?.avatar_url || video.avatar_url;
               return {
                 ...video,
                 timestamp: new Date(video.created_at),
                 userId: video.profiles?.id,
                 displayName,
-                avatar_url: video.profiles?.avatar_url
+                avatar_url: avatarUrl
               };
             }
             console.log("Video file not found in storage:", cleanPath);
