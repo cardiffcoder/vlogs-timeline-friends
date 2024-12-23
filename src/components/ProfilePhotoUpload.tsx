@@ -49,21 +49,16 @@ export const ProfilePhotoUpload = ({ onPhotoUploaded, currentPhotoUrl }: Profile
 
       console.log('Attempting to upload file:', filePath);
 
-      const { data, error: uploadError } = await supabase.storage
+      let { error: uploadError } = await supabase.storage
         .from('avatars')
-        .upload(filePath, file, {
-          cacheControl: '3600',
-          upsert: false
-        });
+        .upload(filePath, file);
 
       if (uploadError) {
         console.error('Upload error:', uploadError);
         throw uploadError;
       }
 
-      console.log('Upload successful:', data);
-
-      // Get public URL
+      // Get public URL in a separate call
       const { data: { publicUrl } } = supabase.storage
         .from('avatars')
         .getPublicUrl(filePath);
