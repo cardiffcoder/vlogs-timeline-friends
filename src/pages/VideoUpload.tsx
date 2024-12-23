@@ -3,9 +3,12 @@ import { useNavigate } from 'react-router-dom';
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { VideoUpload } from "@/components/VideoUpload";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
 
 export default function VideoUploadPage() {
   const [loading, setLoading] = useState(false);
+  const [caption, setCaption] = useState('');
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -40,7 +43,7 @@ export default function VideoUploadPage() {
       // Make sure we have an avatar_url, use a default if none exists
       const avatarUrl = profileData.avatar_url || '/placeholder.svg';
 
-      // Insert video with the profile data
+      // Insert video with the profile data and caption
       const { error: videoError } = await supabase
         .from('videos')
         .insert({
@@ -48,7 +51,8 @@ export default function VideoUploadPage() {
           avatar_url: avatarUrl,
           video_url: url,
           user_id: profileData.id,
-          display_name: profileData.display_name || profileData.full_name || profileData.username
+          display_name: profileData.display_name || profileData.full_name || profileData.username,
+          description: caption.trim() || null
         });
 
       if (videoError) {
@@ -82,7 +86,22 @@ export default function VideoUploadPage() {
           <p className="text-muted-foreground">Share your latest vlog with the world</p>
         </div>
         
-        <VideoUpload onVideoUploaded={handleVideoUploaded} />
+        <div className="space-y-6">
+          <VideoUpload onVideoUploaded={handleVideoUploaded} />
+          
+          <div className="space-y-2">
+            <Label htmlFor="caption">Caption</Label>
+            <Textarea
+              id="caption"
+              placeholder="Write a caption for your video..."
+              value={caption}
+              onChange={(e) => setCaption(e.target.value)}
+              className="resize-none"
+              rows={3}
+              disabled={loading}
+            />
+          </div>
+        </div>
       </div>
     </div>
   );

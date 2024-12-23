@@ -76,8 +76,8 @@ export const VideoCard = ({
           />
         </div>
         {description && (
-          <div className="absolute bottom-16 left-4 right-4 text-white text-sm">
-            <p className="line-clamp-2 drop-shadow-lg">{description}</p>
+          <div className="absolute bottom-20 left-4 right-4 text-white">
+            <p className="line-clamp-2 drop-shadow-lg font-mona-sans text-sm">{description}</p>
           </div>
         )}
         {userId && (
