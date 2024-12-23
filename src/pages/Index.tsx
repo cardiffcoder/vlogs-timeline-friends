@@ -37,11 +37,23 @@ const Index = () => {
   };
 
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setShowSplash(false);
-    }, 10000); // Show splash screen for 10 seconds
+    // Get the current visit count from localStorage
+    const visitCount = parseInt(localStorage.getItem('visitCount') || '0');
+    
+    // Only show splash if we haven't exceeded 3 visits
+    if (visitCount < 3) {
+      // Increment and save the visit count
+      localStorage.setItem('visitCount', (visitCount + 1).toString());
+      
+      const timer = setTimeout(() => {
+        setShowSplash(false);
+      }, 10000); // Show splash screen for 10 seconds
 
-    return () => clearTimeout(timer);
+      return () => clearTimeout(timer);
+    } else {
+      // If we've already seen it 3 times, don't show splash
+      setShowSplash(false);
+    }
   }, []);
 
   const handleAddVideo = () => {
