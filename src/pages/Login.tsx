@@ -62,14 +62,12 @@ export default function Login() {
 
         console.log("User created successfully:", user.id);
 
-        // Create the user profile with a unique username
-        const username = `${name.toLowerCase().replace(/\s+/g, '')}_${crypto.randomUUID().slice(0, 8)}`;
-        
+        // Create the user profile with the provided name
         const { error: profileError } = await supabase
           .from('profiles')
           .insert({
             user_id: user.id,
-            username: username,
+            username: `${name.toLowerCase().replace(/\s+/g, '')}_${crypto.randomUUID().slice(0, 8)}`,
             full_name: name,
             updated_at: new Date().toISOString(),
           });
@@ -116,7 +114,7 @@ export default function Login() {
         // Since we found the profile, we can proceed with login
         const { data: { session }, error: signInError } = await supabase.auth.signInWithPassword({
           email: `${profile.user_id}@anonymous.com`,
-          password: profile.user_id, // Using user_id as password for simplicity
+          password: profile.user_id,
         });
 
         if (signInError) {
