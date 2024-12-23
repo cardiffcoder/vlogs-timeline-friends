@@ -1,70 +1,42 @@
-import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { Button } from "@/components/ui/button";
+import ProfilePhotoUpload from "@/components/ProfilePhotoUpload";
 import { supabase } from "@/integrations/supabase/client";
-import { ProfilePhotoUpload } from '@/components/ProfilePhotoUpload';
-import { useToast } from "@/hooks/use-toast";
 
-export default function PhotoUpload() {
-  const [loading, setLoading] = useState(false);
+const PhotoUpload = () => {
   const navigate = useNavigate();
-  const { toast } = useToast();
+  const [isUploading, setIsUploading] = useState(false);
 
-  useEffect(() => {
-    const checkAuth = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) {
-        navigate('/login');
-      }
-    };
-    checkAuth();
-  }, [navigate]);
-
-  const handlePhotoUploaded = async (url: string) => {
-    try {
-      setLoading(true);
-      const { data: { session } } = await supabase.auth.getSession();
-      
-      if (!session) {
-        throw new Error('No session found');
-      }
-
-      const { error: profileError } = await supabase
-        .from('profiles')
-        .update({ avatar_url: url })
-        .eq('user_id', session.user.id);
-
-      if (profileError) throw profileError;
-
-      toast({
-        title: "Profile photo updated",
-        description: "Your profile is now complete!",
-      });
-      
-      navigate('/');
-    } catch (error) {
-      console.error('Error:', error);
-      toast({
-        title: "Error updating profile photo",
-        description: error instanceof Error ? error.message : "Please try again.",
-        variant: "destructive",
-      });
-    } finally {
-      setLoading(false);
-    }
+  const handleLogin = () => {
+    navigate('/login');
   };
 
   return (
-    <div className="relative flex min-h-screen items-center justify-center bg-background p-4">
-      <div className="w-full max-w-md space-y-8 relative z-10">
-        <div className="text-center space-y-2">
-          <h1 className="text-2xl font-bold">Add a profile photo 📸</h1>
-          <p className="text-muted-foreground">Choose a photo that represents you</p>
+    <div className="min-h-screen bg-[#111111] flex flex-col items-center justify-center p-4">
+      <div className="w-full max-w-md space-y-8">
+        <div className="text-center space-y-4">
+          <h1 className="text-2xl font-bold text-white">Upload Profile Photo</h1>
+          <p className="text-gray-400">Add a photo to personalize your profile</p>
+          
+          <div className="flex flex-col space-y-4">
+            <ProfilePhotoUpload isUploading={isUploading} setIsUploading={setIsUploading} />
+            
+            <div className="pt-4">
+              <p className="text-gray-400 text-sm mb-2">Already have an account?</p>
+              <Button
+                variant="outline"
+                onClick={handleLogin}
+                className="w-full"
+              >
+                Log In
+              </Button>
+            </div>
+          </div>
         </div>
-        
-        <ProfilePhotoUpload
-          onPhotoUploaded={handlePhotoUploaded}
-        />
       </div>
     </div>
   );
-}
+};
+
+export default PhotoUpload;
