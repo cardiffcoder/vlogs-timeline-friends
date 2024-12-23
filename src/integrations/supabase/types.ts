@@ -13,6 +13,7 @@ export type Database = {
         Row: {
           bio: string | null
           created_at: string | null
+          full_name: string | null
           id: number
           updated_at: string | null
           user_id: string | null
@@ -21,6 +22,7 @@ export type Database = {
         Insert: {
           bio?: string | null
           created_at?: string | null
+          full_name?: string | null
           id?: never
           updated_at?: string | null
           user_id?: string | null
@@ -29,6 +31,7 @@ export type Database = {
         Update: {
           bio?: string | null
           created_at?: string | null
+          full_name?: string | null
           id?: never
           updated_at?: string | null
           user_id?: string | null
