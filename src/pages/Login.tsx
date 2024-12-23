@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { PhoneInput } from "@/components/auth/PhoneInput";
@@ -8,6 +8,26 @@ const Login = () => {
   const navigate = useNavigate();
   const [fullName, setFullName] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+
+  // Check for existing session on component mount
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session) {
+        navigate("/");
+      }
+    });
+
+    // Listen for auth state changes
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (session) {
+        navigate("/");
+      }
+    });
+
+    return () => subscription.unsubscribe();
+  }, [navigate]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -62,7 +82,8 @@ const Login = () => {
           title: "Success",
           description: "Account created successfully!",
         });
-        navigate("/");
+        
+        // The navigation will be handled by the auth state change listener
       }
     } catch (error: any) {
       toast({
