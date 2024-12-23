@@ -7,7 +7,8 @@ import { Button } from "@/components/ui/button";
 
 const Login = () => {
   const navigate = useNavigate();
-  const [email, setEmail] = useState("");
+  const [phoneNumber, setPhoneNumber] = useState("");
+  const [fullName, setFullName] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
@@ -40,15 +41,20 @@ const Login = () => {
     try {
       // Try to sign in first
       const { error: signInError } = await supabase.auth.signInWithPassword({
-        email,
+        phone: phoneNumber,
         password,
       });
 
       if (signInError) {
         // If sign in fails, try to sign up
         const { error: signUpError } = await supabase.auth.signUp({
-          email,
+          phone: phoneNumber,
           password,
+          options: {
+            data: {
+              full_name: fullName,
+            },
+          },
         });
 
         if (signUpError) {
@@ -83,15 +89,30 @@ const Login = () => {
         
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label htmlFor="email" className="block text-sm font-medium text-gray-200 mb-2">
-              Email
+            <label htmlFor="phone" className="block text-sm font-medium text-gray-200 mb-2">
+              Phone Number
             </label>
             <Input
-              id="email"
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="Enter your email"
+              id="phone"
+              type="tel"
+              value={phoneNumber}
+              onChange={(e) => setPhoneNumber(e.target.value)}
+              placeholder="Enter your phone number"
+              required
+              disabled={isLoading}
+            />
+          </div>
+
+          <div>
+            <label htmlFor="fullName" className="block text-sm font-medium text-gray-200 mb-2">
+              Full Name
+            </label>
+            <Input
+              id="fullName"
+              type="text"
+              value={fullName}
+              onChange={(e) => setFullName(e.target.value)}
+              placeholder="Enter your full name"
               required
               disabled={isLoading}
             />
