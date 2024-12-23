@@ -13,7 +13,6 @@ const Login = () => {
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
-  // Check if user is already logged in
   useEffect(() => {
     const checkUser = async () => {
       const { data: { session } } = await supabase.auth.getSession();
@@ -74,7 +73,7 @@ const Login = () => {
 
     try {
       // First try to sign in
-      const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
+      const { error: signInError } = await supabase.auth.signInWithPassword({
         phone: phoneNumber,
         password,
       });
@@ -88,10 +87,11 @@ const Login = () => {
               description: "Full name must be at least 2 characters long",
               variant: "destructive",
             });
+            setIsLoading(false);
             return;
           }
 
-          const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
+          const { error: signUpError } = await supabase.auth.signUp({
             phone: phoneNumber,
             password,
             options: {
@@ -107,7 +107,7 @@ const Login = () => {
               description: signUpError.message,
               variant: "destructive",
             });
-          } else if (signUpData.user) {
+          } else {
             toast({
               title: "Success",
               description: "Account created successfully! Please verify your phone number.",
@@ -120,7 +120,7 @@ const Login = () => {
             variant: "destructive",
           });
         }
-      } else if (signInData.user) {
+      } else {
         toast({
           title: "Success",
           description: "Logged in successfully",
