@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
+import { Upload } from "lucide-react";
 
 interface VideoUploadProps {
   onVideoUploaded: (url: string) => void;
@@ -19,6 +20,12 @@ export const VideoUpload = ({ onVideoUploaded }: VideoUploadProps) => {
       
       if (!file) {
         throw new Error('No file selected');
+      }
+
+      // Check file size (100MB limit)
+      const MAX_FILE_SIZE = 100 * 1024 * 1024; // 100MB in bytes
+      if (file.size > MAX_FILE_SIZE) {
+        throw new Error('File size must be less than 100MB');
       }
 
       // Check authentication status
@@ -83,20 +90,29 @@ export const VideoUpload = ({ onVideoUploaded }: VideoUploadProps) => {
     <div className="space-y-4">
       <Label>Upload Video</Label>
       <div className="flex flex-col items-center gap-4">
-        <div className="relative">
+        <div className="relative w-full max-w-sm">
           <input
             type="file"
             accept="video/*"
-            capture="environment"
             onChange={handleFileUpload}
             disabled={uploading}
             className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
           />
-          <Button variant="secondary" disabled={uploading}>
-            {uploading ? 'Uploading...' : 'Record Video'}
+          <Button 
+            variant="secondary" 
+            disabled={uploading}
+            className="w-full flex items-center justify-center gap-2"
+          >
+            <Upload className="w-4 h-4" />
+            {uploading ? 'Uploading...' : 'Choose Video'}
           </Button>
         </div>
-        {uploading && <span>Uploading video...</span>}
+        {uploading && (
+          <div className="flex items-center gap-2">
+            <div className="w-4 h-4 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+            <span>Uploading video...</span>
+          </div>
+        )}
       </div>
     </div>
   );
