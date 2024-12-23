@@ -9,10 +9,28 @@ import { Label } from "@/components/ui/label";
 export default function VideoUploadPage() {
   const [loading, setLoading] = useState(false);
   const [caption, setCaption] = useState('');
+  const [uploadedVideoUrl, setUploadedVideoUrl] = useState<string | null>(null);
   const navigate = useNavigate();
   const { toast } = useToast();
 
   const handleVideoUploaded = async (url: string) => {
+    setUploadedVideoUrl(url);
+    toast({
+      title: "Video uploaded successfully",
+      description: "You can now add a caption before saving.",
+    });
+  };
+
+  const saveVideoWithCaption = async () => {
+    if (!uploadedVideoUrl) {
+      toast({
+        title: "Please upload a video first",
+        description: "Upload a video before saving the caption.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     try {
       setLoading(true);
       const { data: { session } } = await supabase.auth.getSession();
@@ -49,7 +67,7 @@ export default function VideoUploadPage() {
         .insert({
           username: profileData.username,
           avatar_url: avatarUrl,
-          video_url: url,
+          video_url: uploadedVideoUrl,
           user_id: profileData.id,
           display_name: profileData.display_name || profileData.full_name || profileData.username,
           description: caption.trim() || null
@@ -61,8 +79,8 @@ export default function VideoUploadPage() {
       }
 
       toast({
-        title: "Video uploaded successfully",
-        description: "Your video will be visible on the feed shortly!",
+        title: "Video saved successfully",
+        description: "Your video and caption have been saved!",
       });
       
       navigate('/');
@@ -101,6 +119,16 @@ export default function VideoUploadPage() {
               disabled={loading}
             />
           </div>
+
+          {uploadedVideoUrl && (
+            <button
+              onClick={saveVideoWithCaption}
+              disabled={loading}
+              className="w-full bg-primary text-primary-foreground hover:bg-primary/90 px-4 py-2 rounded-md"
+            >
+              {loading ? 'Saving...' : 'Save Video with Caption'}
+            </button>
+          )}
         </div>
       </div>
     </div>
