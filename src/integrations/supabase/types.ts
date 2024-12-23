@@ -14,6 +14,7 @@ export type Database = {
           avatar_url: string | null
           bio: string | null
           created_at: string | null
+          display_name: string | null
           full_name: string | null
           id: number
           updated_at: string | null
@@ -24,6 +25,7 @@ export type Database = {
           avatar_url?: string | null
           bio?: string | null
           created_at?: string | null
+          display_name?: string | null
           full_name?: string | null
           id?: never
           updated_at?: string | null
@@ -34,6 +36,7 @@ export type Database = {
           avatar_url?: string | null
           bio?: string | null
           created_at?: string | null
+          display_name?: string | null
           full_name?: string | null
           id?: never
           updated_at?: string | null
@@ -47,6 +50,7 @@ export type Database = {
           avatar_url: string
           created_at: string
           description: string | null
+          display_name: string | null
           id: number
           user_id: number | null
           username: string
@@ -56,6 +60,7 @@ export type Database = {
           avatar_url: string
           created_at?: string
           description?: string | null
+          display_name?: string | null
           id?: number
           user_id?: number | null
           username: string
@@ -65,6 +70,7 @@ export type Database = {
           avatar_url?: string
           created_at?: string
           description?: string | null
+          display_name?: string | null
           id?: number
           user_id?: number | null
           username?: string

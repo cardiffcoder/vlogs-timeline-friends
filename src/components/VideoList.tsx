@@ -133,10 +133,14 @@ const VideoList = () => {
       {videos.map((video) => (
         <VideoCard
           key={video.id}
+          id={video.id}
           username={video.username}
           avatarUrl={video.avatar_url}
           videoUrl={video.video_url}
           description={video.description}
+          displayName={video.display_name}
+          userId={video.userId}
+          onDelete={() => fetchVideos()}
         />
       ))}
     </div>
