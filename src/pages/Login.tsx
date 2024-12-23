@@ -78,9 +78,9 @@ export default function Login() {
         if (signUpData.session) {
           toast({
             title: "Welcome!",
-            description: "Let's set up your profile photo first.",
+            description: "Let's create your profile!",
           });
-          // New users are directed to photo upload
+          // New users are directed to create profile
           navigate('/photo-upload', { replace: true });
         } else {
           // If no session, something went wrong
