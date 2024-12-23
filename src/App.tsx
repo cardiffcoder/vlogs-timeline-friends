@@ -18,68 +18,95 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const [hasProfile, setHasProfile] = useState<boolean | null>(null);
 
   useEffect(() => {
+    let mounted = true;
+
     const checkAuth = async () => {
       try {
-        const { data: { session } } = await supabase.auth.getSession();
+        const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+        
+        if (sessionError) throw sessionError;
+        
+        if (!mounted) return;
+        
         setIsAuthenticated(!!session);
 
-        if (session) {
-          // Check if user has a profile
-          const { data: profile } = await supabase
+        if (session?.user) {
+          const { data: profile, error: profileError } = await supabase
             .from('profiles')
             .select('id, avatar_url')
             .eq('user_id', session.user.id)
             .maybeSingle();
 
-          // Only redirect to photo upload if there's no profile or no avatar
+          if (profileError) throw profileError;
+          
+          if (!mounted) return;
+          
           setHasProfile(!!profile && !!profile.avatar_url);
+        } else {
+          setHasProfile(false);
         }
       } catch (error) {
         console.error('Auth check error:', error);
+        if (!mounted) return;
         setIsAuthenticated(false);
         setHasProfile(false);
       } finally {
-        setIsLoading(false);
+        if (mounted) {
+          setIsLoading(false);
+        }
       }
     };
 
     checkAuth();
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
+      if (!mounted) return;
+      
       setIsAuthenticated(!!session);
       
-      if (session) {
-        // Check if user has a profile
-        const { data: profile } = await supabase
-          .from('profiles')
-          .select('id, avatar_url')
-          .eq('user_id', session.user.id)
-          .maybeSingle();
+      if (session?.user) {
+        try {
+          const { data: profile, error: profileError } = await supabase
+            .from('profiles')
+            .select('id, avatar_url')
+            .eq('user_id', session.user.id)
+            .maybeSingle();
 
-        // Only redirect to photo upload if there's no profile or no avatar
-        setHasProfile(!!profile && !!profile.avatar_url);
+          if (profileError) throw profileError;
+          
+          if (!mounted) return;
+          
+          setHasProfile(!!profile && !!profile.avatar_url);
+        } catch (error) {
+          console.error('Profile check error:', error);
+          if (!mounted) return;
+          setHasProfile(false);
+        }
+      } else {
+        setHasProfile(false);
       }
       
-      setIsLoading(false);
+      if (mounted) {
+        setIsLoading(false);
+      }
     });
 
-    return () => subscription.unsubscribe();
+    return () => {
+      mounted = false;
+      subscription.unsubscribe();
+    };
   }, []);
 
-  // Show loading spinner only if we're still checking auth status
   if (isLoading) {
     return <div className="min-h-screen bg-[#111111] flex items-center justify-center">
       <div className="w-8 h-8 border-4 border-vlogs-text border-t-transparent rounded-full animate-spin" />
     </div>;
   }
 
-  // If not authenticated, redirect to login
   if (!isAuthenticated) {
     return <Navigate to="/login" replace />;
   }
 
-  // If authenticated but no profile/avatar, redirect to photo upload
-  // Only redirect if we're not already on the photo upload page
   if (isAuthenticated && !hasProfile && window.location.pathname !== '/photo-upload') {
     return <Navigate to="/photo-upload" replace />;
   }
