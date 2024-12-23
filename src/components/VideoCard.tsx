@@ -9,7 +9,7 @@ import { useToast } from "@/components/ui/use-toast";
 interface VideoCardProps {
   id: number;
   username: string;
-  avatarUrl: string;
+  avatarUrl: string | null;
   videoUrl: string;
   description?: string;
   displayName?: string;
@@ -97,7 +97,9 @@ export const VideoCard = ({
     }
   };
 
+  // Use avatarUrl if it exists, otherwise use default
   const finalAvatarUrl = avatarUrl || defaultAvatarUrl;
+  console.log("Final avatar URL:", finalAvatarUrl);
 
   return (
     <Card className="relative overflow-hidden rounded-lg -mx-4 sm:mx-0">
@@ -113,7 +115,10 @@ export const VideoCard = ({
         />
         <div className="absolute bottom-4 left-4 flex items-center gap-2 z-10">
           <Avatar className="h-10 w-10 border-2 border-white">
-            <AvatarImage src={finalAvatarUrl} alt={displayName || username} />
+            <AvatarImage 
+              src={finalAvatarUrl} 
+              alt={displayName || username}
+            />
             <AvatarFallback>
               <img 
                 src={defaultAvatarUrl} 
