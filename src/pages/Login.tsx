@@ -1,5 +1,5 @@
 import { supabase } from "@/integrations/supabase/client";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { toast } from "@/hooks/use-toast";
 import { Input } from "@/components/ui/input";
@@ -7,10 +7,39 @@ import { Button } from "@/components/ui/button";
 
 const Login = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
+  // Handle email verification
+  useEffect(() => {
+    const token_hash = searchParams.get('token_hash');
+    const type = searchParams.get('type');
+    
+    if (token_hash && type) {
+      supabase.auth.verifyOtp({
+        token_hash,
+        type: type as any,
+      }).then(({ error }) => {
+        if (error) {
+          toast({
+            title: "Verification failed",
+            description: error.message,
+            variant: "destructive",
+          });
+        } else {
+          toast({
+            title: "Email verified",
+            description: "You can now sign in with your email and password",
+          });
+          navigate('/login');
+        }
+      });
+    }
+  }, [searchParams, navigate]);
+
+  // Check if user is already logged in
   useEffect(() => {
     const checkUser = async () => {
       const { data: { session } } = await supabase.auth.getSession();
@@ -40,6 +69,9 @@ const Login = () => {
       const { error } = await supabase.auth.signUp({
         email,
         password,
+        options: {
+          emailRedirectTo: window.location.origin + '/login'
+        }
       });
 
       if (error) {
