@@ -5,10 +5,18 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 interface PhoneInputProps {
   phoneNumber: string;
   setPhoneNumber: (phone: string) => void;
+  password: string;
+  setPassword: (password: string) => void;
   isLoading: boolean;
 }
 
-export const PhoneInput = ({ phoneNumber, setPhoneNumber, isLoading }: PhoneInputProps) => {
+export const PhoneInput = ({ 
+  phoneNumber, 
+  setPhoneNumber, 
+  password, 
+  setPassword, 
+  isLoading 
+}: PhoneInputProps) => {
   const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     let value = e.target.value;
     // Ensure it starts with +
@@ -19,20 +27,39 @@ export const PhoneInput = ({ phoneNumber, setPhoneNumber, isLoading }: PhoneInpu
   };
 
   return (
-    <div className="space-y-2">
-      <label htmlFor="phone" className="block text-sm font-medium text-gray-200">
-        Phone Number
-      </label>
-      <Input
-        id="phone"
-        type="tel"
-        value={phoneNumber}
-        onChange={handlePhoneChange}
-        className="w-full"
-        placeholder="+1234567890"
-        disabled={isLoading}
-        required
-      />
+    <div className="space-y-4">
+      <div className="space-y-2">
+        <label htmlFor="phone" className="block text-sm font-medium text-gray-200">
+          Phone Number
+        </label>
+        <Input
+          id="phone"
+          type="tel"
+          value={phoneNumber}
+          onChange={handlePhoneChange}
+          className="w-full"
+          placeholder="+1234567890"
+          disabled={isLoading}
+          required
+        />
+      </div>
+
+      <div className="space-y-2">
+        <label htmlFor="password" className="block text-sm font-medium text-gray-200">
+          Password
+        </label>
+        <Input
+          id="password"
+          type="password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          className="w-full"
+          placeholder="Enter your password"
+          disabled={isLoading}
+          required
+        />
+      </div>
+
       <Alert>
         <AlertDescription>
           <p className="text-sm">For testing, use a real phone number format:</p>
