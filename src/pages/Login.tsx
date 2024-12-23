@@ -40,6 +40,8 @@ const Login = () => {
           title: "Welcome back!",
           description: "Successfully logged in.",
         });
+        
+        navigate("/");
       } else {
         // If username doesn't exist, create new account
         const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
@@ -75,11 +77,11 @@ const Login = () => {
               title: "Success",
               description: "Account created successfully!",
             });
+            
+            navigate("/");
           }
         }
       }
-      
-      // Navigation will be handled by the auth state change listener
     } catch (error: any) {
       toast({
         title: "Error",
