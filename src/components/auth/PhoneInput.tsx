@@ -1,30 +1,30 @@
 import React from "react";
 import { Input } from "@/components/ui/input";
 
-interface NameInputProps {
-  fullName: string;
-  setFullName: (name: string) => void;
+interface UsernameInputProps {
+  username: string;
+  setUsername: (name: string) => void;
   isLoading: boolean;
 }
 
 export const PhoneInput = ({ 
-  fullName,
-  setFullName,
+  username,
+  setUsername,
   isLoading 
-}: NameInputProps) => {
+}: UsernameInputProps) => {
   return (
     <div className="space-y-4">
       <div className="space-y-2">
-        <label htmlFor="fullName" className="block text-sm font-medium text-gray-200">
-          Full Name
+        <label htmlFor="username" className="block text-sm font-medium text-gray-200">
+          Username
         </label>
         <Input
-          id="fullName"
+          id="username"
           type="text"
-          value={fullName}
-          onChange={(e) => setFullName(e.target.value)}
+          value={username}
+          onChange={(e) => setUsername(e.target.value)}
           className="w-full"
-          placeholder="Enter your full name"
+          placeholder="Enter your username"
           disabled={isLoading}
           required
         />

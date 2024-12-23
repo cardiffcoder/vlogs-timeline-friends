@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { PhoneInput } from "@/components/auth/PhoneInput";
@@ -6,84 +6,80 @@ import { toast } from "@/hooks/use-toast";
 
 const Login = () => {
   const navigate = useNavigate();
-  const [fullName, setFullName] = useState("");
+  const [username, setUsername] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-
-  // Check for existing session on component mount
-  useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (session) {
-        navigate("/");
-      }
-    });
-
-    // Listen for auth state changes
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
-      if (session) {
-        navigate("/");
-      }
-    });
-
-    return () => subscription.unsubscribe();
-  }, [navigate]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
 
     try {
-      // Generate a unique username from the full name
-      const username = fullName.toLowerCase().replace(/[^a-z0-9]/g, '') + Date.now().toString().slice(-4);
-      
-      // Use the username as both email and password for simplicity
+      // Check if the username already exists
+      const { data: existingProfiles } = await supabase
+        .from('profiles')
+        .select('user_id')
+        .eq('username', username)
+        .single();
+
+      // Generate email and password based on username
       const email = `${username}@temporary.app`;
       const password = username;
 
-      const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
-        email,
-        password,
-        options: {
-          data: {
-            full_name: fullName,
-          },
-        },
-      });
-
-      if (signUpError) {
-        toast({
-          title: "Error",
-          description: signUpError.message,
-          variant: "destructive",
+      if (existingProfiles) {
+        // If username exists, try to sign in
+        const { error: signInError } = await supabase.auth.signInWithPassword({
+          email,
+          password,
         });
-        return;
-      }
 
-      if (signUpData.user) {
-        const { error: profileError } = await supabase
-          .from('profiles')
-          .insert({
-            user_id: signUpData.user.id,
-            full_name: fullName,
-            username: username
-          });
-
-        if (profileError) {
-          toast({
-            title: "Warning",
-            description: "Account created but failed to save profile information",
-            variant: "destructive",
-          });
-        } else {
-          toast({
-            title: "Success",
-            description: "Account created successfully!",
-          });
+        if (signInError) {
+          throw signInError;
         }
-        
-        // Navigation will be handled by the auth state change listener
+
+        toast({
+          title: "Welcome back!",
+          description: "Successfully logged in.",
+        });
+      } else {
+        // If username doesn't exist, create new account
+        const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
+          email,
+          password,
+          options: {
+            data: {
+              username: username,
+            },
+          },
+        });
+
+        if (signUpError) {
+          throw signUpError;
+        }
+
+        if (signUpData.user) {
+          const { error: profileError } = await supabase
+            .from('profiles')
+            .insert({
+              user_id: signUpData.user.id,
+              username: username
+            });
+
+          if (profileError) {
+            toast({
+              title: "Warning",
+              description: "Account created but failed to save profile information",
+              variant: "destructive",
+            });
+          } else {
+            toast({
+              title: "Success",
+              description: "Account created successfully!",
+            });
+          }
+        }
       }
+      
+      // Navigation will be handled by the auth state change listener
     } catch (error: any) {
       toast({
         title: "Error",
@@ -104,8 +100,8 @@ const Login = () => {
 
         <form onSubmit={handleLogin} className="space-y-6">
           <PhoneInput
-            fullName={fullName}
-            setFullName={setFullName}
+            username={username}
+            setUsername={setUsername}
             isLoading={isLoading}
           />
           <button
