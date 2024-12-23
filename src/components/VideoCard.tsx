@@ -12,7 +12,7 @@ interface VideoCardProps {
 
 const VideoCard = ({ username, avatarUrl, videoUrl, timestamp, description }: VideoCardProps) => {
   return (
-    <Card className="w-full max-w-md mx-auto mb-6 overflow-hidden animate-fadeIn hover:shadow-lg transition-shadow duration-300">
+    <Card className="w-full mb-6 overflow-hidden animate-fadeIn hover:shadow-lg transition-shadow duration-300">
       <div className="p-4 flex items-center space-x-4">
         <Avatar className="h-10 w-10">
           <AvatarImage src={avatarUrl} alt={username} />
