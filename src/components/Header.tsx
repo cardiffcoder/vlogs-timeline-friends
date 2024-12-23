@@ -36,19 +36,12 @@ const Header = ({ onLogout }: HeaderProps) => {
     const pstDate = toZonedTime(new Date(), 'America/Los_Angeles');
     const todayStart = new Date(pstDate);
     todayStart.setHours(0, 0, 0, 0);
-    
-    // First, get all profiles to ensure we have the latest avatar URLs
-    const { data: profiles } = await supabase
-      .from('profiles')
-      .select('*');
 
-    const profileMap = new Map(profiles?.map(profile => [profile.user_id, profile]));
-    
     const { data: videos, error } = await supabase
       .from('videos')
       .select(`
         *,
-        profiles:user_id (
+        user_profile:profiles!videos_user_id_fkey (
           id,
           avatar_url,
           display_name,
@@ -64,18 +57,22 @@ const Header = ({ onLogout }: HeaderProps) => {
       return;
     }
 
+    console.log('Raw videos data:', videos);
+
     // Group videos by user
     const userVideos = new Map();
     videos?.forEach(video => {
-      const profile = video.profiles;
-      const username = profile?.username || video.username;
+      const profile = video.user_profile;
+      if (!profile) return;
+      
+      const username = profile.username;
       
       if (!userVideos.has(username)) {
         userVideos.set(username, {
-          id: video.id,
-          username,
-          avatarUrl: profile?.avatar_url || '/placeholder.svg',
-          displayName: profile?.display_name || video.display_name || username,
+          id: profile.id,
+          username: username,
+          avatarUrl: profile.avatar_url || '/placeholder.svg',
+          displayName: profile.display_name || username,
           videoUrl: video.video_url,
           videos: []
         });
