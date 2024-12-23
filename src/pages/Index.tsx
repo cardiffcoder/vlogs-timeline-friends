@@ -50,13 +50,17 @@ const Index = () => {
     }
   };
 
+  const handleAddVideo = () => {
+    navigate('/photo-upload');
+  };
+
   return (
     <div className="min-h-screen bg-[#111111]">
       <Header onLogout={handleLogout} />
       <main className="pt-0">
         <VideoList />
       </main>
-      <AddVideoButton onVideoAdd={() => {}} />
+      <AddVideoButton onVideoAdd={handleAddVideo} />
     </div>
   );
 };
