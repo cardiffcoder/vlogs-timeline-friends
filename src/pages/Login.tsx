@@ -40,15 +40,15 @@ const Login = () => {
     setIsLoading(true);
 
     try {
-      // Try to sign in first
-      const { error: signInError } = await supabase.auth.signInWithPassword({
+      // First try to sign in
+      const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
         phone: phoneNumber,
         password,
       });
 
       if (signInError) {
         // If sign in fails, try to sign up
-        const { error: signUpError } = await supabase.auth.signUp({
+        const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
           phone: phoneNumber,
           password,
           options: {
@@ -64,12 +64,17 @@ const Login = () => {
             description: signUpError.message,
             variant: "destructive",
           });
-        } else {
+        } else if (signUpData.user) {
           toast({
             title: "Success",
-            description: "Account created and logged in successfully",
+            description: "Account created successfully",
           });
         }
+      } else if (signInData.user) {
+        toast({
+          title: "Success",
+          description: "Logged in successfully",
+        });
       }
     } catch (error: any) {
       console.error("Auth error:", error);
