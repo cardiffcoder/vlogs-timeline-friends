@@ -77,7 +77,7 @@ export const ProfilePhotoUpload = ({ onPhotoUploaded, currentPhotoUrl }: Profile
             </AvatarFallback>
           </Avatar>
           {!preview && (
-            <div className="absolute inset-0 bg-black/30 backdrop-blur-[1px] rounded-full" />
+            <div className="absolute inset-0 bg-white/20 backdrop-blur-[3px] rounded-full" />
           )}
         </div>
         <div className="flex items-center gap-2">
