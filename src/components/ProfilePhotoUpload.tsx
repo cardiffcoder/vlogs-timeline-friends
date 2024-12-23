@@ -74,6 +74,20 @@ export const ProfilePhotoUpload = ({ onPhotoUploaded, currentPhotoUrl }: Profile
         .getPublicUrl(filePath);
 
       console.log('Public URL generated:', publicUrl);
+
+      // Update the user's profile with the new avatar URL
+      const { error: updateError } = await supabase
+        .from('profiles')
+        .update({ avatar_url: publicUrl })
+        .eq('user_id', session.user.id);
+
+      if (updateError) {
+        console.error('Profile update error:', updateError);
+        throw updateError;
+      }
+
+      console.log('Profile updated with new avatar URL:', publicUrl);
+      
       onPhotoUploaded(publicUrl);
       
       toast({
