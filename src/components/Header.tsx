@@ -1,4 +1,3 @@
-import { Video } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 const Header = () => {
@@ -15,8 +14,7 @@ const Header = () => {
     <header className="fixed top-0 left-0 right-0 z-50 bg-black/90 backdrop-blur-sm border-b border-gray-800">
       <div className="px-4 py-2">
         <div className="flex items-center mb-4">
-          <Video className="h-6 w-6 text-white" />
-          <h1 className="text-xl font-bold text-white ml-2">Vlogs</h1>
+          <h1 className="text-vlogs font-semibold font-poppins text-vlogs-text">Vlogs</h1>
         </div>
         
         <div className="flex space-x-4 overflow-x-auto pb-2 scrollbar-hide">

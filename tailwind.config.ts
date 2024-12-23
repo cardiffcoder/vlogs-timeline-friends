@@ -52,6 +52,13 @@ export default {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
+        'vlogs-text': '#E1F9FC',
+      },
+      fontFamily: {
+        poppins: ['Poppins', 'sans-serif'],
+      },
+      fontSize: {
+        'vlogs': '30.8px',
       },
       borderRadius: {
         lg: "var(--radius)",
