@@ -34,12 +34,14 @@ const Login = () => {
   }, [navigate]);
 
   const formatPhoneNumber = (phone: string) => {
+    // Remove all non-digit characters except the plus sign
     const cleaned = phone.replace(/[^\d+]/g, '');
     return cleaned.startsWith('+') ? cleaned : `+${cleaned}`;
   };
 
   const validatePhoneNumber = (phone: string) => {
-    const phoneRegex = /^\+\d{10,15}$/;
+    // Validate phone number format (E.164)
+    const phoneRegex = /^\+[1-9]\d{10,14}$/;
     return phoneRegex.test(phone);
   };
 
@@ -53,22 +55,30 @@ const Login = () => {
       if (!validatePhoneNumber(formattedPhone)) {
         toast({
           title: "Invalid Phone Number",
-          description: "Please enter a valid phone number in international format (e.g., +1234567890)",
+          description: "Please enter a valid phone number in E.164 format (e.g., +15555555555)",
           variant: "destructive",
         });
+        setIsLoading(false);
         return;
       }
 
-      const { data, error } = await supabase.auth.signInWithOtp({
+      const { error } = await supabase.auth.signInWithOtp({
         phone: formattedPhone,
       });
 
       if (error) {
-        // Handle specific error cases
-        if (error.message.includes("sms_send_failed")) {
+        console.error("Supabase error:", error);
+        
+        if (error.message.includes("21211")) {
+          toast({
+            title: "Invalid Phone Number",
+            description: "Please make sure you're using a valid test phone number format: +15555555555",
+            variant: "destructive",
+          });
+        } else if (error.message.includes("sms_send_failed")) {
           toast({
             title: "SMS Service Error",
-            description: "There was an issue with the SMS service. Please try again later.",
+            description: "There seems to be an issue with the SMS service configuration. Please try again later.",
             variant: "destructive",
           });
         } else {
@@ -114,7 +124,7 @@ const Login = () => {
     try {
       const formattedPhone = formatPhoneNumber(phoneNumber);
       
-      const { data, error } = await supabase.auth.verifyOtp({
+      const { error } = await supabase.auth.verifyOtp({
         phone: formattedPhone,
         token: otp,
         type: 'sms'
