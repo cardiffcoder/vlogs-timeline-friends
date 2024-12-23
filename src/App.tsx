@@ -27,12 +27,17 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
           // Check if user has a profile
           const { data: profile } = await supabase
             .from('profiles')
-            .select('id')
+            .select('id, avatar_url')
             .eq('user_id', session.user.id)
             .maybeSingle();
 
-          setHasProfile(!!profile);
+          // Only redirect to photo upload if there's no profile or no avatar
+          setHasProfile(!!profile && !!profile.avatar_url);
         }
+      } catch (error) {
+        console.error('Auth check error:', error);
+        setIsAuthenticated(false);
+        setHasProfile(false);
       } finally {
         setIsLoading(false);
       }
@@ -47,11 +52,12 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
         // Check if user has a profile
         const { data: profile } = await supabase
           .from('profiles')
-          .select('id')
+          .select('id, avatar_url')
           .eq('user_id', session.user.id)
           .maybeSingle();
 
-        setHasProfile(!!profile);
+        // Only redirect to photo upload if there's no profile or no avatar
+        setHasProfile(!!profile && !!profile.avatar_url);
       }
       
       setIsLoading(false);
@@ -60,17 +66,20 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
     return () => subscription.unsubscribe();
   }, []);
 
+  // Show loading spinner only if we're still checking auth status
   if (isLoading) {
     return <div className="min-h-screen bg-[#111111] flex items-center justify-center">
       <div className="w-8 h-8 border-4 border-vlogs-text border-t-transparent rounded-full animate-spin" />
     </div>;
   }
 
+  // If not authenticated, redirect to login
   if (!isAuthenticated) {
     return <Navigate to="/login" replace />;
   }
 
-  // If authenticated but no profile, redirect to photo upload
+  // If authenticated but no profile/avatar, redirect to photo upload
+  // Only redirect if we're not already on the photo upload page
   if (isAuthenticated && !hasProfile && window.location.pathname !== '/photo-upload') {
     return <Navigate to="/photo-upload" replace />;
   }
