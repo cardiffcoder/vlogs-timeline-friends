@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import ProfilePhotoUpload from "@/components/ProfilePhotoUpload";
+import { ProfilePhotoUpload } from "@/components/ProfilePhotoUpload";
 import { supabase } from "@/integrations/supabase/client";
 
 const PhotoUpload = () => {
