@@ -42,6 +42,7 @@ export type Database = {
           created_at: string
           description: string | null
           id: number
+          user_id: number | null
           username: string
           video_url: string
         }
@@ -50,6 +51,7 @@ export type Database = {
           created_at?: string
           description?: string | null
           id?: number
+          user_id?: number | null
           username: string
           video_url: string
         }
@@ -58,10 +60,19 @@ export type Database = {
           created_at?: string
           description?: string | null
           id?: number
+          user_id?: number | null
           username?: string
           video_url?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "videos_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {
