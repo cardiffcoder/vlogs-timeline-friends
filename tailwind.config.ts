@@ -53,6 +53,7 @@ export default {
           foreground: "hsl(var(--card-foreground))",
         },
         'vlogs-text': '#E1F9FC',
+        'vlogs-text-light': '#F0FCFE',
       },
       fontFamily: {
         poppins: ['Poppins', 'sans-serif'],

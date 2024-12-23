@@ -34,12 +34,12 @@ const Header = ({ onLogout }: HeaderProps) => {
       />
       <div className="relative z-10 px-4 pt-4 pb-4">
         <div className="flex items-center justify-between mb-4">
-          <h1 className="text-3xl font-semibold font-poppins text-vlogs-text">Vlogs</h1>
+          <h1 className="text-3xl font-semibold font-poppins text-vlogs-text-light">Vlogs</h1>
           <Button 
             variant="ghost" 
             size="icon"
             onClick={onLogout}
-            className="text-vlogs-text hover:bg-vlogs-text/10"
+            className="text-vlogs-text-light hover:bg-vlogs-text-light/10"
           >
             <LogOut className="h-5 w-5" />
           </Button>
@@ -48,8 +48,8 @@ const Header = ({ onLogout }: HeaderProps) => {
         <div className="flex space-x-6 overflow-x-auto pb-4 pr-4 scrollbar-hide scale-[1.2] origin-left mt-6">
           {stories.map((story) => (
             <div key={story.id} className="flex flex-col items-center scale-140 transform-gpu">
-              <div className="rounded-full p-[2px]" style={{ backgroundColor: '#E1F9FC' }}>
-                <Avatar className="h-14 w-14 ring-2 ring-[#E1F9FC]">
+              <div className="rounded-full p-[2px]" style={{ backgroundColor: '#F0FCFE' }}>
+                <Avatar className="h-14 w-14 ring-2 ring-vlogs-text-light">
                   <AvatarImage 
                     src={story.avatarUrl} 
                     alt={story.username} 
@@ -58,7 +58,7 @@ const Header = ({ onLogout }: HeaderProps) => {
                   <AvatarFallback>{story.username[0]}</AvatarFallback>
                 </Avatar>
               </div>
-              <span className={`text-[10px] text-gray-300 mt-1 font-mona-sans ${story.username === "TEJES" ? "font-bold" : "font-medium"}`}>
+              <span className={`text-[10px] text-gray-200 mt-1 font-mona-sans ${story.username === "TEJES" ? "font-bold" : "font-medium"}`}>
                 {story.username}
               </span>
             </div>
