@@ -40,7 +40,7 @@ export const VideoCard = ({
               displayName={displayName}
             />
             {description && (
-              <p className="text-white text-[10px] pl-5 -mt-1 line-clamp-2 drop-shadow-lg font-mona-sans font-light italic">
+              <p className="text-white text-[10px] pl-[1.3rem] -mt-1 line-clamp-2 drop-shadow-lg font-mona-sans font-light italic">
                 {description}
               </p>
             )}
