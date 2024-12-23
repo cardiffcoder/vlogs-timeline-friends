@@ -1,10 +1,9 @@
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
 import { toast } from "@/hooks/use-toast";
+import { PhoneInput } from "@/components/auth/PhoneInput";
+import { OTPVerification } from "@/components/auth/OTPInput";
 
 const Login = () => {
   const navigate = useNavigate();
@@ -36,11 +35,7 @@ const Login = () => {
 
   const formatPhoneNumber = (phone: string) => {
     const cleaned = phone.replace(/[^\d+]/g, '');
-    
-    if (!cleaned.startsWith('+')) {
-      return `+${cleaned}`;
-    }
-    return cleaned;
+    return cleaned.startsWith('+') ? cleaned : `+${cleaned}`;
   };
 
   const validatePhoneNumber = (phone: string) => {
@@ -71,7 +66,18 @@ const Login = () => {
         }
       });
 
-      if (error) throw error;
+      if (error) {
+        if (error.message.includes("Invalid From Number")) {
+          toast({
+            title: "Service Configuration Error",
+            description: "The SMS service is not properly configured. Please contact support.",
+            variant: "destructive",
+          });
+        } else {
+          throw error;
+        }
+        return;
+      }
 
       setShowOTP(true);
       toast({
@@ -79,6 +85,7 @@ const Login = () => {
         description: "OTP sent to your phone number!",
       });
     } catch (error: any) {
+      console.error("Error sending OTP:", error);
       toast({
         title: "Error",
         description: error.message || "Failed to send OTP",
@@ -119,12 +126,12 @@ const Login = () => {
       });
       navigate("/");
     } catch (error: any) {
+      console.error("Error verifying OTP:", error);
       toast({
         title: "Error",
         description: error.message || "Failed to verify OTP",
         variant: "destructive",
       });
-      // Reset OTP input on error
       setOTP("");
     } finally {
       setIsLoading(false);
@@ -137,61 +144,20 @@ const Login = () => {
         <h1 className="text-3xl font-semibold text-vlogs-text mb-8 text-center">Vlogs</h1>
         
         {!showOTP ? (
-          <form onSubmit={handleSendOTP} className="space-y-4">
-            <div>
-              <label htmlFor="phone" className="block text-sm font-medium text-gray-200 mb-2">
-                Phone Number (International Format)
-              </label>
-              <Input
-                id="phone"
-                type="tel"
-                placeholder="+1234567890"
-                value={phoneNumber}
-                onChange={(e) => setPhoneNumber(e.target.value)}
-                className="w-full"
-                disabled={isLoading}
-              />
-              <p className="text-sm text-gray-400 mt-1">
-                Example: +1234567890 (include country code)
-              </p>
-            </div>
-            <Button type="submit" className="w-full" disabled={isLoading}>
-              {isLoading ? "Sending..." : "Send OTP"}
-            </Button>
-          </form>
+          <PhoneInput 
+            phoneNumber={phoneNumber}
+            setPhoneNumber={setPhoneNumber}
+            onSubmit={handleSendOTP}
+            isLoading={isLoading}
+          />
         ) : (
-          <form onSubmit={handleVerifyOTP} className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-200 mb-2">
-                Enter OTP
-              </label>
-              <InputOTP
-                value={otp}
-                onChange={setOTP}
-                maxLength={6}
-                render={({ slots }) => (
-                  <InputOTPGroup>
-                    {slots.map((slot, index) => (
-                      <InputOTPSlot key={index} {...slot} index={index} />
-                    ))}
-                  </InputOTPGroup>
-                )}
-                disabled={isLoading}
-              />
-            </div>
-            <Button type="submit" className="w-full" disabled={isLoading}>
-              {isLoading ? "Verifying..." : "Verify OTP"}
-            </Button>
-            <Button
-              type="button"
-              variant="outline"
-              className="w-full"
-              onClick={() => setShowOTP(false)}
-              disabled={isLoading}
-            >
-              Back to Phone Number
-            </Button>
-          </form>
+          <OTPVerification
+            otp={otp}
+            setOTP={setOTP}
+            onSubmit={handleVerifyOTP}
+            onBack={() => setShowOTP(false)}
+            isLoading={isLoading}
+          />
         )}
       </div>
     </div>
