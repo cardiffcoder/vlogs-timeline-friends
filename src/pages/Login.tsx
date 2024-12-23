@@ -92,7 +92,6 @@ const Login = () => {
           <PhoneInput
             phoneNumber={phoneNumber}
             setPhoneNumber={setPhoneNumber}
-            onSubmit={handleSubmit}
             isLoading={isLoading}
           />
 
