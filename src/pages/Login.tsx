@@ -73,12 +73,12 @@ const Login = () => {
 
     try {
       // First try to sign in
-      const { error: signInError } = await supabase.auth.signInWithPassword({
+      const signInResult = await supabase.auth.signInWithPassword({
         phone: phoneNumber,
         password,
       });
 
-      if (signInError) {
+      if (signInResult.error) {
         // If sign in fails and we have a full name, try to sign up
         if (fullName) {
           if (fullName.length < 2) {
@@ -91,7 +91,7 @@ const Login = () => {
             return;
           }
 
-          const { error: signUpError } = await supabase.auth.signUp({
+          const signUpResult = await supabase.auth.signUp({
             phone: phoneNumber,
             password,
             options: {
@@ -101,10 +101,10 @@ const Login = () => {
             },
           });
 
-          if (signUpError) {
+          if (signUpResult.error) {
             toast({
               title: "Error",
-              description: signUpError.message,
+              description: signUpResult.error.message,
               variant: "destructive",
             });
           } else {
