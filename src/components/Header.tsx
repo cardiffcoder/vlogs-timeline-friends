@@ -60,11 +60,12 @@ const Header = ({ onLogout }: HeaderProps) => {
 
     console.log('Raw videos data:', videos);
 
-    // Group videos by user
+    // Group videos by user and filter out any videos where profile data is invalid
     const userVideos = new Map();
     videos?.forEach(video => {
       const profile = video.profiles;
-      if (!profile) return;
+      // Skip if profile is missing or user_id is null (indicating deleted user)
+      if (!profile || !profile.user_id) return;
       
       const username = profile.username;
       
@@ -81,10 +82,10 @@ const Header = ({ onLogout }: HeaderProps) => {
       userVideos.get(username).videos.push(video);
     });
 
-    // Convert to array and add current user if not present
+    // Convert to array and add current user if not present and valid
     const storyList = Array.from(userVideos.values());
     
-    if (currentUser && !userVideos.has(currentUser.username)) {
+    if (currentUser && currentUser.user_id && !userVideos.has(currentUser.username)) {
       storyList.unshift({
         id: currentUser.id,
         username: currentUser.username,
