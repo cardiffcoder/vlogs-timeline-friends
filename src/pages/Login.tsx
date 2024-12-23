@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { toast } from "@/hooks/use-toast";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { PhoneInput } from "@/components/auth/PhoneInput";
 
 const Login = () => {
   const navigate = useNavigate();
@@ -88,20 +89,12 @@ const Login = () => {
         <h1 className="text-3xl font-semibold text-vlogs-text mb-8 text-center">Vlogs</h1>
         
         <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label htmlFor="phone" className="block text-sm font-medium text-gray-200 mb-2">
-              Phone Number
-            </label>
-            <Input
-              id="phone"
-              type="tel"
-              value={phoneNumber}
-              onChange={(e) => setPhoneNumber(e.target.value)}
-              placeholder="Enter your phone number"
-              required
-              disabled={isLoading}
-            />
-          </div>
+          <PhoneInput
+            phoneNumber={phoneNumber}
+            setPhoneNumber={setPhoneNumber}
+            onSubmit={handleSubmit}
+            isLoading={isLoading}
+          />
 
           <div>
             <label htmlFor="fullName" className="block text-sm font-medium text-gray-200 mb-2">
@@ -117,7 +110,7 @@ const Login = () => {
               disabled={isLoading}
             />
           </div>
-          
+
           <div>
             <label htmlFor="password" className="block text-sm font-medium text-gray-200 mb-2">
               Password
