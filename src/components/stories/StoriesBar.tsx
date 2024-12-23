@@ -38,18 +38,21 @@ const StoriesBar = ({ stories, currentUser }: StoriesBarProps) => {
   return (
     <>
       <div className="flex space-x-6 overflow-x-auto pb-4 pr-4 scrollbar-hide scale-[1.2] origin-left mt-6">
-        {validStories.map((story) => (
-          <StoryAvatar
-            key={story.id}
-            username={story.username}
-            displayName={story.displayName || story.username}
-            avatarUrl={story.avatarUrl}
-            videoUrl={story.videos?.[0]?.video_url}
-            isCurrentUser={currentUser?.username === story.username}
-            onClick={() => handleStoryClick(story)}
-            hasVideos={story.videos && story.videos.length > 0}
-          />
-        ))}
+        {validStories.map((story) => {
+          const firstVideo = story.videos?.[0];
+          return (
+            <StoryAvatar
+              key={story.id}
+              username={story.username}
+              displayName={story.displayName || story.username}
+              avatarUrl={story.avatarUrl}
+              videoUrl={firstVideo?.video_url}
+              isCurrentUser={currentUser?.username === story.username}
+              onClick={() => handleStoryClick(story)}
+              hasVideos={story.videos && story.videos.length > 0}
+            />
+          );
+        })}
       </div>
 
       {isViewerOpen && selectedStoryVideos.length > 0 && (

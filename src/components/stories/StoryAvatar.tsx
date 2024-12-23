@@ -11,6 +11,9 @@ interface StoryAvatarProps {
 }
 
 const StoryAvatar = ({ username, displayName, avatarUrl, videoUrl, isCurrentUser, onClick, hasVideos }: StoryAvatarProps) => {
+  // Use the first frame of the video as the avatar if there's a video
+  const imageUrl = hasVideos && videoUrl ? videoUrl : avatarUrl;
+  
   return (
     <div 
       className="flex flex-col items-center scale-140 transform-gpu cursor-pointer"
@@ -19,9 +22,9 @@ const StoryAvatar = ({ username, displayName, avatarUrl, videoUrl, isCurrentUser
       <div 
         className={`rounded-full p-[2px] ${hasVideos ? 'bg-vlogs-text-light' : 'bg-transparent'}`}
       >
-        <Avatar className="h-14 w-14 ring-2 ring-vlogs-text-light">
+        <Avatar className={`h-14 w-14 ${hasVideos ? 'ring-2 ring-vlogs-text-light' : ''}`}>
           <AvatarImage 
-            src={hasVideos && videoUrl ? videoUrl : avatarUrl} 
+            src={imageUrl}
             alt={displayName} 
             className="object-cover"
           />
