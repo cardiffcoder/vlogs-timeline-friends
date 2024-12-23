@@ -36,8 +36,6 @@ export default function Login() {
       const email = `${name.toLowerCase().replace(/\s+/g, '.')}.user@example.com`;
       const password = `${name.toLowerCase()}_password`;
 
-      console.log('Using email:', email);
-
       if (existingProfile) {
         console.log('Existing user found, attempting sign in');
         
@@ -60,10 +58,8 @@ export default function Login() {
         // Existing users go straight to home
         navigate('/', { replace: true });
       } else {
-        console.log('New user, redirecting to photo upload');
-        
-        // New user, create account first
-        const { error: signUpError } = await supabase.auth.signUp({
+        // New user, create account
+        const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
           email,
           password,
           options: {
@@ -78,13 +74,17 @@ export default function Login() {
           throw signUpError;
         }
 
-        toast({
-          title: "Welcome!",
-          description: "Let's set up your profile photo first.",
-        });
-
-        // New users go to photo upload first
-        navigate('/photo-upload', { replace: true });
+        // Check if the signup was successful and a session was created
+        if (signUpData.session) {
+          toast({
+            title: "Welcome!",
+            description: "Let's set up your profile photo first.",
+          });
+          navigate('/photo-upload', { replace: true });
+        } else {
+          // If no session, something went wrong
+          throw new Error("Failed to create account");
+        }
       }
     } catch (error) {
       console.error('Auth error:', error);
