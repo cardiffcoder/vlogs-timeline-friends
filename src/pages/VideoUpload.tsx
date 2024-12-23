@@ -23,7 +23,7 @@ export default function VideoUploadPage() {
         .from('profiles')
         .select('*')
         .eq('user_id', session.user.id)
-        .maybeSingle();
+        .single();
 
       if (profileError) {
         console.error('Profile fetch error:', profileError);
@@ -35,17 +35,17 @@ export default function VideoUploadPage() {
         throw new Error('Profile not found. Please try logging out and back in.');
       }
 
-      // Ensure we have an avatar_url
-      const avatarUrl = profileData.avatar_url || '/placeholder.svg';
+      console.log('Profile data:', profileData); // Debug log
 
-      // Insert video
+      // Insert video with the correct avatar_url from profile
       const { error: videoError } = await supabase
         .from('videos')
         .insert({
           username: profileData.username,
-          avatar_url: avatarUrl,
+          avatar_url: profileData.avatar_url || '/placeholder.svg', // Use the actual avatar_url from profile
           video_url: url,
-          user_id: profileData.id
+          user_id: profileData.id,
+          display_name: profileData.display_name || profileData.full_name || profileData.username
         });
 
       if (videoError) {
