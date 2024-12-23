@@ -1,6 +1,6 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Card } from "@/components/ui/card";
-import { formatDistanceToNow } from "date-fns";
+import { formatDistanceToNowStrict } from "date-fns";
 
 interface VideoCardProps {
   username: string;
@@ -10,7 +10,7 @@ interface VideoCardProps {
   description: string;
 }
 
-const VideoCard = ({ username, avatarUrl, videoUrl, timestamp, description }: VideoCardProps) => {
+const VideoCard = ({ username, avatarUrl, videoUrl, timestamp }: VideoCardProps) => {
   return (
     <Card className="relative w-full h-[calc(100vh-8rem)] mb-1 overflow-hidden animate-fadeIn bg-black border-none">
       <div className="relative w-full h-full">
@@ -42,13 +42,13 @@ const VideoCard = ({ username, avatarUrl, videoUrl, timestamp, description }: Vi
             <div className="flex-1">
               <h3 className="text-sm text-gray-300">{username}</h3>
               <p className="text-xs text-gray-400">
-                {formatDistanceToNow(timestamp, { addSuffix: true })}
+                {formatDistanceToNowStrict(timestamp, { 
+                  addSuffix: true,
+                  unit: 'minute'
+                })}
               </p>
             </div>
           </div>
-          {description && (
-            <p className="mt-2 text-white text-sm line-clamp-2 pl-16">{description}</p>
-          )}
         </div>
       </div>
     </Card>
