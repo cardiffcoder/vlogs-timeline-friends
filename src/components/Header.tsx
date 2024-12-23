@@ -37,6 +37,13 @@ const Header = ({ onLogout }: HeaderProps) => {
     const todayStart = new Date(pstDate);
     todayStart.setHours(0, 0, 0, 0);
     
+    // First, get all profiles to ensure we have the latest avatar URLs
+    const { data: profiles } = await supabase
+      .from('profiles')
+      .select('*');
+
+    const profileMap = new Map(profiles?.map(profile => [profile.user_id, profile]));
+    
     const { data: videos, error } = await supabase
       .from('videos')
       .select(`
@@ -60,13 +67,15 @@ const Header = ({ onLogout }: HeaderProps) => {
     // Group videos by user
     const userVideos = new Map();
     videos?.forEach(video => {
-      const username = video.profiles?.username || video.username;
+      const profile = video.profiles;
+      const username = profile?.username || video.username;
+      
       if (!userVideos.has(username)) {
         userVideos.set(username, {
           id: video.id,
           username,
-          avatarUrl: video.profiles?.avatar_url || video.avatar_url || '/placeholder.svg',
-          displayName: video.profiles?.display_name || video.display_name || username,
+          avatarUrl: profile?.avatar_url || '/placeholder.svg',
+          displayName: profile?.display_name || video.display_name || username,
           videoUrl: video.video_url,
           videos: []
         });
@@ -87,6 +96,7 @@ const Header = ({ onLogout }: HeaderProps) => {
       });
     }
 
+    console.log('Stories with avatars:', storyList);
     setStories(storyList);
   };
 
