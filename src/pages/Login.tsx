@@ -33,7 +33,24 @@ const Login = () => {
         });
 
         if (signInError) {
-          throw signInError;
+          if (signInError.message.includes("Email not confirmed")) {
+            // Handle unconfirmed email case
+            const { error: signUpError } = await supabase.auth.signUp({
+              email,
+              password,
+              options: {
+                data: {
+                  username: username,
+                },
+              },
+            });
+
+            if (signUpError) {
+              throw signUpError;
+            }
+          } else {
+            throw signInError;
+          }
         }
 
         toast({
