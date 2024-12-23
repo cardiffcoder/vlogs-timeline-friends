@@ -13,7 +13,7 @@ const Index = () => {
   const videos = [
     {
       id: 1,
-      username: "Alex",
+      username: "TEJES",
       avatarUrl: "/lovable-uploads/f8624281-c4d8-4e78-8b29-c0d8ef3ba36a.png",
       videoUrl: "/lovable-uploads/6d7ec786-9bb0-45e9-9913-6dd8a840be78.png",
       timestamp: sixHoursAgo,
