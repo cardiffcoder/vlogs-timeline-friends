@@ -35,10 +35,33 @@ const Login = () => {
     return () => subscription.unsubscribe();
   }, [navigate]);
 
+  const formatPhoneNumber = (phone: string) => {
+    // Remove any non-digit characters
+    const digits = phone.replace(/\D/g, '');
+    
+    // If it doesn't start with +, add it
+    if (!phone.startsWith('+')) {
+      return `+${digits}`;
+    }
+    return phone;
+  };
+
+  const validatePhoneNumber = (phone: string) => {
+    // Basic validation: should start with + and have at least 10 digits
+    const phoneRegex = /^\+\d{10,15}$/;
+    return phoneRegex.test(phone);
+  };
+
   const handleSendOTP = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const formattedPhone = phoneNumber.startsWith('+') ? phoneNumber : `+${phoneNumber}`;
+      const formattedPhone = formatPhoneNumber(phoneNumber);
+      
+      if (!validatePhoneNumber(formattedPhone)) {
+        toast.error("Please enter a valid phone number in international format (e.g., +1234567890)");
+        return;
+      }
+
       const { error } = await supabase.auth.signInWithOtp({
         phone: formattedPhone,
       });
@@ -55,7 +78,7 @@ const Login = () => {
   const handleVerifyOTP = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const formattedPhone = phoneNumber.startsWith('+') ? phoneNumber : `+${phoneNumber}`;
+      const formattedPhone = formatPhoneNumber(phoneNumber);
       const { error } = await supabase.auth.verifyOtp({
         phone: formattedPhone,
         token: otp,
@@ -80,7 +103,7 @@ const Login = () => {
           <form onSubmit={handleSendOTP} className="space-y-4">
             <div>
               <label htmlFor="phone" className="block text-sm font-medium text-gray-200 mb-2">
-                Phone Number
+                Phone Number (International Format)
               </label>
               <Input
                 id="phone"
@@ -90,6 +113,9 @@ const Login = () => {
                 onChange={(e) => setPhoneNumber(e.target.value)}
                 className="w-full"
               />
+              <p className="text-sm text-gray-400 mt-1">
+                Example: +1234567890 (include country code)
+              </p>
             </div>
             <Button type="submit" className="w-full">
               Send OTP
