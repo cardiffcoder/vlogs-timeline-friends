@@ -42,6 +42,7 @@ const StoriesBar = ({ stories, currentUser }: StoriesBarProps) => {
           <StoryAvatar
             key={story.id}
             username={story.username}
+            displayName={story.displayName || story.username}
             avatarUrl={story.avatarUrl}
             videoUrl={story.videos?.[0]?.video_url}
             isCurrentUser={currentUser?.username === story.username}

@@ -66,7 +66,7 @@ const Header = ({ onLogout }: HeaderProps) => {
           id: video.id,
           username,
           avatarUrl: video.profiles?.avatar_url || video.avatar_url,
-          displayName: video.profiles?.display_name || video.display_name,
+          displayName: video.profiles?.display_name || video.display_name || username,
           videoUrl: video.video_url,
           videos: []
         });
@@ -82,7 +82,7 @@ const Header = ({ onLogout }: HeaderProps) => {
         id: currentUser.id,
         username: currentUser.username,
         avatarUrl: currentUser.avatar_url,
-        displayName: currentUser.display_name,
+        displayName: currentUser.display_name || currentUser.username,
         videos: []
       });
     }

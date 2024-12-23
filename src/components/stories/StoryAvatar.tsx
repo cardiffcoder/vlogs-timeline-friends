@@ -2,6 +2,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 interface StoryAvatarProps {
   username: string;
+  displayName: string;
   avatarUrl: string;
   videoUrl?: string;
   isCurrentUser: boolean;
@@ -9,7 +10,7 @@ interface StoryAvatarProps {
   hasVideos: boolean;
 }
 
-const StoryAvatar = ({ username, avatarUrl, videoUrl, isCurrentUser, onClick, hasVideos }: StoryAvatarProps) => {
+const StoryAvatar = ({ username, displayName, avatarUrl, videoUrl, isCurrentUser, onClick, hasVideos }: StoryAvatarProps) => {
   return (
     <div 
       className="flex flex-col items-center scale-140 transform-gpu cursor-pointer"
@@ -19,16 +20,16 @@ const StoryAvatar = ({ username, avatarUrl, videoUrl, isCurrentUser, onClick, ha
         <Avatar className="h-14 w-14 ring-2 ring-vlogs-text-light">
           <AvatarImage 
             src={hasVideos ? videoUrl : avatarUrl} 
-            alt={username} 
+            alt={displayName} 
             className="object-cover"
           />
-          <AvatarFallback>{username[0]}</AvatarFallback>
+          <AvatarFallback>{displayName[0]}</AvatarFallback>
         </Avatar>
       </div>
       <span className={`text-[10px] text-gray-200 mt-1 font-mona-sans ${
         isCurrentUser ? "font-bold" : "font-medium"
       }`}>
-        {username}
+        {displayName}
       </span>
     </div>
   );
