@@ -11,7 +11,7 @@ const AddVideoButton = ({ onVideoAdd }: AddVideoButtonProps) => {
       <Button
         onClick={onVideoAdd}
         size="lg"
-        className="rounded-full w-[72px] h-14 bg-vlogs-text/30 hover:bg-vlogs-text/60 shadow-lg"
+        className="rounded-full w-[74px] h-14 bg-vlogs-text/30 hover:bg-vlogs-text/60 shadow-lg"
       >
         <Plus className="h-6 w-6" />
       </Button>
