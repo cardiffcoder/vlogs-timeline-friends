@@ -53,14 +53,16 @@ const Login = () => {
         }
       } else if (signUpData.user) {
         // If sign up successful, create profile
+        // Generate a username from the phone number (removing the + and any spaces)
+        const username = phoneNumber.replace(/[+\s]/g, '');
+        
         const { error: profileError } = await supabase
           .from('profiles')
-          .insert([
-            {
-              user_id: signUpData.user.id,
-              full_name: fullName,
-            }
-          ]);
+          .insert({
+            user_id: signUpData.user.id,
+            full_name: fullName,
+            username: username // Add the required username field
+          });
 
         if (profileError) {
           toast({
