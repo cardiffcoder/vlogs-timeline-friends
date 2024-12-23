@@ -1,9 +1,10 @@
-import { VideoCard } from "@/components/VideoCard";
+import VideoListItem from "./VideoListItem";
 import { useEffect, useState, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
+import VideoLoadingIndicator from "./VideoLoadingIndicator";
 
-const VIDEOS_PER_PAGE = 3; // Reduced from 5 to 3 for better initial load
+const VIDEOS_PER_PAGE = 3;
 
 const VideoList = () => {
   const [videos, setVideos] = useState<any[]>([]);
@@ -111,7 +112,7 @@ const VideoList = () => {
   return (
     <div className="w-full mx-auto space-y-1">
       {videos.map((video) => (
-        <VideoCard
+        <VideoListItem
           key={video.id}
           id={video.id}
           username={video.username}
@@ -130,9 +131,7 @@ const VideoList = () => {
       ))}
       {hasMore && (
         <div ref={loadingRef} className="w-full py-4 flex justify-center">
-          {isLoading && (
-            <div className="w-8 h-8 border-4 border-gray-400 border-t-transparent rounded-full animate-spin" />
-          )}
+          {isLoading && <VideoLoadingIndicator />}
         </div>
       )}
     </div>
