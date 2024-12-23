@@ -57,7 +57,7 @@ export default function Login() {
         // Login flow - just find the profile by name
         const { data: profile, error: profileError } = await supabase
           .from('profiles')
-          .select('user_id, full_name')
+          .select('*')
           .eq('full_name', name)
           .maybeSingle();
 
