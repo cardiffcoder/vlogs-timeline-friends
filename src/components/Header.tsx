@@ -65,7 +65,7 @@ const Header = ({ onLogout }: HeaderProps) => {
         userVideos.set(username, {
           id: video.id,
           username,
-          avatarUrl: video.profiles?.avatar_url || video.avatar_url,
+          avatarUrl: video.profiles?.avatar_url || video.avatar_url || '/placeholder.svg',
           displayName: video.profiles?.display_name || video.display_name || username,
           videoUrl: video.video_url,
           videos: []
@@ -81,7 +81,7 @@ const Header = ({ onLogout }: HeaderProps) => {
       storyList.unshift({
         id: currentUser.id,
         username: currentUser.username,
-        avatarUrl: currentUser.avatar_url,
+        avatarUrl: currentUser.avatar_url || '/placeholder.svg',
         displayName: currentUser.display_name || currentUser.username,
         videos: []
       });

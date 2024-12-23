@@ -19,11 +19,13 @@ const StoryAvatar = ({ username, displayName, avatarUrl, videoUrl, isCurrentUser
       <div className="rounded-full p-[2px]" style={{ backgroundColor: hasVideos ? '#F0FCFE' : 'transparent' }}>
         <Avatar className="h-14 w-14 ring-2 ring-vlogs-text-light">
           <AvatarImage 
-            src={hasVideos ? videoUrl : avatarUrl} 
+            src={hasVideos ? (videoUrl || avatarUrl) : avatarUrl} 
             alt={displayName} 
             className="object-cover"
           />
-          <AvatarFallback>{displayName[0]}</AvatarFallback>
+          <AvatarFallback className="bg-gray-200 text-gray-600">
+            {displayName[0].toUpperCase()}
+          </AvatarFallback>
         </Avatar>
       </div>
       <span className={`text-[10px] text-gray-200 mt-1 font-mona-sans ${
