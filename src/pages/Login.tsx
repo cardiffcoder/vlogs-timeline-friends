@@ -2,14 +2,13 @@ import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { toast } from "@/hooks/use-toast";
-import { PhoneInput } from "@/components/auth/PhoneInput";
-import { OTPVerification } from "@/components/auth/OTPInput";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 
 const Login = () => {
   const navigate = useNavigate();
-  const [phoneNumber, setPhoneNumber] = useState("");
-  const [showOTP, setShowOTP] = useState(false);
-  const [otp, setOTP] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
@@ -33,137 +32,53 @@ const Login = () => {
     return () => subscription.unsubscribe();
   }, [navigate]);
 
-  const formatPhoneNumber = (phone: string) => {
-    const cleaned = phone.replace(/[^\d+]/g, '');
-    return cleaned.startsWith('+') ? cleaned : `+${cleaned}`;
-  };
-
-  const validatePhoneNumber = (phone: string) => {
-    const phoneRegex = /^\+[1-9]\d{10,14}$/;
-    return phoneRegex.test(phone);
-  };
-
-  const handleSendOTP = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-    
-    try {
-      const formattedPhone = formatPhoneNumber(phoneNumber);
-      
-      if (!validatePhoneNumber(formattedPhone)) {
-        toast({
-          title: "Invalid Phone Number",
-          description: "Please enter a valid phone number in E.164 format (e.g., +15555555555)",
-          variant: "destructive",
-        });
-        setIsLoading(false);
-        return;
-      }
 
-      const { error } = await supabase.auth.signInWithOtp({
-        phone: formattedPhone,
+    try {
+      const { error } = await supabase.auth.signUp({
+        email,
+        password,
       });
 
       if (error) {
-        console.error("Supabase error:", error);
-        
-        if (error.message.includes("21211")) {
-          toast({
-            title: "Configuration Error",
-            description: "The SMS service is not properly configured. Please contact support.",
-            variant: "destructive",
+        if (error.message.includes("User already registered")) {
+          // If user exists, try to sign in
+          const { error: signInError } = await supabase.auth.signInWithPassword({
+            email,
+            password,
           });
-        } else if (error.message.includes("sms_send_failed")) {
-          toast({
-            title: "SMS Service Error",
-            description: "Failed to send SMS. Please try again later or contact support.",
-            variant: "destructive",
-          });
+
+          if (signInError) {
+            toast({
+              title: "Error",
+              description: "Invalid email or password",
+              variant: "destructive",
+            });
+            return;
+          }
         } else {
           toast({
             title: "Error",
             description: error.message,
             variant: "destructive",
           });
+          return;
         }
-        setIsLoading(false);
-        return;
+      } else {
+        toast({
+          title: "Success",
+          description: "Check your email to confirm your account",
+        });
       }
-
-      setShowOTP(true);
-      toast({
-        title: "Success",
-        description: "OTP sent to your phone number!",
-      });
     } catch (error: any) {
-      console.error("Error sending OTP:", error);
+      console.error("Auth error:", error);
       toast({
         title: "Error",
-        description: "An unexpected error occurred. Please try again.",
+        description: "An unexpected error occurred",
         variant: "destructive",
       });
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleVerifyOTP = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!otp) {
-      toast({
-        title: "Error",
-        description: "Please enter the OTP code",
-        variant: "destructive",
-      });
-      return;
-    }
-    
-    setIsLoading(true);
-    
-    try {
-      const formattedPhone = formatPhoneNumber(phoneNumber);
-      
-      const { error } = await supabase.auth.verifyOtp({
-        phone: formattedPhone,
-        token: otp,
-        type: 'sms'
-      });
-
-      if (error) {
-        console.error("OTP verification error:", error);
-        
-        if (error.message.includes("otp_expired")) {
-          toast({
-            title: "OTP Expired",
-            description: "The verification code has expired. Please request a new one.",
-            variant: "destructive",
-          });
-          setShowOTP(false); // Go back to phone input
-        } else {
-          toast({
-            title: "Error",
-            description: "Invalid verification code. Please try again.",
-            variant: "destructive",
-          });
-        }
-        setOTP("");
-        setIsLoading(false);
-        return;
-      }
-
-      toast({
-        title: "Success",
-        description: "Successfully logged in!",
-      });
-      navigate("/");
-    } catch (error: any) {
-      console.error("Error verifying OTP:", error);
-      toast({
-        title: "Error",
-        description: "Failed to verify OTP. Please try again.",
-        variant: "destructive",
-      });
-      setOTP("");
     } finally {
       setIsLoading(false);
     }
@@ -174,22 +89,41 @@ const Login = () => {
       <div className="w-full max-w-md bg-black/50 p-8 rounded-lg backdrop-blur-sm border border-gray-800">
         <h1 className="text-3xl font-semibold text-vlogs-text mb-8 text-center">Vlogs</h1>
         
-        {!showOTP ? (
-          <PhoneInput 
-            phoneNumber={phoneNumber}
-            setPhoneNumber={setPhoneNumber}
-            onSubmit={handleSendOTP}
-            isLoading={isLoading}
-          />
-        ) : (
-          <OTPVerification
-            otp={otp}
-            setOTP={setOTP}
-            onSubmit={handleVerifyOTP}
-            onBack={() => setShowOTP(false)}
-            isLoading={isLoading}
-          />
-        )}
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div>
+            <label htmlFor="email" className="block text-sm font-medium text-gray-200 mb-2">
+              Email
+            </label>
+            <Input
+              id="email"
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="Enter your email"
+              required
+              disabled={isLoading}
+            />
+          </div>
+          
+          <div>
+            <label htmlFor="password" className="block text-sm font-medium text-gray-200 mb-2">
+              Password
+            </label>
+            <Input
+              id="password"
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="Enter your password"
+              required
+              disabled={isLoading}
+            />
+          </div>
+
+          <Button type="submit" className="w-full" disabled={isLoading}>
+            {isLoading ? "Processing..." : "Sign In / Sign Up"}
+          </Button>
+        </form>
       </div>
     </div>
   );
