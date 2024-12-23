@@ -2,6 +2,7 @@ import { useRef } from 'react';
 import { ProfileInfo } from "./ProfileInfo";
 import VideoPlayer from "./VideoPlayer";
 import VideoActionsMenu from "./VideoActionsMenu";
+import LikeButton from "./LikeButton";
 
 interface VideoListItemProps {
   id: number;
@@ -45,7 +46,8 @@ const VideoListItem = ({
               </p>
             )}
           </div>
-          <div className="absolute right-0 bottom-0">
+          <div className="absolute right-0 bottom-0 flex items-center gap-2">
+            <LikeButton videoId={id} />
             <VideoActionsMenu
               videoId={id}
               videoUrl={videoUrl}
