@@ -1,5 +1,5 @@
 import { Circle } from "lucide-react";
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { Label } from "./ui/label";
@@ -18,21 +18,49 @@ interface AddVideoProps {
 const AddVideoButton = ({ onVideoAdd }: AddVideoProps) => {
   const [description, setDescription] = useState("");
   const [isOpen, setIsOpen] = useState(false);
+  const [selectedVideo, setSelectedVideo] = useState<File | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
+
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      if (file.type.startsWith('video/')) {
+        setSelectedVideo(file);
+      } else {
+        toast({
+          title: "Invalid file type",
+          description: "Please select a video file.",
+          variant: "destructive"
+        });
+      }
+    }
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
-    // For now, we'll use placeholder data
+    if (!selectedVideo) {
+      toast({
+        title: "No video selected",
+        description: "Please select a video from your camera roll.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    // For now, we'll use placeholder data for username and avatar
+    // In a real app, these would come from user authentication
     const newVideo = {
-      username: "TEJES", // Using existing username for demo
-      avatarUrl: "/lovable-uploads/f8624281-c4d8-4e78-8b29-c0d8ef3ba36a.png", // Using existing avatar
-      videoUrl: "/lovable-uploads/6d7ec786-9bb0-45e9-9913-6dd8a840be78.png", // Using existing image
+      username: "TEJES",
+      avatarUrl: "/lovable-uploads/f8624281-c4d8-4e78-8b29-c0d8ef3ba36a.png",
+      videoUrl: URL.createObjectURL(selectedVideo), // Create a temporary URL for the video
       description: description,
     };
 
     onVideoAdd(newVideo);
     setDescription("");
+    setSelectedVideo(null);
     setIsOpen(false);
     
     toast({
@@ -56,6 +84,22 @@ const AddVideoButton = ({ onVideoAdd }: AddVideoProps) => {
           <DialogTitle>Add a new video</DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
+          <div>
+            <Label htmlFor="video">Select Video</Label>
+            <Input
+              id="video"
+              type="file"
+              accept="video/*"
+              onChange={handleFileSelect}
+              ref={fileInputRef}
+              className="mt-2"
+            />
+            {selectedVideo && (
+              <p className="text-sm text-muted-foreground mt-1">
+                Selected: {selectedVideo.name}
+              </p>
+            )}
+          </div>
           <div>
             <Label htmlFor="description">Description</Label>
             <Input
