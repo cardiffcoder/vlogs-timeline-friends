@@ -62,7 +62,7 @@ const VideoActionsMenu = ({ videoId, videoUrl, onDelete, userId, authUserId }: V
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <button className="p-1 hover:bg-gray-100/10 rounded-full transition-colors">
+        <button className="p-1 hover:bg-gray-100/10 rounded-full transition-colors mr-2">
           <MoreHorizontal className="h-5 w-5 text-white" />
         </button>
       </DropdownMenuTrigger>
