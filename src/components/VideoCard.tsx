@@ -74,6 +74,9 @@ export const VideoCard = ({
           className="absolute inset-0 h-full w-full object-cover"
           controls
           playsInline
+          autoPlay
+          muted={false}
+          loop
         />
         <div className="absolute bottom-4 left-4 flex items-center gap-2 z-10">
           <Avatar className="h-10 w-10 border-2 border-white">
