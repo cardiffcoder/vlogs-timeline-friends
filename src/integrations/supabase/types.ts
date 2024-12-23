@@ -36,6 +36,27 @@ export type Database = {
         }
         Relationships: []
       }
+      twilio_phone_numbers: {
+        Row: {
+          created_at: string | null
+          id: number
+          twilio_phone_number: string
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: never
+          twilio_phone_number: string
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: never
+          twilio_phone_number?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       videos: {
         Row: {
           avatar_url: string
