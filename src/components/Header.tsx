@@ -37,16 +37,17 @@ const Header = ({ onLogout }: HeaderProps) => {
     const todayStart = new Date(pstDate);
     todayStart.setHours(0, 0, 0, 0);
 
+    // First, get all videos with their associated profiles
     const { data: videos, error } = await supabase
       .from('videos')
       .select(`
         *,
-        user_profile:profiles!videos_user_id_fkey (
+        profiles!inner (
           id,
+          user_id,
           avatar_url,
           display_name,
-          username,
-          user_id
+          username
         )
       `)
       .gte('created_at', todayStart.toISOString())
@@ -62,7 +63,7 @@ const Header = ({ onLogout }: HeaderProps) => {
     // Group videos by user
     const userVideos = new Map();
     videos?.forEach(video => {
-      const profile = video.user_profile;
+      const profile = video.profiles;
       if (!profile) return;
       
       const username = profile.username;
