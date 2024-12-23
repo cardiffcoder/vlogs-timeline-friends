@@ -1,0 +1,90 @@
+import React, { useState } from 'react';
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/components/ui/use-toast";
+
+interface ProfilePhotoUploadProps {
+  onPhotoUploaded: (url: string) => void;
+  currentPhotoUrl?: string;
+}
+
+export const ProfilePhotoUpload = ({ onPhotoUploaded, currentPhotoUrl }: ProfilePhotoUploadProps) => {
+  const [uploading, setUploading] = useState(false);
+  const [preview, setPreview] = useState<string | null>(currentPhotoUrl || null);
+  const { toast } = useToast();
+
+  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    try {
+      setUploading(true);
+      const file = event.target.files?.[0];
+      
+      if (!file) return;
+
+      // Create preview
+      const objectUrl = URL.createObjectURL(file);
+      setPreview(objectUrl);
+
+      // Upload to Supabase Storage
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${Math.random()}.${fileExt}`;
+      const filePath = `${fileName}`;
+
+      const { data, error: uploadError } = await supabase.storage
+        .from('avatars')
+        .upload(filePath, file);
+
+      if (uploadError) {
+        throw uploadError;
+      }
+
+      // Get public URL
+      const { data: { publicUrl } } = supabase.storage
+        .from('avatars')
+        .getPublicUrl(filePath);
+
+      onPhotoUploaded(publicUrl);
+      
+      toast({
+        title: "Photo uploaded successfully",
+        description: "Your profile photo has been updated.",
+      });
+
+    } catch (error) {
+      toast({
+        title: "Error uploading photo",
+        description: "Please try again.",
+        variant: "destructive",
+      });
+      console.error('Error uploading photo:', error);
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  return (
+    <div className="space-y-4">
+      <Label>Profile Photo</Label>
+      <div className="flex flex-col items-center gap-4">
+        <Avatar className="h-24 w-24">
+          <AvatarImage src={preview || ''} />
+          <AvatarFallback>
+            {preview ? '...' : 'Add'}
+          </AvatarFallback>
+        </Avatar>
+        <div className="flex items-center gap-2">
+          <Input
+            type="file"
+            accept="image/*"
+            onChange={handleFileUpload}
+            disabled={uploading}
+            className="max-w-[200px]"
+          />
+          {uploading && <span>Uploading...</span>}
+        </div>
+      </div>
+    </div>
+  );
+};
