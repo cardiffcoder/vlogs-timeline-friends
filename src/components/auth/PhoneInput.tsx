@@ -1,5 +1,6 @@
 import React from "react";
 import { Input } from "@/components/ui/input";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 interface PhoneInputProps {
   phoneNumber: string;
@@ -8,27 +9,41 @@ interface PhoneInputProps {
 }
 
 export const PhoneInput = ({ phoneNumber, setPhoneNumber, isLoading }: PhoneInputProps) => {
+  const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    let value = e.target.value;
+    // Ensure it starts with +
+    if (value && !value.startsWith('+')) {
+      value = '+' + value;
+    }
+    setPhoneNumber(value);
+  };
+
   return (
-    <div>
-      <label htmlFor="phone" className="block text-sm font-medium text-gray-200 mb-2">
-        Phone Number (Test Mode)
+    <div className="space-y-2">
+      <label htmlFor="phone" className="block text-sm font-medium text-gray-200">
+        Phone Number
       </label>
       <Input
         id="phone"
         type="tel"
-        placeholder="+15555555555"
         value={phoneNumber}
-        onChange={(e) => setPhoneNumber(e.target.value)}
+        onChange={handlePhoneChange}
         className="w-full"
+        placeholder="+1234567890"
         disabled={isLoading}
+        required
       />
-      <div className="text-sm text-gray-400 mt-1 space-y-1">
-        <p>For testing, use one of these formats:</p>
-        <ul className="list-disc list-inside">
-          <li>US/Canada: +15555555555</li>
-          <li>UK: +447777777777</li>
-        </ul>
-      </div>
+      <Alert>
+        <AlertDescription>
+          <p className="text-sm">For testing, use a real phone number format:</p>
+          <ul className="list-disc list-inside mt-1 text-sm">
+            <li>US/Canada: +12025550123</li>
+            <li>UK: +447911123456</li>
+            <li>Must start with + and country code</li>
+            <li>No spaces or special characters</li>
+          </ul>
+        </AlertDescription>
+      </Alert>
     </div>
   );
 };

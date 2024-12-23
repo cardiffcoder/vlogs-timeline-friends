@@ -35,6 +35,11 @@ const Login = () => {
     return () => subscription.unsubscribe();
   }, [navigate]);
 
+  const validatePhoneNumber = (phone: string) => {
+    const phoneRegex = /^\+[1-9]\d{1,14}$/;
+    return phoneRegex.test(phone);
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -47,22 +52,47 @@ const Login = () => {
       return;
     }
 
-    // Ensure phone number is in E.164 format
-    const formattedPhone = phoneNumber.startsWith('+') ? phoneNumber : `+${phoneNumber}`;
+    if (!validatePhoneNumber(phoneNumber)) {
+      toast({
+        title: "Error",
+        description: "Please enter a valid phone number starting with + and country code",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (password.length < 6) {
+      toast({
+        title: "Error",
+        description: "Password must be at least 6 characters long",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setIsLoading(true);
 
     try {
       // First try to sign in
       const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
-        phone: formattedPhone,
+        phone: phoneNumber,
         password,
       });
 
       if (signInError) {
         // If sign in fails and we have a full name, try to sign up
         if (fullName) {
+          if (fullName.length < 2) {
+            toast({
+              title: "Error",
+              description: "Full name must be at least 2 characters long",
+              variant: "destructive",
+            });
+            return;
+          }
+
           const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
-            phone: formattedPhone,
+            phone: phoneNumber,
             password,
             options: {
               data: {
@@ -80,14 +110,13 @@ const Login = () => {
           } else if (signUpData.user) {
             toast({
               title: "Success",
-              description: "Account created successfully",
+              description: "Account created successfully! Please verify your phone number.",
             });
           }
         } else {
-          // If sign in fails and we don't have a full name, show error
           toast({
             title: "Error",
-            description: "Invalid credentials or user doesn't exist",
+            description: "Invalid credentials. If you're new, please provide your full name to sign up.",
             variant: "destructive",
           });
         }
@@ -114,7 +143,7 @@ const Login = () => {
       <div className="w-full max-w-md bg-black/50 p-8 rounded-lg backdrop-blur-sm border border-gray-800">
         <h1 className="text-3xl font-semibold text-vlogs-text mb-8 text-center">Vlogs</h1>
         
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-6">
           <PhoneInput
             phoneNumber={phoneNumber}
             setPhoneNumber={setPhoneNumber}
@@ -123,7 +152,7 @@ const Login = () => {
 
           <div>
             <label htmlFor="fullName" className="block text-sm font-medium text-gray-200 mb-2">
-              Full Name
+              Full Name (required for new accounts)
             </label>
             <Input
               id="fullName"
@@ -137,7 +166,7 @@ const Login = () => {
 
           <div>
             <label htmlFor="password" className="block text-sm font-medium text-gray-200 mb-2">
-              Password
+              Password (min 6 characters)
             </label>
             <Input
               id="password"
@@ -147,6 +176,7 @@ const Login = () => {
               placeholder="Enter your password"
               required
               disabled={isLoading}
+              minLength={6}
             />
           </div>
 
