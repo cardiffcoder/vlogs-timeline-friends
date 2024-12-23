@@ -5,6 +5,7 @@ import { Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { useEffect, useRef } from "react";
 
 interface VideoCardProps {
   id: number;
@@ -19,6 +20,28 @@ interface VideoCardProps {
 
 const VideoCard = ({ id, username, avatarUrl, videoUrl, timestamp, description, onDelete, userId }: VideoCardProps) => {
   const { toast } = useToast();
+  const videoRef = useRef<HTMLVideoElement>(null);
+
+  useEffect(() => {
+    const handlePlayback = async () => {
+      try {
+        if (videoRef.current) {
+          videoRef.current.muted = true;
+          await videoRef.current.load();
+          const playPromise = videoRef.current.play();
+          if (playPromise !== undefined) {
+            playPromise.catch(() => {
+              console.log("Autoplay prevented");
+            });
+          }
+        }
+      } catch (error) {
+        console.error("Video playback error:", error);
+      }
+    };
+
+    handlePlayback();
+  }, [videoUrl]);
 
   const getFormattedTime = (date: Date) => {
     const minutesAgo = Math.floor((new Date().getTime() - date.getTime()) / (1000 * 60));
@@ -36,14 +59,26 @@ const VideoCard = ({ id, username, avatarUrl, videoUrl, timestamp, description, 
 
   const handleDelete = async () => {
     try {
-      const { error } = await supabase
+      // Extract the file path from the video URL
+      const videoPath = videoUrl.split('/').pop();
+      if (!videoPath) throw new Error('Invalid video URL');
+
+      // Delete the video file from storage
+      const { error: storageError } = await supabase.storage
+        .from('videos')
+        .remove([`public/${videoPath}`]);
+
+      if (storageError) {
+        console.error('Storage deletion error:', storageError);
+      }
+
+      // Delete the database record
+      const { error: dbError } = await supabase
         .from('videos')
         .delete()
         .eq('id', id);
 
-      if (error) {
-        throw error;
-      }
+      if (dbError) throw dbError;
 
       toast({
         title: "Video deleted",
@@ -63,23 +98,33 @@ const VideoCard = ({ id, username, avatarUrl, videoUrl, timestamp, description, 
     }
   };
 
+  const handleVideoClick = () => {
+    if (videoRef.current) {
+      if (videoRef.current.paused) {
+        videoRef.current.play();
+      } else {
+        videoRef.current.pause();
+      }
+    }
+  };
+
   return (
     <Card className="relative w-full h-[calc(100vh-8rem)] mb-1 overflow-hidden animate-fadeIn bg-black border-none">
       <div className="relative w-full h-full">
         <video
+          ref={videoRef}
           className="w-full h-full object-cover"
           src={videoUrl}
-          controls
           playsInline
           loop
-          autoPlay
-          preload="metadata"
+          muted
+          preload="auto"
+          onClick={handleVideoClick}
+          poster={avatarUrl}
         />
         
-        {/* Overlay gradient for better text visibility */}
         <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent pointer-events-none" />
         
-        {/* User info overlay */}
         <div className="absolute bottom-8 left-4 right-4 z-10">
           <div className="flex items-center space-x-4">
             <div className="rounded-full p-[2px]" style={{ backgroundColor: '#E1F9FC' }}>

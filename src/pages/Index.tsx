@@ -2,7 +2,7 @@ import Header from "@/components/Header";
 import VideoCard from "@/components/VideoCard";
 import AddVideoButton from "@/components/AddVideoButton";
 import { useState, useEffect } from "react";
-import { supabase } from "@/lib/supabaseClient";
+import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
 import { useNavigate } from "react-router-dom";
 
@@ -14,7 +14,6 @@ const Index = () => {
   useEffect(() => {
     fetchVideos();
 
-    // Set up real-time subscription
     const channel = supabase
       .channel('videos-changes')
       .on(
@@ -24,14 +23,13 @@ const Index = () => {
           schema: 'public',
           table: 'videos'
         },
-        () => {
-          // Refresh videos when any change occurs
+        (payload) => {
+          console.log('Real-time update:', payload);
           fetchVideos();
         }
       )
       .subscribe();
 
-    // Cleanup subscription on component unmount
     return () => {
       supabase.removeChannel(channel);
     };
@@ -44,7 +42,7 @@ const Index = () => {
       const { data, error } = await supabase
         .from('videos')
         .select('*, profiles:user_id(id)')
-        .order('created_at', { ascending: false });
+        .order('created_at', { ascending: false }); // Sort by created_at in descending order
 
       if (error) {
         throw error;
@@ -85,7 +83,6 @@ const Index = () => {
 
       if (profileError) throw profileError;
 
-      // Upload video file to Supabase Storage
       const videoFile = await fetch(newVideoData.videoUrl).then(r => r.blob());
       const videoFileName = `${Date.now()}-video`;
       
@@ -95,12 +92,10 @@ const Index = () => {
 
       if (videoError) throw videoError;
 
-      // Get public URL for the uploaded video
       const { data: { publicUrl: videoPublicUrl } } = supabase.storage
         .from('videos')
         .getPublicUrl(videoFileName);
 
-      // Save video metadata to the database
       const { error: dbError } = await supabase
         .from('videos')
         .insert([
@@ -116,7 +111,6 @@ const Index = () => {
 
       if (dbError) throw dbError;
 
-      // Refresh the videos list
       fetchVideos();
       
       toast({
