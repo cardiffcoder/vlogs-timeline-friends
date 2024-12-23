@@ -1,7 +1,7 @@
 import Header from "@/components/Header";
 import VideoCard from "@/components/VideoCard";
 import AddVideoButton from "@/components/AddVideoButton";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 const Index = () => {
   // Calculate timestamps relative to current time
@@ -47,7 +47,24 @@ const Index = () => {
     }
   ].sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime());
 
-  const [videos, setVideos] = useState(initialVideos);
+  const [videos, setVideos] = useState(() => {
+    // Try to load videos from localStorage on initial render
+    const savedVideos = localStorage.getItem('videos');
+    if (savedVideos) {
+      const parsedVideos = JSON.parse(savedVideos);
+      // Convert timestamp strings back to Date objects
+      return parsedVideos.map((video: any) => ({
+        ...video,
+        timestamp: new Date(video.timestamp)
+      }));
+    }
+    return initialVideos;
+  });
+
+  // Save videos to localStorage whenever they change
+  useEffect(() => {
+    localStorage.setItem('videos', JSON.stringify(videos));
+  }, [videos]);
 
   const handleAddVideo = (newVideoData: {
     username: string;
