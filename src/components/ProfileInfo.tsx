@@ -10,7 +10,7 @@ interface ProfileInfoProps {
 export const ProfileInfo = ({ username, avatarUrl, displayName }: ProfileInfoProps) => {
   return (
     <div className="flex items-center gap-2 pl-4 pb-4 scale-[1.2] origin-left">
-      <Avatar className="h-8 w-8 border border-white">
+      <Avatar className="h-8 w-8 border border-[#E1F9FC]">
         <AvatarImage src={avatarUrl} alt={username} className="object-cover" />
         <AvatarFallback>
           <User className="h-4 w-4" />
