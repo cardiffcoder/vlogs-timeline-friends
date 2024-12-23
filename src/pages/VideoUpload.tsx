@@ -18,14 +18,22 @@ export default function VideoUploadPage() {
         throw new Error('No session found');
       }
 
-      // Get user profile
+      // Get user profile with maybeSingle() instead of single()
       const { data: profileData, error: profileError } = await supabase
         .from('profiles')
         .select('*')
         .eq('user_id', session.user.id)
-        .single();
+        .maybeSingle();
 
-      if (profileError) throw profileError;
+      if (profileError) {
+        console.error('Profile fetch error:', profileError);
+        throw profileError;
+      }
+
+      if (!profileData) {
+        console.error('No profile found for user');
+        throw new Error('Profile not found. Please try logging out and back in.');
+      }
 
       // Ensure we have an avatar_url
       const avatarUrl = profileData.avatar_url || '/placeholder.svg';
