@@ -9,17 +9,21 @@ interface VideoContainerProps {
 const VideoContainer = ({ children, onVisibilityChange }: VideoContainerProps) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const [isVisible, setIsVisible] = useState(false);
+  const [hasBeenVisible, setHasBeenVisible] = useState(false);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
         const isIntersecting = entries[0].isIntersecting;
+        if (isIntersecting && !hasBeenVisible) {
+          setHasBeenVisible(true);
+        }
         setIsVisible(isIntersecting);
         onVisibilityChange(isIntersecting);
       },
       {
-        threshold: [0, 1],
-        rootMargin: '25% 0px',
+        threshold: 0.1,
+        rootMargin: '50% 0px',
       }
     );
 
@@ -28,12 +32,12 @@ const VideoContainer = ({ children, onVisibilityChange }: VideoContainerProps) =
     }
 
     return () => observer.disconnect();
-  }, [onVisibilityChange]);
+  }, [onVisibilityChange, hasBeenVisible]);
 
   return (
     <div ref={containerRef} className="relative w-full h-full">
       {children}
-      {!isVisible && <VideoLoadingIndicator />}
+      {!hasBeenVisible && <VideoLoadingIndicator />}
     </div>
   );
 };
