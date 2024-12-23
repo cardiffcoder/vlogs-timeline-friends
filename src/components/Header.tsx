@@ -3,12 +3,12 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 const Header = () => {
   // Mock data for stories with new photos
   const stories = [
-    { id: 1, username: "Sarah", avatarUrl: "/lovable-uploads/93be06b4-bf6e-44c3-b1de-5902e9267580.png", position: "object-[center_65%]" },
+    { id: 1, username: "Sarah", avatarUrl: "/lovable-uploads/35a1a878-d132-4beb-97aa-800874b72f57.png", position: "object-[center_45%] scale-110" },
     { id: 2, username: "Emily", avatarUrl: "/lovable-uploads/6482916c-eb0b-4cd4-a2ca-a63ed98839c6.png", position: "object-[center_60%] scale-125" },
-    { id: 3, username: "Sarah", avatarUrl: "/lovable-uploads/93be06b4-bf6e-44c3-b1de-5902e9267580.png", position: "object-[center_65%]" },
+    { id: 3, username: "Alex", avatarUrl: "/lovable-uploads/f8624281-c4d8-4e78-8b29-c0d8ef3ba36a.png", position: "object-[center_40%] scale-125" },
     { id: 4, username: "Eric", avatarUrl: "/lovable-uploads/d5bcff19-c702-4c27-8a44-33ea94a88911.png", position: "object-[center_45%] scale-125" },
-    { id: 5, username: "Sarah", avatarUrl: "/lovable-uploads/93be06b4-bf6e-44c3-b1de-5902e9267580.png", position: "object-[center_65%]" },
-    { id: 6, username: "Emily", avatarUrl: "/lovable-uploads/6482916c-eb0b-4cd4-a2ca-a63ed98839c6.png", position: "object-[center_60%] scale-125" },
+    { id: 5, username: "David", avatarUrl: "/lovable-uploads/fb204798-cabd-430c-9fe1-e0f7b6263477.png", position: "object-[center_50%] scale-125" },
+    { id: 6, username: "Kevin", avatarUrl: "/lovable-uploads/b3307dd0-2d1a-4ab8-9418-1043ab388ad4.png", position: "object-[center_45%] scale-110" },
   ];
 
   return (
