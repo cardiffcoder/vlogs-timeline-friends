@@ -29,6 +29,7 @@ export const VideoCard = ({
 }: VideoCardProps) => {
   const { toast } = useToast();
   const videoRef = useRef<HTMLVideoElement>(null);
+  const defaultAvatarUrl = "/lovable-uploads/dc3f5a45-fb4f-4499-a1ff-66f5113b9983.png";
 
   useEffect(() => {
     if (!videoRef.current) return;
@@ -96,6 +97,11 @@ export const VideoCard = ({
     }
   };
 
+  // Use the provided avatar URL or fall back to the default
+  const effectiveAvatarUrl = avatarUrl && avatarUrl !== '/placeholder.svg' 
+    ? avatarUrl 
+    : defaultAvatarUrl;
+
   return (
     <Card className="relative overflow-hidden rounded-lg -mx-4 sm:mx-0">
       <div className="aspect-[9/16] relative">
@@ -110,7 +116,7 @@ export const VideoCard = ({
         />
         <div className="absolute bottom-4 left-4 flex items-center gap-2 z-10">
           <Avatar className="h-10 w-10 border-2 border-white">
-            <AvatarImage src={avatarUrl} alt={displayName || username} />
+            <AvatarImage src={effectiveAvatarUrl} alt={displayName || username} />
             <AvatarFallback>{(displayName || username)[0]?.toUpperCase()}</AvatarFallback>
           </Avatar>
           <span className="text-white font-medium drop-shadow-lg">

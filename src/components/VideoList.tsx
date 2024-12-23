@@ -57,7 +57,7 @@ const VideoList = () => {
                 timestamp: new Date(video.created_at),
                 userId: video.profiles?.id,
                 displayName,
-                avatar_url: video.profiles?.avatar_url || video.avatar_url // Use profile's avatar_url if available
+                avatar_url: video.profiles?.avatar_url || video.avatar_url
               };
             }
             console.log("Video file not found in storage:", cleanPath);
@@ -144,7 +144,7 @@ const VideoList = () => {
           key={video.id}
           id={video.id}
           username={video.username}
-          avatarUrl={video.avatar_url} // Pass the avatar_url from the profile
+          avatarUrl={video.profiles?.avatar_url || video.avatar_url}
           videoUrl={video.video_url}
           description={video.description}
           displayName={video.displayName}
