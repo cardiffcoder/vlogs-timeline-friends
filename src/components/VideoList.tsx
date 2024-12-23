@@ -1,17 +1,27 @@
 import { VideoCard } from "@/components/VideoCard";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
 
-const VIDEOS_PER_PAGE = 5;
+const VIDEOS_PER_PAGE = 3; // Reduced from 5 to 3 for better initial load
 
 const VideoList = () => {
   const [videos, setVideos] = useState<any[]>([]);
   const [page, setPage] = useState(0);
+  const [isLoading, setIsLoading] = useState(false);
+  const [hasMore, setHasMore] = useState(true);
   const { toast } = useToast();
+  const loadingRef = useRef<HTMLDivElement>(null);
 
   const fetchVideos = async (pageNumber: number = 0) => {
+    if (isLoading || !hasMore) return;
+    
     try {
+      setIsLoading(true);
+      
+      const from = pageNumber * VIDEOS_PER_PAGE;
+      const to = from + VIDEOS_PER_PAGE - 1;
+      
       const { data, error } = await supabase
         .from('videos')
         .select(`
@@ -25,22 +35,20 @@ const VideoList = () => {
           )
         `)
         .order('created_at', { ascending: false })
-        .range(pageNumber * VIDEOS_PER_PAGE, (pageNumber + 1) * VIDEOS_PER_PAGE - 1);
+        .range(from, to);
 
       if (error) throw error;
 
       if (data) {
-        const processedVideos = data.map(video => {
-          const profile = video.profiles;
-          return {
-            ...video,
-            displayName: profile?.display_name || video.display_name || video.username,
-            avatarUrl: profile?.avatar_url || video.avatar_url || "/placeholder.svg",
-            authUserId: profile?.user_id,
-          };
-        });
+        const processedVideos = data.map(video => ({
+          ...video,
+          displayName: video.profiles?.display_name || video.display_name || video.username,
+          avatarUrl: video.profiles?.avatar_url || video.avatar_url || "/placeholder.svg",
+          authUserId: video.profiles?.user_id,
+        }));
         
         setVideos(prev => pageNumber === 0 ? processedVideos : [...prev, ...processedVideos]);
+        setHasMore(data.length === VIDEOS_PER_PAGE);
       }
     } catch (error) {
       console.error("Error fetching videos:", error);
@@ -49,6 +57,8 @@ const VideoList = () => {
         description: "There was a problem loading the videos.",
         variant: "destructive"
       });
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -57,18 +67,21 @@ const VideoList = () => {
   }, []);
 
   useEffect(() => {
-    const handleScroll = () => {
-      if (
-        window.innerHeight + document.documentElement.scrollTop
-        === document.documentElement.offsetHeight
-      ) {
-        setPage(prev => prev + 1);
-      }
-    };
+    const observer = new IntersectionObserver(
+      entries => {
+        if (entries[0].isIntersecting && !isLoading && hasMore) {
+          setPage(prev => prev + 1);
+        }
+      },
+      { threshold: 0.1 }
+    );
 
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
+    if (loadingRef.current) {
+      observer.observe(loadingRef.current);
+    }
+
+    return () => observer.disconnect();
+  }, [isLoading, hasMore]);
 
   useEffect(() => {
     if (page > 0) {
@@ -84,6 +97,7 @@ const VideoList = () => {
         { event: '*', schema: 'public', table: 'videos' },
         () => {
           setPage(0);
+          setHasMore(true);
           fetchVideos(0);
         }
       )
@@ -109,10 +123,18 @@ const VideoList = () => {
           displayName={video.displayName}
           onDelete={() => {
             setPage(0);
+            setHasMore(true);
             fetchVideos(0);
           }}
         />
       ))}
+      {hasMore && (
+        <div ref={loadingRef} className="w-full py-4 flex justify-center">
+          {isLoading && (
+            <div className="w-8 h-8 border-4 border-gray-400 border-t-transparent rounded-full animate-spin" />
+          )}
+        </div>
+      )}
     </div>
   );
 };
