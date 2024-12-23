@@ -63,14 +63,16 @@ export const ProfilePhotoUpload = ({ onPhotoUploaded, currentPhotoUrl }: Profile
     }
   };
 
+  const defaultAvatarUrl = "/lovable-uploads/dc3f5a45-fb4f-4499-a1ff-66f5113b9983.png";
+
   return (
     <div className="space-y-4">
       <Label>Profile Photo</Label>
       <div className="flex flex-col items-center gap-4">
         <Avatar className="h-24 w-24">
-          <AvatarImage src={preview || ''} />
+          <AvatarImage src={preview || defaultAvatarUrl} />
           <AvatarFallback>
-            {preview ? '...' : 'Add'}
+            <img src={defaultAvatarUrl} alt="Default profile" className="h-full w-full object-cover" />
           </AvatarFallback>
         </Avatar>
         <div className="flex items-center gap-2">
