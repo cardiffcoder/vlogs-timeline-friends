@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 import { ProfilePhotoUpload } from '@/components/ProfilePhotoUpload';
 
 export default function Login() {
@@ -16,7 +16,11 @@ export default function Login() {
   const { toast } = useToast();
 
   useEffect(() => {
-    setVlogName(`${name}'s 2025 Vlog`);
+    if (name.trim()) {
+      setVlogName(`${name}'s 2025 Vlog`);
+    } else {
+      setVlogName('');
+    }
   }, [name]);
 
   const handleSubmit = async (e: React.FormEvent) => {
