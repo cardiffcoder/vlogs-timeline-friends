@@ -13,7 +13,7 @@ const Header = () => {
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 bg-black/90 backdrop-blur-sm border-b border-gray-800">
-      <div className="px-4 pt-4 pb-8">
+      <div className="px-4 pt-8 pb-8">
         <div className="flex items-center mb-6">
           <h1 className="text-vlogs font-semibold font-poppins text-vlogs-text">Vlogs</h1>
         </div>
