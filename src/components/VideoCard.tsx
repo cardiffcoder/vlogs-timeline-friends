@@ -32,17 +32,19 @@ export const VideoCard = ({
     <div className="relative overflow-hidden -mx-4 sm:mx-0">
       <div className="aspect-[9/16] relative">
         <VideoPlayer ref={videoRef} videoUrl={videoUrl} />
-        <div className="absolute bottom-4 left-4 right-4 z-10 flex flex-col gap-1">
-          <ProfileInfo
-            username={username}
-            avatarUrl={avatarUrl}
-            displayName={displayName}
-          />
-          {description && (
-            <p className="text-white text-xs pl-5 mt-0.5 line-clamp-2 drop-shadow-lg font-mona-sans font-light italic">
-              {description}
-            </p>
-          )}
+        <div className="absolute bottom-4 left-4 right-4 z-10">
+          <div className="flex flex-col gap-0">
+            <ProfileInfo
+              username={username}
+              avatarUrl={avatarUrl}
+              displayName={displayName}
+            />
+            {description && (
+              <p className="text-white text-[10px] pl-4 -mt-1 line-clamp-2 drop-shadow-lg font-mona-sans font-light italic">
+                {description}
+              </p>
+            )}
+          </div>
           <div className="absolute right-0 bottom-0">
             <VideoActionsMenu
               videoId={id}
