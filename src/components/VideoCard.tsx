@@ -29,7 +29,7 @@ export const VideoCard = ({
 }: VideoCardProps) => {
   const { toast } = useToast();
   const videoRef = useRef<HTMLVideoElement>(null);
-  const defaultAvatarUrl = "/lovable-uploads/dc3f5a45-fb4f-4499-a1ff-66f5113b9983.png";
+  const defaultAvatarUrl = "/placeholder.svg";
 
   useEffect(() => {
     if (!videoRef.current) return;
@@ -97,9 +97,9 @@ export const VideoCard = ({
     }
   };
 
-  // Use avatarUrl if it exists, otherwise use default
+  // Use avatarUrl if it exists, otherwise use placeholder
   const finalAvatarUrl = avatarUrl || defaultAvatarUrl;
-  console.log("Final avatar URL:", finalAvatarUrl);
+  console.log("Video ID:", id, "Final avatar URL:", finalAvatarUrl);
 
   return (
     <Card className="relative overflow-hidden rounded-lg -mx-4 sm:mx-0">

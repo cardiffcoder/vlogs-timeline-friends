@@ -52,16 +52,17 @@ const VideoList = () => {
 
             if (exists && exists.length > 0) {
               const displayName = video.profiles?.display_name || video.profiles?.full_name || video.username;
-              // Prioritize profile avatar_url, then fall back to video's avatar_url
-              const avatarUrl = video.profiles?.avatar_url || null;
-              console.log("Profile avatar URL:", avatarUrl);
+              
+              // Get the avatar URL from either profiles or video, with proper fallback
+              const avatarUrl = video.profiles?.avatar_url || video.avatar_url || null;
+              console.log("Video ID:", video.id, "Avatar URL:", avatarUrl);
               
               return {
                 ...video,
                 timestamp: new Date(video.created_at),
                 userId: video.profiles?.id,
                 displayName,
-                avatarUrl // Pass avatarUrl separately to avoid confusion with video.avatar_url
+                avatarUrl
               };
             }
             console.log("Video file not found in storage:", cleanPath);
@@ -148,7 +149,7 @@ const VideoList = () => {
           key={video.id}
           id={video.id}
           username={video.username}
-          avatarUrl={video.avatarUrl} // Use the separately passed avatarUrl
+          avatarUrl={video.avatarUrl}
           videoUrl={video.video_url}
           description={video.description}
           displayName={video.displayName}
