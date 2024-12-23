@@ -33,7 +33,6 @@ const AddVideoButton = ({ onVideoAdd }: AddVideoProps) => {
         size: file.size 
       });
       
-      // Accept any video/* MIME type
       if (file.type.startsWith('video/') || file.type === 'video') {
         setSelectedVideo(file);
       } else {
@@ -61,11 +60,7 @@ const AddVideoButton = ({ onVideoAdd }: AddVideoProps) => {
     setIsUploading(true);
 
     try {
-      console.log('Starting upload for file:', {
-        name: selectedVideo.name,
-        type: selectedVideo.type,
-        size: selectedVideo.size
-      });
+      console.log('Starting upload process...');
 
       // Upload video to Supabase Storage
       const fileExt = selectedVideo.name.split('.').pop() || 'mp4';
@@ -75,9 +70,9 @@ const AddVideoButton = ({ onVideoAdd }: AddVideoProps) => {
       
       const { data: uploadData, error: uploadError } = await supabase.storage
         .from('videos')
-        .upload(fileName, selectedVideo, {
+        .upload(`public/${fileName}`, selectedVideo, {
           cacheControl: '3600',
-          contentType: selectedVideo.type || 'video/mp4'
+          upsert: false
         });
 
       if (uploadError) {
@@ -90,12 +85,12 @@ const AddVideoButton = ({ onVideoAdd }: AddVideoProps) => {
       // Get the public URL for the uploaded video
       const { data: { publicUrl } } = supabase.storage
         .from('videos')
-        .getPublicUrl(fileName);
+        .getPublicUrl(`public/${fileName}`);
 
       console.log('Generated public URL:', publicUrl);
 
       // Insert video metadata into the database
-      const { error: dbError } = await supabase
+      const { data: insertData, error: dbError } = await supabase
         .from('videos')
         .insert([
           {
@@ -104,12 +99,15 @@ const AddVideoButton = ({ onVideoAdd }: AddVideoProps) => {
             video_url: publicUrl,
             description: description,
           }
-        ]);
+        ])
+        .select();
 
       if (dbError) {
         console.error('Database insert error:', dbError);
         throw dbError;
       }
+
+      console.log('Database insert successful:', insertData);
 
       // Update UI
       onVideoAdd({
