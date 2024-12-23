@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
-import { toast } from "sonner";
+import { toast } from "@/hooks/use-toast";
 
 const Login = () => {
   const navigate = useNavigate();
@@ -61,24 +61,32 @@ const Login = () => {
       const formattedPhone = formatPhoneNumber(phoneNumber);
       
       if (!validatePhoneNumber(formattedPhone)) {
-        toast.error("Please enter a valid phone number in international format (e.g., +1234567890)");
+        toast({
+          title: "Invalid Phone Number",
+          description: "Please enter a valid phone number in international format (e.g., +1234567890)",
+          variant: "destructive",
+        });
         return;
       }
 
       const { error } = await supabase.auth.signInWithOtp({
         phone: formattedPhone,
-        options: {
-          channel: 'sms'
-        }
       });
 
       if (error) throw error;
 
       setShowOTP(true);
-      toast.success("OTP sent to your phone number!");
+      toast({
+        title: "Success",
+        description: "OTP sent to your phone number!",
+      });
     } catch (error: any) {
       console.error('Error sending OTP:', error);
-      toast.error(error.message || "Failed to send OTP");
+      toast({
+        title: "Error",
+        description: error.message || "Failed to send OTP",
+        variant: "destructive",
+      });
     } finally {
       setIsLoading(false);
     }
@@ -98,11 +106,18 @@ const Login = () => {
 
       if (error) throw error;
 
-      toast.success("Successfully logged in!");
+      toast({
+        title: "Success",
+        description: "Successfully logged in!",
+      });
       navigate("/");
     } catch (error: any) {
       console.error('Error verifying OTP:', error);
-      toast.error(error.message || "Failed to verify OTP");
+      toast({
+        title: "Error",
+        description: error.message || "Failed to verify OTP",
+        variant: "destructive",
+      });
     } finally {
       setIsLoading(false);
     }
