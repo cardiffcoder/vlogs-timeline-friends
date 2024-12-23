@@ -3,12 +3,12 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 const Header = () => {
   // Mock data for stories with real photos
   const stories = [
-    { id: 1, username: "Sarah", avatarUrl: "https://images.unsplash.com/photo-1649972904349-6e44c42644a7" },
+    { id: 1, username: "Sarah", avatarUrl: "/lovable-uploads/1c4a25d8-3363-43eb-895d-2a09777dd66c.png" },
     { id: 2, username: "Emily", avatarUrl: "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158" },
     { id: 3, username: "Team", avatarUrl: "https://images.unsplash.com/photo-1605810230434-7631ac76ec81" },
     { id: 4, username: "Studio", avatarUrl: "https://images.unsplash.com/photo-1518005020951-eccb494ad742" },
     { id: 5, username: "Work", avatarUrl: "https://images.unsplash.com/photo-1519389950473-47ba0277781c" },
-    { id: 6, username: "Sarah", avatarUrl: "https://images.unsplash.com/photo-1649972904349-6e44c42644a7" },
+    { id: 6, username: "Sarah", avatarUrl: "/lovable-uploads/1c4a25d8-3363-43eb-895d-2a09777dd66c.png" },
   ];
 
   return (
