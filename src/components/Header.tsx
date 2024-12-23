@@ -6,7 +6,7 @@ import { LogOut } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import VideoStoriesViewer from "./VideoStoriesViewer";
 import { format } from "date-fns";
-import { utcToZonedTime } from "date-fns-tz";
+import { toZonedTime } from "date-fns-tz";
 
 interface HeaderProps {
   onLogout: () => void;
@@ -20,6 +20,7 @@ interface Story {
   videoUrl?: string;
   videoThumbnail?: string;
   position?: string;
+  videos?: any[]; // Adding the missing videos property
 }
 
 const Header = ({ onLogout }: HeaderProps) => {
@@ -48,7 +49,7 @@ const Header = ({ onLogout }: HeaderProps) => {
   }, []);
 
   const fetchTodayVideos = async () => {
-    const pstDate = utcToZonedTime(new Date(), 'America/Los_Angeles');
+    const pstDate = toZonedTime(new Date(), 'America/Los_Angeles');
     const todayStart = new Date(pstDate);
     todayStart.setHours(0, 0, 0, 0);
     
