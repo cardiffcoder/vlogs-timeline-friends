@@ -1,57 +1,37 @@
+import { useNavigate } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 import Header from "@/components/Header";
 import VideoList from "@/components/VideoList";
 import AddVideoButton from "@/components/AddVideoButton";
-import { useEffect } from "react";
-import { supabase } from "@/integrations/supabase/client";
-import { useToast } from "@/components/ui/use-toast";
-import { useNavigate } from "react-router-dom";
 
 const Index = () => {
-  const { toast } = useToast();
   const navigate = useNavigate();
-
-  useEffect(() => {
-    checkUser();
-    
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
-      if (!session) {
-        navigate('/login');
-      }
-    });
-
-    return () => subscription.unsubscribe();
-  }, [navigate]);
-
-  const checkUser = async () => {
-    try {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) {
-        navigate('/login');
-        return;
-      }
-    } catch (error) {
-      console.error('Error checking auth status:', error);
-      navigate('/login');
-    }
-  };
+  const { toast } = useToast();
 
   const handleLogout = async () => {
-    const { error } = await supabase.auth.signOut();
-    if (error) {
+    try {
+      const { error } = await supabase.auth.signOut();
+      if (error) throw error;
+      
       toast({
-        title: "Error signing out",
-        description: error.message,
-        variant: "destructive"
+        title: "Logged out successfully",
+        description: "Come back soon!",
       });
-    } else {
-      navigate("/login");
+      
+      navigate('/login');
+    } catch (error) {
+      console.error('Error:', error);
+      toast({
+        title: "Error logging out",
+        description: error instanceof Error ? error.message : "Please try again.",
+        variant: "destructive",
+      });
     }
   };
 
   const handleAddVideo = () => {
-    navigate('/photo-upload');
+    navigate('/video-upload');
   };
 
   return (

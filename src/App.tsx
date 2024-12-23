@@ -8,6 +8,7 @@ import { supabase } from "@/integrations/supabase/client";
 import Index from "./pages/Index";
 import Login from "./pages/Login";
 import PhotoUpload from "./pages/PhotoUpload";
+import VideoUpload from "./pages/VideoUpload";
 
 const queryClient = new QueryClient();
 
@@ -49,6 +50,11 @@ const App = () => (
           <Route path="/photo-upload" element={
             <ProtectedRoute>
               <PhotoUpload />
+            </ProtectedRoute>
+          } />
+          <Route path="/video-upload" element={
+            <ProtectedRoute>
+              <VideoUpload />
             </ProtectedRoute>
           } />
           <Route path="/" element={
