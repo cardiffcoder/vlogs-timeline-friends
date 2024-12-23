@@ -16,24 +16,66 @@ const Login = () => {
     setIsLoading(true);
 
     try {
-      const { error } = await supabase.auth.signInWithPassword({
+      // First try to sign up the user
+      const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
         phone: phoneNumber,
         password: password,
+        options: {
+          data: {
+            full_name: fullName,
+          },
+        },
       });
 
-      if (error) {
-        toast({
-          title: "Error",
-          description: error.message,
-          variant: "destructive",
-        });
-      } else {
-        toast({
-          title: "Success",
-          description: "Successfully logged in!",
-        });
-        navigate("/");
+      if (signUpError) {
+        // If sign up fails because user exists, try to sign in
+        if (signUpError.message.includes("already registered")) {
+          const { error: signInError } = await supabase.auth.signInWithPassword({
+            phone: phoneNumber,
+            password: password,
+          });
+
+          if (signInError) {
+            toast({
+              title: "Error",
+              description: "Invalid login credentials",
+              variant: "destructive",
+            });
+            return;
+          }
+        } else {
+          toast({
+            title: "Error",
+            description: signUpError.message,
+            variant: "destructive",
+          });
+          return;
+        }
+      } else if (signUpData.user) {
+        // If sign up successful, create profile
+        const { error: profileError } = await supabase
+          .from('profiles')
+          .insert([
+            {
+              user_id: signUpData.user.id,
+              full_name: fullName,
+            }
+          ]);
+
+        if (profileError) {
+          toast({
+            title: "Warning",
+            description: "Account created but failed to save profile information",
+            variant: "destructive",
+          });
+        }
       }
+
+      toast({
+        title: "Success",
+        description: "Successfully logged in!",
+      });
+      navigate("/");
     } catch (error: any) {
       toast({
         title: "Error",
@@ -67,7 +109,7 @@ const Login = () => {
             className="w-full bg-vlogs-primary text-white py-2 px-4 rounded-md hover:bg-vlogs-primary/90 transition-colors disabled:opacity-50"
             disabled={isLoading}
           >
-            {isLoading ? "Logging in..." : "Login"}
+            {isLoading ? "Processing..." : "Continue"}
           </button>
         </form>
       </div>
