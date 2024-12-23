@@ -35,21 +35,29 @@ const StoriesBar = ({ stories, currentUser }: StoriesBarProps) => {
     return story.videos && story.videos.length > 0;
   });
 
+  // Sort stories to ensure current user is first
+  const sortedStories = validStories.sort((a, b) => {
+    if (a.username === currentUser?.username) return -1;
+    if (b.username === currentUser?.username) return 1;
+    return 0;
+  });
+
   return (
     <>
       <div className="flex space-x-6 overflow-x-auto pb-4 pr-4 scrollbar-hide scale-[1.2] origin-left mt-6">
-        {validStories.map((story) => {
+        {sortedStories.map((story) => {
           const firstVideo = story.videos?.[0];
+          const hasVideos = story.videos && story.videos.length > 0;
           return (
             <StoryAvatar
               key={story.id}
               username={story.username}
               displayName={story.displayName || story.username}
               avatarUrl={story.avatarUrl}
-              thumbnailUrl={firstVideo?.thumbnail_url}
+              thumbnailUrl={hasVideos ? firstVideo?.thumbnail_url : undefined}
               isCurrentUser={currentUser?.username === story.username}
               onClick={() => handleStoryClick(story)}
-              hasVideos={story.videos && story.videos.length > 0}
+              hasVideos={hasVideos}
             />
           );
         })}
