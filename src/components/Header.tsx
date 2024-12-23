@@ -18,7 +18,7 @@ const Header = () => {
           <h1 className="text-2xl font-semibold font-poppins text-vlogs-text">Vlogs</h1>
         </div>
         
-        <div className="flex space-x-6 overflow-x-auto pb-4 pr-4 scrollbar-hide scale-[1.2] origin-left mt-4">
+        <div className="flex space-x-6 overflow-x-auto pb-4 pr-4 scrollbar-hide scale-[1.2] origin-left mt-6">
           {stories.map((story) => (
             <div key={story.id} className="flex flex-col items-center scale-140 transform-gpu">
               <div className="rounded-full p-[2px]" style={{ backgroundColor: '#E1F9FC' }}>
