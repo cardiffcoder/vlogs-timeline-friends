@@ -1,4 +1,4 @@
-import { forwardRef, useEffect, useState } from 'react';
+import { forwardRef, useEffect } from 'react';
 import VideoContainer from './VideoContainer';
 
 interface VideoPlayerProps {
@@ -6,14 +6,11 @@ interface VideoPlayerProps {
 }
 
 const VideoPlayer = forwardRef<HTMLVideoElement, VideoPlayerProps>(({ videoUrl }, ref) => {
-  const [isLoading, setIsLoading] = useState(true);
-
   const handleVisibilityChange = (isVisible: boolean) => {
     const videoElement = ref as React.RefObject<HTMLVideoElement>;
     if (!videoElement.current) return;
 
     if (isVisible) {
-      videoElement.current.preload = 'metadata';
       const playPromise = videoElement.current.play();
       if (playPromise !== undefined) {
         playPromise.catch(error => {
@@ -23,10 +20,6 @@ const VideoPlayer = forwardRef<HTMLVideoElement, VideoPlayerProps>(({ videoUrl }
     } else {
       videoElement.current.pause();
     }
-  };
-
-  const handleLoadedData = () => {
-    setIsLoading(false);
   };
 
   useEffect(() => {
@@ -46,9 +39,8 @@ const VideoPlayer = forwardRef<HTMLVideoElement, VideoPlayerProps>(({ videoUrl }
         playsInline
         loop
         muted={false}
-        preload="metadata"
+        preload="auto"
         poster={videoUrl + '?poster=1'}
-        onLoadedData={handleLoadedData}
       >
         <source src={videoUrl} type="video/mp4" />
       </video>

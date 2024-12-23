@@ -28,6 +28,20 @@ export const VideoUpload = ({ onVideoUploaded }: VideoUploadProps) => {
         throw new Error('File size must be less than 100MB');
       }
 
+      // Create video element to check duration
+      const videoElement = document.createElement('video');
+      const durationPromise = new Promise((resolve, reject) => {
+        videoElement.onloadedmetadata = () => resolve(videoElement.duration);
+        videoElement.onerror = () => reject('Error loading video');
+      });
+
+      videoElement.src = URL.createObjectURL(file);
+      const duration = await durationPromise;
+
+      if (Number(duration) > 10) {
+        throw new Error('Video must be 10 seconds or shorter');
+      }
+
       // Check authentication status
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) {
@@ -39,14 +53,6 @@ export const VideoUpload = ({ onVideoUploaded }: VideoUploadProps) => {
       const fileName = `${Math.random()}.${fileExt}`;
       const filePath = `${fileName}`;
 
-      console.log('Starting video upload:', {
-        bucket: 'videos',
-        path: filePath,
-        fileType: file.type,
-        size: file.size,
-        userId: session.user.id
-      });
-
       const { error: uploadError, data } = await supabase.storage
         .from('videos')
         .upload(filePath, file, {
@@ -55,18 +61,14 @@ export const VideoUpload = ({ onVideoUploaded }: VideoUploadProps) => {
         });
 
       if (uploadError) {
-        console.error('Upload error:', uploadError);
         throw uploadError;
       }
-
-      console.log('Upload successful:', data);
 
       // Get public URL
       const { data: { publicUrl } } = supabase.storage
         .from('videos')
         .getPublicUrl(filePath);
 
-      console.log('Public URL generated:', publicUrl);
       onVideoUploaded(publicUrl);
       
       toast({
@@ -88,7 +90,7 @@ export const VideoUpload = ({ onVideoUploaded }: VideoUploadProps) => {
 
   return (
     <div className="space-y-4">
-      <Label>Upload Video</Label>
+      <Label>Upload Video (10 seconds or less)</Label>
       <div className="flex flex-col items-center gap-4">
         <div className="relative w-full max-w-sm">
           <input
