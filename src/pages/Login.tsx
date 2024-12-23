@@ -14,7 +14,6 @@ const Login = () => {
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
-    // Check if user is already logged in
     const checkUser = async () => {
       const { data: { session } } = await supabase.auth.getSession();
       if (session) {
@@ -24,7 +23,6 @@ const Login = () => {
 
     checkUser();
 
-    // Listen for auth state changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (_event, session) => {
         if (session) {
@@ -37,10 +35,8 @@ const Login = () => {
   }, [navigate]);
 
   const formatPhoneNumber = (phone: string) => {
-    // Remove any non-digit characters except +
     const cleaned = phone.replace(/[^\d+]/g, '');
     
-    // If it doesn't start with +, add it
     if (!cleaned.startsWith('+')) {
       return `+${cleaned}`;
     }
@@ -48,7 +44,6 @@ const Login = () => {
   };
 
   const validatePhoneNumber = (phone: string) => {
-    // Basic validation: should start with + and have at least 10 digits
     const phoneRegex = /^\+\d{10,15}$/;
     return phoneRegex.test(phone);
   };
@@ -69,9 +64,16 @@ const Login = () => {
         return;
       }
 
-      const { error } = await supabase.auth.signInWithOtp({
+      console.log("Sending OTP to:", formattedPhone); // Debug log
+
+      const { data, error } = await supabase.auth.signInWithOtp({
         phone: formattedPhone,
+        options: {
+          channel: 'sms'
+        }
       });
+
+      console.log("SignInWithOtp response:", { data, error }); // Debug log
 
       if (error) throw error;
 
@@ -81,7 +83,7 @@ const Login = () => {
         description: "OTP sent to your phone number!",
       });
     } catch (error: any) {
-      console.error('Error sending OTP:', error);
+      console.error('Error sending OTP:', error); // Debug log
       toast({
         title: "Error",
         description: error.message || "Failed to send OTP",
@@ -98,11 +100,15 @@ const Login = () => {
     
     try {
       const formattedPhone = formatPhoneNumber(phoneNumber);
-      const { error } = await supabase.auth.verifyOtp({
+      console.log("Verifying OTP for:", formattedPhone, "OTP:", otp); // Debug log
+
+      const { data, error } = await supabase.auth.verifyOtp({
         phone: formattedPhone,
         token: otp,
         type: 'sms'
       });
+
+      console.log("VerifyOtp response:", { data, error }); // Debug log
 
       if (error) throw error;
 
@@ -112,7 +118,7 @@ const Login = () => {
       });
       navigate("/");
     } catch (error: any) {
-      console.error('Error verifying OTP:', error);
+      console.error('Error verifying OTP:', error); // Debug log
       toast({
         title: "Error",
         description: error.message || "Failed to verify OTP",
