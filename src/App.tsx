@@ -13,37 +13,47 @@ import VideoUpload from "./pages/VideoUpload";
 const queryClient = new QueryClient();
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
-  const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState(true);
-  const [hasProfile, setHasProfile] = useState<boolean | null>(null);
+  const [hasProfile, setHasProfile] = useState<boolean>(false);
 
   useEffect(() => {
     let mounted = true;
 
     const checkAuth = async () => {
       try {
+        console.log('Checking auth status...');
         const { data: { session }, error: sessionError } = await supabase.auth.getSession();
         
-        if (sessionError) throw sessionError;
-        
+        if (sessionError) {
+          console.error('Session error:', sessionError);
+          throw sessionError;
+        }
+
         if (!mounted) return;
         
-        setIsAuthenticated(!!session);
+        const isAuth = !!session;
+        console.log('Is authenticated:', isAuth);
+        setIsAuthenticated(isAuth);
 
         if (session?.user) {
+          console.log('Checking profile for user:', session.user.id);
           const { data: profile, error: profileError } = await supabase
             .from('profiles')
             .select('id, avatar_url')
             .eq('user_id', session.user.id)
             .maybeSingle();
 
-          if (profileError) throw profileError;
+          if (profileError) {
+            console.error('Profile error:', profileError);
+            throw profileError;
+          }
           
           if (!mounted) return;
           
-          setHasProfile(!!profile && !!profile.avatar_url);
-        } else {
-          setHasProfile(false);
+          const hasCompleteProfile = !!profile && !!profile.avatar_url;
+          console.log('Has complete profile:', hasCompleteProfile);
+          setHasProfile(hasCompleteProfile);
         }
       } catch (error) {
         console.error('Auth check error:', error);
@@ -52,6 +62,7 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
         setHasProfile(false);
       } finally {
         if (mounted) {
+          console.log('Setting loading to false');
           setIsLoading(false);
         }
       }
@@ -62,36 +73,48 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
       if (!mounted) return;
       
-      setIsAuthenticated(!!session);
+      const isAuth = !!session;
+      console.log('Auth state changed. Is authenticated:', isAuth);
+      setIsAuthenticated(isAuth);
       
       if (session?.user) {
         try {
+          console.log('Checking profile after auth change for user:', session.user.id);
           const { data: profile, error: profileError } = await supabase
             .from('profiles')
             .select('id, avatar_url')
             .eq('user_id', session.user.id)
             .maybeSingle();
 
-          if (profileError) throw profileError;
+          if (profileError) {
+            console.error('Profile error after auth change:', profileError);
+            throw profileError;
+          }
           
           if (!mounted) return;
           
-          setHasProfile(!!profile && !!profile.avatar_url);
+          const hasCompleteProfile = !!profile && !!profile.avatar_url;
+          console.log('Has complete profile after auth change:', hasCompleteProfile);
+          setHasProfile(hasCompleteProfile);
         } catch (error) {
-          console.error('Profile check error:', error);
+          console.error('Profile check error after auth change:', error);
           if (!mounted) return;
           setHasProfile(false);
         }
       } else {
-        setHasProfile(false);
+        if (mounted) {
+          setHasProfile(false);
+        }
       }
       
       if (mounted) {
+        console.log('Setting loading to false after auth change');
         setIsLoading(false);
       }
     });
 
     return () => {
+      console.log('Cleaning up auth effect');
       mounted = false;
       subscription.unsubscribe();
     };
@@ -104,13 +127,16 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   }
 
   if (!isAuthenticated) {
+    console.log('Not authenticated, redirecting to login');
     return <Navigate to="/login" replace />;
   }
 
   if (isAuthenticated && !hasProfile && window.location.pathname !== '/photo-upload') {
+    console.log('Authenticated but no profile, redirecting to photo upload');
     return <Navigate to="/photo-upload" replace />;
   }
 
+  console.log('Rendering protected content');
   return children;
 };
 
