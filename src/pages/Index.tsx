@@ -11,16 +11,17 @@ const Index = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
 
-  // Fetch videos from Supabase on component mount
   useEffect(() => {
     fetchVideos();
   }, []);
 
   const fetchVideos = async () => {
     try {
+      const { data: { user } } = await supabase.auth.getUser();
+      
       const { data, error } = await supabase
         .from('videos')
-        .select('*')
+        .select('*, profiles:user_id(id)')
         .order('created_at', { ascending: false });
 
       if (error) {
@@ -28,10 +29,11 @@ const Index = () => {
       }
 
       if (data) {
-        // Convert timestamp strings to Date objects
         const videosWithDates = data.map(video => ({
           ...video,
-          timestamp: new Date(video.created_at)
+          timestamp: new Date(video.created_at),
+          // Check if the video belongs to the current user
+          userId: video.profiles?.id
         }));
         setVideos(videosWithDates);
       }
@@ -51,6 +53,17 @@ const Index = () => {
     description: string;
   }) => {
     try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('No user found');
+
+      const { data: profileData, error: profileError } = await supabase
+        .from('profiles')
+        .select('id')
+        .eq('user_id', user.id)
+        .single();
+
+      if (profileError) throw profileError;
+
       // Upload video file to Supabase Storage
       const videoFile = await fetch(newVideoData.videoUrl).then(r => r.blob());
       const videoFileName = `${Date.now()}-video`;
@@ -75,7 +88,8 @@ const Index = () => {
             avatar_url: newVideoData.avatarUrl,
             video_url: videoPublicUrl,
             description: newVideoData.description,
-            created_at: new Date().toISOString()
+            created_at: new Date().toISOString(),
+            user_id: profileData.id
           }
         ]);
 
@@ -88,7 +102,7 @@ const Index = () => {
         title: "Video added successfully!",
         description: "Your video has been added to the feed.",
       });
-    } catch (error) {
+    } catch (error: any) {
       toast({
         title: "Error adding video",
         description: "There was a problem uploading your video.",
@@ -118,11 +132,14 @@ const Index = () => {
           {videos.map((video) => (
             <VideoCard
               key={video.id}
+              id={video.id}
               username={video.username}
               avatarUrl={video.avatar_url}
               videoUrl={video.video_url}
               timestamp={video.timestamp}
               description={video.description}
+              userId={video.userId}
+              onDelete={fetchVideos}
             />
           ))}
         </div>
