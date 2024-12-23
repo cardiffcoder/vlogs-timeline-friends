@@ -27,17 +27,23 @@ export default function VideoUploadPage() {
 
       if (profileError) throw profileError;
 
+      // Ensure we have an avatar_url
+      const avatarUrl = profileData.avatar_url || '/placeholder.svg';
+
       // Insert video
       const { error: videoError } = await supabase
         .from('videos')
         .insert({
           username: profileData.username,
-          avatar_url: profileData.avatar_url,
+          avatar_url: avatarUrl,
           video_url: url,
           user_id: profileData.id
         });
 
-      if (videoError) throw videoError;
+      if (videoError) {
+        console.error('Video insert error:', videoError);
+        throw videoError;
+      }
 
       toast({
         title: "Video uploaded successfully",
