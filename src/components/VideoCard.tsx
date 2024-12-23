@@ -26,7 +26,7 @@ const VideoCard = ({ id, username, avatarUrl, videoUrl, timestamp, description, 
     const handlePlayback = async () => {
       try {
         if (videoRef.current) {
-          videoRef.current.muted = true;
+          videoRef.current.muted = false; // Changed from true to false
           await videoRef.current.load();
           const playPromise = videoRef.current.play();
           if (playPromise !== undefined) {
@@ -117,7 +117,7 @@ const VideoCard = ({ id, username, avatarUrl, videoUrl, timestamp, description, 
           src={videoUrl}
           playsInline
           loop
-          muted
+          muted={false} // Changed from muted to muted={false}
           preload="auto"
           onClick={handleVideoClick}
           poster={avatarUrl}
