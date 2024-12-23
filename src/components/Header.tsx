@@ -23,7 +23,7 @@ const Header = () => {
             <div key={story.id} className="flex flex-col items-center">
               <div className="p-[2px] rounded-full bg-[#E1F9FC]">
                 <Avatar className="h-14 w-14 ring-2 ring-black">
-                  <AvatarImage src={story.avatarUrl} alt={story.username} />
+                  <AvatarImage src={story.avatarUrl} alt={story.username} className="object-cover" />
                   <AvatarFallback>{story.username[0]}</AvatarFallback>
                 </Avatar>
               </div>
