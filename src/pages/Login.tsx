@@ -78,7 +78,7 @@ export default function Login() {
         className="absolute inset-0 z-0"
         style={{
           backgroundImage: 'url("/lovable-uploads/3717075d-709b-41b3-905a-8d1d59e76824.png")',
-          backgroundSize: '100% 100%',
+          backgroundSize: 'contain',
           backgroundPosition: 'center',
           backgroundRepeat: 'no-repeat',
           opacity: 0.95,
