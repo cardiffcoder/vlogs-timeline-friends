@@ -74,6 +74,16 @@ export default function Login() {
 
   return (
     <div className="relative flex min-h-screen items-center justify-center bg-background p-4">
+      <div 
+        className="absolute inset-0 z-0"
+        style={{
+          backgroundImage: 'url("/lovable-uploads/3717075d-709b-41b3-905a-8d1d59e76824.png")',
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          opacity: 0.95,
+          transform: 'rotate(90deg)',
+        }}
+      />
       <div className="w-full max-w-md space-y-8 relative z-10">
         <div className="text-center">
           <h1 className="text-2xl font-bold">Start your vlog 🤳</h1>
