@@ -31,18 +31,15 @@ export const VideoCard = ({
 
   const handleDelete = async () => {
     try {
-      // Get video filename from URL
       const videoFileName = videoUrl.split('/').pop();
       if (!videoFileName) throw new Error('Invalid video URL');
 
-      // Delete from storage
       const { error: storageError } = await supabase.storage
         .from('videos')
         .remove([videoFileName]);
 
       if (storageError) throw storageError;
 
-      // Delete from database
       const { error: dbError } = await supabase
         .from('videos')
         .delete()
@@ -72,10 +69,9 @@ export const VideoCard = ({
         <video
           src={videoUrl}
           className="absolute inset-0 h-full w-full object-cover"
-          controls
           playsInline
           autoPlay
-          muted={false}
+          muted
           loop
         />
         <div className="absolute bottom-4 left-4 flex items-center gap-2 z-10">
