@@ -17,7 +17,7 @@ const Login = () => {
 
     try {
       // First try to sign in
-      const { error: signInError } = await supabase.auth.signInWithPassword({
+      const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
         phone: phoneNumber,
         password: password,
       });
@@ -66,8 +66,9 @@ const Login = () => {
 
             toast({
               title: "Success",
-              description: "Account created successfully! You can now log in.",
+              description: "Account created successfully!",
             });
+            navigate("/");
           }
         } else {
           toast({
@@ -77,15 +78,14 @@ const Login = () => {
           });
           return;
         }
-      } else {
+      } else if (signInData.user) {
         // Sign in successful
         toast({
           title: "Success",
           description: "Successfully logged in!",
         });
+        navigate("/");
       }
-      
-      navigate("/");
     } catch (error: any) {
       toast({
         title: "Error",
