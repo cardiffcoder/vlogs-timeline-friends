@@ -69,15 +69,17 @@ export const ProfilePhotoUpload = ({ onPhotoUploaded, currentPhotoUrl }: Profile
     <div className="space-y-4">
       <Label>Profile Photo</Label>
       <div className="flex flex-col items-center gap-4">
-        <Avatar className="h-24 w-24 relative">
-          <AvatarImage src={preview || defaultAvatarUrl} />
-          <AvatarFallback>
-            <div className="relative w-full h-full">
+        <div className="relative h-24 w-24">
+          <Avatar className="h-full w-full">
+            <AvatarImage src={preview || defaultAvatarUrl} />
+            <AvatarFallback>
               <img src={defaultAvatarUrl} alt="Default profile" className="h-full w-full object-cover" />
-              <div className="absolute inset-0 bg-black/20 backdrop-blur-[2px]" />
-            </div>
-          </AvatarFallback>
-        </Avatar>
+            </AvatarFallback>
+          </Avatar>
+          {!preview && (
+            <div className="absolute inset-0 bg-black/30 backdrop-blur-[1px] rounded-full" />
+          )}
+        </div>
         <div className="flex items-center gap-2">
           <div className="relative">
             <input
