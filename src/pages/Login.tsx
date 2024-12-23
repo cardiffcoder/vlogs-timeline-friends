@@ -28,12 +28,26 @@ export default function Login() {
       setLoading(true);
       console.log("Starting authentication process...");
       
-      // Generate a random email and password for anonymous auth
-      const email = `${crypto.randomUUID()}@anonymous.com`;
-      const password = crypto.randomUUID();
-      
       if (showSignUp) {
-        // Create a new user account
+        // Check if a user with this name already exists
+        const { data: existingProfiles } = await supabase
+          .from('profiles')
+          .select('full_name')
+          .eq('full_name', name);
+
+        if (existingProfiles && existingProfiles.length > 0) {
+          toast({
+            title: "Name already taken",
+            description: "Please choose a different name or log in instead",
+            variant: "destructive",
+          });
+          return;
+        }
+
+        // Generate a random email and password for anonymous auth
+        const email = `${crypto.randomUUID()}@anonymous.com`;
+        const password = crypto.randomUUID();
+        
         const { data: { user }, error: signUpError } = await supabase.auth.signUp({
           email,
           password,
@@ -69,39 +83,44 @@ export default function Login() {
         });
       } else {
         // Login flow - find user by name
-        const { data: profiles, error: profileError } = await supabase
+        const { data: profile, error: profileError } = await supabase
           .from('profiles')
-          .select('user_id')
+          .select('user_id, full_name')
           .eq('full_name', name)
           .single();
 
-        if (profileError || !profiles) {
-          throw new Error('User not found');
+        if (profileError || !profile) {
+          toast({
+            title: "User not found",
+            description: "No account found with that name. Please sign up instead.",
+            variant: "destructive",
+          });
+          return;
         }
 
-        // Sign in with the found user's credentials
-        const { error: signInError } = await supabase.auth.signInWithPassword({
-          email,
-          password,
+        // Since we found the profile, we can proceed with login
+        const { data: { session }, error: signInError } = await supabase.auth.signInWithPassword({
+          email: `${profile.user_id}@anonymous.com`,
+          password: profile.user_id, // Using user_id as password for simplicity
         });
 
         if (signInError) {
-          throw signInError;
+          console.error("Login error:", signInError);
+          toast({
+            title: "Login failed",
+            description: "Please try again",
+            variant: "destructive",
+          });
+          return;
         }
 
-        toast({
-          title: "Welcome back!",
-          description: "Successfully logged in",
-        });
-      }
-      
-      // Only navigate after confirming the user is actually logged in
-      const { data: { session } } = await supabase.auth.getSession();
-      if (session) {
-        console.log("Session confirmed, navigating to home");
-        navigate('/');
-      } else {
-        throw new Error('Failed to create session');
+        if (session) {
+          toast({
+            title: "Welcome back!",
+            description: `Successfully logged in as ${profile.full_name}`,
+          });
+          navigate('/');
+        }
       }
     } catch (error) {
       console.error('Error:', error);
