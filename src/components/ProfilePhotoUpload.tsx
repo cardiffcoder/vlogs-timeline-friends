@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
@@ -75,13 +74,18 @@ export const ProfilePhotoUpload = ({ onPhotoUploaded, currentPhotoUrl }: Profile
           </AvatarFallback>
         </Avatar>
         <div className="flex items-center gap-2">
-          <Input
-            type="file"
-            accept="image/*"
-            onChange={handleFileUpload}
-            disabled={uploading}
-            className="max-w-[200px]"
-          />
+          <div className="relative">
+            <input
+              type="file"
+              accept="image/*"
+              onChange={handleFileUpload}
+              disabled={uploading}
+              className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+            />
+            <Button variant="secondary" disabled={uploading}>
+              Choose Pic
+            </Button>
+          </div>
           {uploading && <span>Uploading...</span>}
         </div>
       </div>
