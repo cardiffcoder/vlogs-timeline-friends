@@ -2,83 +2,97 @@ import Header from "@/components/Header";
 import VideoCard from "@/components/VideoCard";
 import AddVideoButton from "@/components/AddVideoButton";
 import { useState, useEffect } from "react";
+import { supabase } from "@/lib/supabaseClient";
+import { useToast } from "@/components/ui/use-toast";
 
 const Index = () => {
-  // Calculate timestamps relative to current time
-  const now = new Date();
-  const sixHoursAgo = new Date(now.getTime() - (6 * 60 * 60 * 1000));
-  const thirteenMinutesAgo = new Date(now.getTime() - (13 * 60 * 1000));
-  const twoHoursAgo = new Date(now.getTime() - (2 * 60 * 60 * 1000));
-  const fortyMinutesAgo = new Date(now.getTime() - (40 * 60 * 1000));
+  const [videos, setVideos] = useState<any[]>([]);
+  const { toast } = useToast();
 
-  // Initial videos data
-  const initialVideos = [
-    {
-      id: 1,
-      username: "TEJES",
-      avatarUrl: "/lovable-uploads/f8624281-c4d8-4e78-8b29-c0d8ef3ba36a.png",
-      videoUrl: "/lovable-uploads/6d7ec786-9bb0-45e9-9913-6dd8a840be78.png",
-      timestamp: sixHoursAgo,
-      description: "Late night vibes with the crew 🌙",
-    },
-    {
-      id: 2,
-      username: "DJ Night",
-      avatarUrl: "/lovable-uploads/e9bb3af1-e43b-419b-aa6a-6c6ead12f135.png",
-      videoUrl: "/lovable-uploads/6ebbc63d-8b76-4e1d-8616-79b60d3b6e0b.png",
-      timestamp: thirteenMinutesAgo,
-      description: "DJ set going crazy tonight! 🎵",
-    },
-    {
-      id: 3,
-      username: "Party Crew",
-      avatarUrl: "/lovable-uploads/f8624281-c4d8-4e78-8b29-c0d8ef3ba36a.png",
-      videoUrl: "/lovable-uploads/966e87bb-1566-4898-8d09-fab8ddcfc3c2.png",
-      timestamp: twoHoursAgo,
-      description: "Club nights are the best nights 🎉",
-    },
-    {
-      id: 4,
-      username: "Night Out",
-      avatarUrl: "/lovable-uploads/d5bcff19-c702-4c27-8a44-33ea94a88911.png",
-      videoUrl: "/lovable-uploads/8599db0c-4111-4d04-b006-70c9bd937545.png",
-      timestamp: fortyMinutesAgo,
-      description: "After party scenes 🌃",
-    }
-  ].sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime());
-
-  const [videos, setVideos] = useState(() => {
-    // Try to load videos from localStorage on initial render
-    const savedVideos = localStorage.getItem('videos');
-    if (savedVideos) {
-      const parsedVideos = JSON.parse(savedVideos);
-      // Convert timestamp strings back to Date objects
-      return parsedVideos.map((video: any) => ({
-        ...video,
-        timestamp: new Date(video.timestamp)
-      }));
-    }
-    return initialVideos;
-  });
-
-  // Save videos to localStorage whenever they change
+  // Fetch videos from Supabase on component mount
   useEffect(() => {
-    localStorage.setItem('videos', JSON.stringify(videos));
-  }, [videos]);
+    fetchVideos();
+  }, []);
 
-  const handleAddVideo = (newVideoData: {
+  const fetchVideos = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('videos')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (error) {
+        throw error;
+      }
+
+      if (data) {
+        // Convert timestamp strings to Date objects
+        const videosWithDates = data.map(video => ({
+          ...video,
+          timestamp: new Date(video.created_at)
+        }));
+        setVideos(videosWithDates);
+      }
+    } catch (error) {
+      toast({
+        title: "Error fetching videos",
+        description: "There was a problem loading the videos.",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const handleAddVideo = async (newVideoData: {
     username: string;
     avatarUrl: string;
     videoUrl: string;
     description: string;
   }) => {
-    const newVideo = {
-      ...newVideoData,
-      id: videos.length + 1,
-      timestamp: new Date(),
-    };
+    try {
+      // Upload video file to Supabase Storage
+      const videoFile = await fetch(newVideoData.videoUrl).then(r => r.blob());
+      const videoFileName = `${Date.now()}-video`;
+      
+      const { data: videoData, error: videoError } = await supabase.storage
+        .from('videos')
+        .upload(videoFileName, videoFile);
 
-    setVideos([newVideo, ...videos]);
+      if (videoError) throw videoError;
+
+      // Get public URL for the uploaded video
+      const { data: { publicUrl: videoPublicUrl } } = supabase.storage
+        .from('videos')
+        .getPublicUrl(videoFileName);
+
+      // Save video metadata to the database
+      const { error: dbError } = await supabase
+        .from('videos')
+        .insert([
+          {
+            username: newVideoData.username,
+            avatar_url: newVideoData.avatarUrl,
+            video_url: videoPublicUrl,
+            description: newVideoData.description,
+            created_at: new Date().toISOString()
+          }
+        ]);
+
+      if (dbError) throw dbError;
+
+      // Refresh the videos list
+      fetchVideos();
+      
+      toast({
+        title: "Video added successfully!",
+        description: "Your video has been added to the feed.",
+      });
+    } catch (error) {
+      toast({
+        title: "Error adding video",
+        description: "There was a problem uploading your video.",
+        variant: "destructive"
+      });
+    }
   };
 
   return (
@@ -90,8 +104,8 @@ const Index = () => {
             <VideoCard
               key={video.id}
               username={video.username}
-              avatarUrl={video.avatarUrl}
-              videoUrl={video.videoUrl}
+              avatarUrl={video.avatar_url}
+              videoUrl={video.video_url}
               timestamp={video.timestamp}
               description={video.description}
             />
