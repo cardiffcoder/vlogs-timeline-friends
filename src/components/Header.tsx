@@ -1,6 +1,9 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { useScrollDirection } from "@/hooks/useScrollDirection";
 
 const Header = () => {
+  const isVisible = useScrollDirection();
+
   // Mock data for stories with new photos
   const stories = [
     { id: 1, username: "TEJES", avatarUrl: "/lovable-uploads/f8624281-c4d8-4e78-8b29-c0d8ef3ba36a.png", position: "object-[center_40%] scale-125" },
@@ -12,7 +15,9 @@ const Header = () => {
   ];
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 bg-black/90 backdrop-blur-sm border-b border-gray-800">
+    <header className={`fixed top-0 left-0 right-0 z-50 bg-black/90 backdrop-blur-sm border-b border-gray-800 transition-transform duration-300 ${
+      isVisible ? 'translate-y-0' : '-translate-y-full'
+    }`}>
       <div className="px-4 pt-4 pb-4">
         <div className="flex items-center mb-4">
           <h1 className="text-3xl font-semibold font-poppins text-vlogs-text">Vlogs</h1>
